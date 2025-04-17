@@ -529,7 +529,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
     public function getProfileAttribute(): string
     {
         if (empty($this->getFirstMediaUrl(self::COLLECTION_PROFILE_PICTURES))) {
-            return asset('images/hms-saas-logo.png');
+            return asset('images/user-avatar.png');
         }
 
         return $this->getFirstMediaUrl(self::COLLECTION_PROFILE_PICTURES);

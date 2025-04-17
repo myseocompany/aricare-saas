@@ -13,7 +13,7 @@ class SuperAdminSettingsTableSeeder extends Seeder
     public function run(): void
     {
         $files = [
-            'app_logo' => public_path('web/img/hms-saas-logo.png'),
+            'app_logo' => public_path('web/img/'),
             'favicon' => public_path('web/img/hms-saas-favicon.ico'),
         ];
 
