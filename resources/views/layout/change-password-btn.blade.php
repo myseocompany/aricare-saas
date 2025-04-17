@@ -10,7 +10,7 @@
         </svg>
         <span class="fi-dropdown-list-item-label flex-1 truncate text-start text-gray-700 dark:text-gray-200"
             style="">
-            Change Password
+            {{(__('messages.change_password.change_password'))}}
         </span>
     </button>
 </div>

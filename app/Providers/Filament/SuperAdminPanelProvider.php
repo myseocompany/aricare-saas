@@ -53,7 +53,7 @@ class SuperAdminPanelProvider extends PanelProvider
             ->renderHook(PanelsRenderHook::SCRIPTS_BEFORE, fn() => view('layout.scripts'))
             ->renderHook(PanelsRenderHook::FOOTER, fn() => view('layout.footer'))
             ->renderHook(PanelsRenderHook::SIDEBAR_NAV_START, fn() => view('layout.search-in-sidebar'))
-            // ->renderHook('panels::user-menu.after', fn() => Blade::render('@livewire(\'edit-profile\')'))
+            //  ->renderHook('panels::user-menu.after', fn() => Blade::render('@livewire(\'edit-profile\')'))
             // ->renderHook(PanelsRenderHook::USER_MENU_PROFILE_AFTER, fn() => view('layout.edit-profile-btn'))
             ->renderHook('panels::user-menu.after', fn() => Blade::render('@livewire(\'change-password\')'))
             ->renderHook(PanelsRenderHook::USER_MENU_PROFILE_AFTER, fn() => view('layout.change-password-btn'))
