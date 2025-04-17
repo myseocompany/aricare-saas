@@ -61,8 +61,7 @@ Route::middleware('xss', 'languageChangeName')->group(function () {
 
 Route::post('/change-language', [WebController::class, 'changeLanguage']);
 Route::post('/language-change-name', [WebController::class, 'languageChangeName']);
-Route::get(
-    'appointments/{email}/patient-detail',
+Route::get('appointments/{email}/patient-detail',
     [WebAppointmentController::class, 'getPatientDetails']
 )->name('appointment.patient.details');
 Route::get('appointment-doctors-list', [WebAppointmentController::class, 'getDoctors'])->name('appointment.doctor.list');

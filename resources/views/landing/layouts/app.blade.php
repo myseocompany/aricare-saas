@@ -2,7 +2,9 @@
 <html @if (App::getLocale() == 'ar') direction="rtl" dir="rtl" style="direction: rtl" @endif>
 
 <head>
+    <!-- landing app.blade -->
     <meta charset="UTF-8">
+    <myseo value="test">
     <title>@yield('title') | {{ getSuperAdminSettingKeyValue('app_name') }} </title>
     <meta name="csrf-token" content="{{ csrf_token() }}" />
     <meta name="google" content="notranslate">

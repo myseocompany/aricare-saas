@@ -2,6 +2,7 @@
 <html lang="en" @if (App::getLocale() == 'ar') direction="rtl" dir="rtl" style="direction: rtl" @endif>
 
 <head>
+    <!-- front.blade -->
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="title" content="{{ getAppName() }}">
