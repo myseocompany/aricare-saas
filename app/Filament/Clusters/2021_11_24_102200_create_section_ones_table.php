@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('section_ones', function (Blueprint $table) {
+        Schema::create('í', function (Blueprint $table) {
             $table->id();
             $table->string('text_main', 45);
             $table->text('text_secondary');
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('section_ones');
+        Schema::dropIfExists('í');
     }
 };
