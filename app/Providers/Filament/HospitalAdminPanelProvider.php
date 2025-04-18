@@ -58,7 +58,11 @@ class HospitalAdminPanelProvider extends PanelProvider
                     ->plugins(['dayGrid', 'timeGrid'])
                     ->config([])
             )
-            
+            ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label(fn() => Auth::user()->full_name)
+                    ->icon(fn() => Auth::user()->profile),
+            ])
             ->profile(EditProfile::class, isSimple: false)
             ->userMenuItems([
                 MenuItem::make()

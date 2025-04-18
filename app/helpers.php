@@ -32,6 +32,9 @@ use App\Models\SuperAdminCurrencySetting;
 use Illuminate\Contracts\Database\Query\Builder;
 use Filament\Notifications\Notification as FilamentNotification;
 use App\Filament\hospitalAdmin\Clusters\Settings\Resources\SidebarSettingResource;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+
 
 function regionCode($regionCode)
 {
@@ -138,8 +141,22 @@ function getSuperAdminAppLogoUrl()
         $appLogo = SuperAdminSetting::where('key', '=', 'app_logo')->first();
     }
 
-    return $appLogo->logo_url;
+    $logoUrl = $appLogo?->logo_url;
+
+    if (empty($logoUrl)) {
+        \Log::warning('SuperAdmin logo_url está vacío. Usando fallback.');
+        return asset('web/img/logo_ari.png');
+    }
+
+    try {
+        // Si es un path tipo 'logos/superadmin.png', puede estar en public o S3
+        return Storage::disk(config('filesystems.default'))->url($logoUrl);
+    } catch (\Throwable $e) {
+        \Log::error('Error al generar URL del logo: ' . $e->getMessage());
+        return asset('web/img/logo_ari.png');
+    }
 }
+
 
 function getLogoUrl()
 {

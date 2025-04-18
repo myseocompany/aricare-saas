@@ -12,6 +12,7 @@
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.0",
         "bezhansalleh/filament-language-switch": "^3.1",
+        "blade-ui-kit/blade-ui-kit": "^0.7.0",
         "filament/filament": "^3.2",
         "filament/spatie-laravel-media-library-plugin": "^3.2",
         "firebase/php-jwt": "^6.10",

@@ -41,8 +41,19 @@
                         <td class="header"
                             style="box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; position: relative; padding: 25px 0; text-align: center;">
                             <a href="{{ route('landing-home') }}">
-                                <img src="{{ getSuperAdminAppLogoUrl() }}" alt="{{ getSuperAdminAppName() }}"
-                                    class="h-5 xl:h-6 items-center object-cover" height="80px" width="80px" />
+                                {{-- Ingresado por MySEO --}}
+@php
+try {
+    $logoUrl = getSuperAdminAppLogoUrl();
+} catch (\Throwable $e) {
+    $logoUrl = asset('web/img/logo_ari.png'); 
+}
+@endphp
+{{-- FIN Ingresado por MySEO --}}
+ 
+                                    <img src="{{  $logoUrl  }}" alt="{{ getSuperAdminAppName() }}"
+                                        class="h-5 xl:h-6 items-center object-cover" height="80px" width="80px" />
+                                
                             </a>
                         </td>
                     </tr>
