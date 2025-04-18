@@ -13,7 +13,7 @@ class SettingsTableSeeder extends Seeder
     public function run(): void
     {
         $userTenantId = session('tenant_id', null);
-        $imageUrl = ('web/img/hms-saas-logo.png');
+        $imageUrl = ('web/img/logo_ari.png');
 
         Setting::create(['key' => 'app_name', 'value' => 'HMS',
             'tenant_id' => $userTenantId != null ? $userTenantId : null,

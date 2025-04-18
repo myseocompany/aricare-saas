@@ -1662,7 +1662,7 @@ CREATE TABLE `media` (
 --
 
 INSERT INTO `media` (`id`, `model_type`, `model_id`, `collection_name`, `name`, `file_name`, `mime_type`, `disk`, `size`, `manipulations`, `custom_properties`, `responsive_images`, `order_column`, `created_at`, `updated_at`, `conversions_disk`, `uuid`, `generated_conversions`) VALUES
-(1, 'App\\Models\\SuperAdminSetting', 31, 'super_admin_settings', 'hms-saas-logo', 'hms-saas-logo.png', 'image/png', 's3', 2349, '[]', '[]', '[]', 1, '2025-03-28 04:34:51', '2025-03-28 04:34:51', 's3', 'e13ecebb-7b73-4c49-a459-a0bad331bdaa', '[]'),
+(1, 'App\\Models\\SuperAdminSetting', 31, 'super_admin_settings', 'hms-saas-logo', 'logo_ari.png', 'image/png', 's3', 2349, '[]', '[]', '[]', 1, '2025-03-28 04:34:51', '2025-03-28 04:34:51', 's3', 'e13ecebb-7b73-4c49-a459-a0bad331bdaa', '[]'),
 (2, 'App\\Models\\SuperAdminSetting', 32, 'super_admin_settings', 'hms-saas-favicon', 'hms-saas-favicon.ico', 'image/vnd.microsoft.icon', 's3', 4958, '[]', '[]', '[]', 1, '2025-03-28 04:34:52', '2025-03-28 04:34:52', 's3', '74d19fa1-f393-4c44-9c40-23b1dd3c1b4b', '[]'),
 (3, 'App\\Models\\SectionOne', 1, 'section_one', 'section_one', 'section_one.png', 'image/png', 's3', 265302, '[]', '[]', '[]', 1, '2025-03-28 04:34:52', '2025-03-28 04:34:52', 's3', 'd7f84f7d-933f-40d0-b212-13e48bb18e66', '[]'),
 (4, 'App\\Models\\SectionTwo', 1, 'section_two_card_one_image', 'appointment_schedule', 'appointment_schedule.png', 'image/png', 's3', 80890, '[]', '[]', '[]', 1, '2025-03-28 04:34:53', '2025-03-28 04:34:53', 's3', '6f63d53c-524e-42f9-957d-55043ea92cce', '[]'),
@@ -3264,7 +3264,7 @@ INSERT INTO `settings` (`id`, `key`, `value`, `tenant_id`, `created_at`, `update
 (9, 'flutterwave_public_key', NULL, NULL, '2025-03-28 04:34:50', '2025-03-28 04:34:50'),
 (10, 'flutterwave_secret_key', NULL, NULL, '2025-03-28 04:34:50', '2025-03-28 04:34:50'),
 (11, 'app_name', 'HMS', NULL, '2025-03-28 04:34:51', '2025-03-28 04:34:51'),
-(12, 'app_logo', 'web/img/hms-saas-logo.png', NULL, '2025-03-28 04:34:51', '2025-03-28 04:34:51'),
+(12, 'app_logo', 'web/img/logo_ari.png', NULL, '2025-03-28 04:34:51', '2025-03-28 04:34:51'),
 (13, 'company_name', 'InfyOmLabs', NULL, '2025-03-28 04:34:51', '2025-03-28 04:34:51'),
 (14, 'current_currency', 'inr', NULL, '2025-03-28 04:34:51', '2025-03-28 04:34:51'),
 (15, 'hospital_address', '16/A saint Joseph Park', NULL, '2025-03-28 04:34:51', '2025-03-28 04:34:51'),
@@ -3480,7 +3480,7 @@ INSERT INTO `super_admin_settings` (`id`, `key`, `value`, `created_at`, `updated
 (28, 'flutterwave_key', NULL, '2025-03-28 04:34:50', '2025-03-28 04:34:50'),
 (29, 'flutterwave_secret', NULL, '2025-03-28 04:34:50', '2025-03-28 04:34:50'),
 (30, 'flutterwave_enable', '0', '2025-03-28 04:34:50', '2025-03-28 04:34:50'),
-(31, 'app_logo', 'https://hms-saas.nyc3.digitaloceanspaces.com/1/hms-saas-logo.png', '2025-03-28 04:34:51', '2025-03-28 04:34:52'),
+(31, 'app_logo', 'https://hms-saas.nyc3.digitaloceanspaces.com/1/logo_ari.png', '2025-03-28 04:34:51', '2025-03-28 04:34:52'),
 (32, 'favicon', 'https://hms-saas.nyc3.digitaloceanspaces.com/2/hms-saas-favicon.ico', '2025-03-28 04:34:52', '2025-03-28 04:34:52'),
 (33, 'app_name', 'InfyHMS', '2025-03-28 04:34:52', '2025-03-28 04:34:52'),
 (34, 'footer_text', 'Over past 10+ years of experience and skills in various technologies, we built great scalable products. Whatever technology we worked with, we just not build products for our clients but we a', '2025-03-28 04:34:57', '2025-03-28 04:34:57'),
