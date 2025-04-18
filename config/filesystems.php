@@ -36,7 +36,6 @@ return [
             'url' => env('APP_URL') . '/uploads',
             'throw' => false,
         ],
-        /* MYSEO
         'public' => [
             'driver' => 'local',
             'root' => public_path('uploads'),
@@ -44,13 +43,7 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
-        */
-        'public' => [
-            'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => env('APP_URL') . '/storage',
-            'visibility' => 'public',
-        ],
+
 
         'google_json_file' => [
             'driver' => 'local',
