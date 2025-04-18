@@ -19,7 +19,7 @@ return [
     'full_name' => 'Nombre completo',
     'email' => 'Correo electrónico',
     'password' => 'Clave',
-    'confirm_password' => 'confirmar Contraseña',
+    'confirm_password' => 'Confirmar Contraseña',
     'remember_me' => 'Recuérdame',
     'sign_in' => 'Iniciar sesión',
     'sign_out' => 'desconectar',

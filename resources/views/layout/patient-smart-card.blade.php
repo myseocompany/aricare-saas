@@ -31,7 +31,8 @@
                                         <div class="flex mb-4">
                                             <div class="rounded-full overflow-hidden"
                                                 style="margin-inline-end: 20px; width: 100px; height: 100px;">
-                                                
+                                                <img src={{ $record->user->profile == 'http://hms-saas-filament.test/images/hms-saas-logo.png' ? getUserImageInitial($record->id, $record->user->full_name) : $record->user->profile }}
+                                                    alt="" class="w-full h-full object-cover">
                                             </div>
                                             <div class="flex-1">
                                                 <table class="table-auto w-full text-left" style="margin-right:100px;">
