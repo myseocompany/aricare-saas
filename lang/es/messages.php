@@ -121,6 +121,8 @@ return [
     'old_patient' => 'Paciente anciano',
     'new_patient' => 'Paciente nuevo',
     'available_slot' => 'Espacio disponible',
+    'available_slots' => 'Espacios disponibles',
+    
     'contact_us' => 'Contáctenos',
     'live_meetings' => 'Reuniones en vivo',
     'hospital_schedule' => 'Horario del hospital',
