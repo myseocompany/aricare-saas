@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -97,4 +98,22 @@ class ScheduleDay extends Model
             'available_to' => $this->available_to ?? __('messages.common.n/a'),
         ];
     }
+
+    // app/Models/ScheduleDay.php
+
+    public static function getDayNameFromCarbon(Carbon $date): string
+    {
+        $daysMap = [
+            0 => 'Sunday',
+            1 => 'Monday',
+            2 => 'Tuesday',
+            3 => 'Wednesday',
+            4 => 'Thursday',
+            5 => 'Friday',
+            6 => 'Saturday',
+        ];
+
+        return $daysMap[$date->dayOfWeek];
+    }
+
 }

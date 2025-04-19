@@ -90,12 +90,13 @@ class SuperAdminSetting extends Model implements HasMedia
      */
     public function getLogoUrlAttribute()
     {
-        /** @var Media $media */
-        $media = $this->media->first();
-        if (! empty($media)) {
+        $media = $this->getFirstMedia(); // o $this->media->first() si usas la relación
+    
+        if (!empty($media) && $media->hasCustomProperty('uuid')) {
             return $media->getFullUrl();
         }
-
-        return $this->value;
+    
+        return $this->value ?? asset('default-logo.png'); // fallback visual
     }
+    
 }

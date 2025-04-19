@@ -3,7 +3,7 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-    <link rel="icon" href="{{ asset('web/img/hms-saas-favicon.ico') }}" type="image/png">
+    <link rel="icon" href="{{ asset('web/img/logo_ari.png') }}" type="image/png">
     <title>{{ __('messages.lunch_break.discharge_slip') }}</title>
     <link href="{{ asset('assets/css/bill-pdf.css') }}" rel="stylesheet" type="text/css" />
     @if (getCurrentCurrency() == 'inr')

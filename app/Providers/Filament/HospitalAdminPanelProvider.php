@@ -105,7 +105,7 @@ class HospitalAdminPanelProvider extends PanelProvider
                 'gray' => Color::Gray,
                 'secondary' => Color::Gray,
                 'info' => Color::Blue,
-                'primary' => Color::hex('#6571ff'),
+                'primary' => Color::hex('#FF1354'),
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
             ])

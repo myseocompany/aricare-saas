@@ -15,9 +15,9 @@ return new class extends Migration
             $table->bigIncrements('id');
             $table->unsignedBigInteger('doctor_id');
             $table->unsignedInteger('schedule_id');
-            $table->string('available_on');
-            $table->time('available_from');
-            $table->time('available_to');
+            $table->unsignedTinyInteger('available_on'); // Día como número del 1 al 7
+            $table->time('available_from')->nullable(); // Permite null
+            $table->time('available_to')->nullable();   // Permite null
             $table->timestamps();
 
             $table->foreign('doctor_id')->references('id')->on('doctors')

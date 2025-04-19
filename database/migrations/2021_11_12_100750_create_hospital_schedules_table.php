@@ -14,9 +14,10 @@ return new class extends Migration
         Schema::create('hospital_schedules', function (Blueprint $table) {
             $table->id();
             $table->string('day_of_week');
-            $table->string('start_time');
-            $table->string('end_time');
+            $table->string('start_time')->nullable();
+            $table->string('end_time')->nullable();
             $table->string('tenant_id')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
 
             $table->foreign('tenant_id')

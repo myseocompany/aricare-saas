@@ -3,7 +3,7 @@
 
     <head>
         <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
-        <link rel="icon" href="{{ asset('web/img/hms-saas-favicon.ico') }}" type="image/png">
+        <link rel="icon" href="{{ asset('web/img/logo_ari.png') }}" type="image/png">
         <title>{{ __('messages.bill.bill') }}</title>
         <style>
             * {

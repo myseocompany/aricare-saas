@@ -43,11 +43,20 @@ class DoctorAppointmentRelationTable extends Component implements HasTable, HasF
         // dd($data);
         return $data;
     }
+    public function getTableQuery()
+    {
+        $doctorId = Route::current()->parameter('record');
+
+        return Appointment::with(['doctor.doctorUser', 'patient.patientUser'])
+            ->where('doctor_id', $doctorId)
+            ->orderByDesc('id');
+    }
+
 
     public function table(Table $table): Table
     {
         return $table
-            ->query(Self::GetRecord())
+            ->query(Self::getTableQuery())
             ->paginated([10,25,50])
             ->columns([
                 SpatieMediaLibraryImageColumn::make('patient.patientUser.profile')

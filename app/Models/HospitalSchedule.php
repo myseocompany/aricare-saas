@@ -33,21 +33,14 @@ use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
  */
 class HospitalSchedule extends Model
 {
-    use BelongsToTenant, PopulateTenantID;
-    use HasFactory;
+    use BelongsToTenant, PopulateTenantID, HasFactory;
 
     const Mon = 1;
-
     const Tue = 2;
-
     const Wed = 3;
-
     const Thu = 4;
-
     const Fri = 5;
-
     const Sat = 6;
-
     const Sun = 7;
 
     const WEEKDAY = [
@@ -74,7 +67,74 @@ class HospitalSchedule extends Model
         'day_of_week',
         'start_time',
         'end_time',
+        'tenant_id', // por si acaso también se usa en mass assignment
+        'is_active', // ✅ este es el importante
     ];
 
     protected $table = 'hospital_schedules';
+
+
+    public static function getWeekdaysShort(): array
+    {
+        return __('messages.weekdays.short');
+    }
+
+    public static function getWeekdaysFull(): array
+    {
+        return __('messages.weekdays.full');
+    }
+
+    // Opcional: método para retornar nombre por día
+    public static function getFullDayName(int $day): string
+    {
+        return self::getWeekdaysFull()[$day] ?? '';
+    }
+
+    public static function getDayNumberFromName(string $dayName): ?int
+    {
+        // Normalize the input (e.g., "monday" => "Monday")
+        $dayName = ucfirst(strtolower($dayName));
+
+        $dayNumber = array_search($dayName, self::WEEKDAY_FULL_NAME);
+
+        return $dayNumber !== false ? $dayNumber : null;
+    }
+
+    public static function getDayNumberFromShortName(string $shortName): ?int
+    {
+        $shortName = strtoupper($shortName);
+
+        // Acceder solo a los índices numéricos del array de días
+        $shortWeekdays = __('messages.weekdays.short');
+
+        // Filtra solo los días que tienen índice numérico (1-7)
+        $numericDays = array_filter($shortWeekdays, fn($key) => is_int($key), ARRAY_FILTER_USE_KEY);
+
+        \Log::info("→ SHORT NAME:", [$shortName]);
+        \Log::info("→ NUMERIC DAYS:", [$numericDays]);
+
+        $dayNumber = array_search($shortName, $numericDays);
+
+        return $dayNumber !== false ? $dayNumber : null;
+    }
+
+    public static function getNumericShortWeekdays(): array
+    {
+        return array_filter(
+            __('messages.weekdays.short'),
+            fn($key) => is_int($key),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+    public static function getNumericFullWeekdays(): array
+    {
+        return array_filter(
+            __('messages.weekdays.full'),
+            fn($key) => is_int($key),
+            ARRAY_FILTER_USE_KEY
+        );
+    }
+
+
 }

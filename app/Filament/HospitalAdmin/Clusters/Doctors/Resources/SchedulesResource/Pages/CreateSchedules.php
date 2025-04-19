@@ -49,13 +49,25 @@ class CreateSchedules extends CreateRecord
     }
     protected function handleRecordCreation(array $input): Model
     {
-        $scheduleDay = [];
-        $schedule = Schedule::create($input);
-        foreach ($input['schedule'] as $data) {
-            $data['doctor_id'] = $input['doctor_id'];
-            $data['schedule_id'] = $schedule->id;
-            $scheduleDay = ScheduleDay::create($data);
+        $schedule = Schedule::create(Arr::except($input, ['schedule']));
+    
+        foreach ($input['schedule'] as $dayIndex => $data) {
+            $availableFrom = $data['available_from'] ?? null;
+            $availableTo = $data['available_to'] ?? null;
+    
+            // Verificamos que al menos uno de los dos campos no sea null (opcional)
+            if ($availableFrom || $availableTo) {
+                ScheduleDay::create([
+                    'doctor_id'      => $input['doctor_id'],
+                    'schedule_id'    => $schedule->id,
+                    'available_on'   => $data['available_on'], // debe ser numérico (1 al 7)
+                    'available_from' => $availableFrom,
+                    'available_to'   => $availableTo,
+                ]);
+            }
         }
+    
         return $schedule;
     }
+    
 }

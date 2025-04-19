@@ -16,6 +16,7 @@ use Filament\Pages\SubNavigationPosition;
 use Filament\Forms\Concerns\InteractsWithForms;
 use App\Filament\HospitalAdmin\Clusters\Settings;
 use App\Models\HospitalSchedule as HospitalScheduleModel;
+use Illuminate\Support\Facades\Log;
 
 class HospitalSchedule extends Page implements HasForms
 {
@@ -47,27 +48,30 @@ class HospitalSchedule extends Page implements HasForms
     }
 
     public function mount()
-    {
-        $tenantId = getLoggedInUser()->tenant_id;
-        $schedules = HospitalScheduleModel::where('tenant_id', $tenantId)->get();
-        $this->data = $schedules->toArray();
+{
+    $tenantId = getLoggedInUser()->tenant_id;
+    $schedules = HospitalScheduleModel::where('tenant_id', $tenantId)->get();
 
-        $defaultStartTimes = array_fill(1, 7, "00:00");
-        $defaultEndTimes = array_fill(1, 7, "23:45");
+    $defaultStartTimes = array_fill(1, 7, "00:00");
+    $defaultEndTimes = array_fill(1, 7, "23:45");
+    $defaultCheckboxes = array_fill(1, 7, false); // ← esto es clave
 
-        $startTimes = array_replace($defaultStartTimes, $schedules->pluck('start_time', 'day_of_week')->toArray());
-        $endTimes = array_replace($defaultEndTimes, $schedules->pluck('end_time', 'day_of_week')->toArray());
+    // Rellenar con valores de la BD si existen
+    $startTimes = array_replace($defaultStartTimes, $schedules->pluck('start_time', 'day_of_week')->toArray());
+    $endTimes = array_replace($defaultEndTimes, $schedules->pluck('end_time', 'day_of_week')->toArray());
+    $checkboxes = array_replace(
+        $defaultCheckboxes,
+        $schedules->pluck('is_active', 'day_of_week')->map(fn($v) => (bool)$v)->toArray()
+    );
 
-        $day_of_week = array_map(fn($key) => $schedules->where('day_of_week', $key)->isNotEmpty(), array_keys($defaultStartTimes));
+    // Preparamos el resultado para llenar el formulario
+    $this->form->fill([
+        'start_time' => $startTimes,
+        'end_time' => $endTimes,
+        'day_of_week' => $checkboxes,
+    ]);
+}
 
-        $result = [
-            'start_time' => $startTimes,
-            'end_time' => $endTimes,
-            'day_of_week' => $day_of_week,
-        ];
-
-        $this->form->fill($result);
-    }
 
 
     public function form(Form $form): Form
@@ -81,26 +85,74 @@ class HospitalSchedule extends Page implements HasForms
 
     public static function getFields()
     {
-        foreach (HospitalScheduleModel::WEEKDAY as $key => $value) {
-            $fields[] = Fieldset::make()->schema([
-                Checkbox::make('day_of_week.' . $key - 1)
-                    ->extraAttributes(['class' => 'h-7 w-7'])
-                    ->label($value),
-                Select::make('start_time.' . $key)
-                    ->label('')
-                    ->native(false)
-                    ->searchable()
-                    ->options(getSchedulesTimingSlot()),
-                Select::make('end_time.' . $key)
-                    ->label('')
-                    ->native(false)
-                    ->searchable()
-                    ->options(getSchedulesTimingSlot()),
-            ])->columns(3)->columnSpan(3)
-            ;
+        $fields = [];
+    
+        // Días completos en español
+        $dayLabels = [
+            1 => 'Lunes',
+            2 => 'Martes',
+            3 => 'Miércoles',
+            4 => 'Jueves',
+            5 => 'Viernes',
+            6 => 'Sábado',
+            7 => 'Domingo',
+        ];
+    
+        foreach ($dayLabels as $index => $label) {
+            $fields[] = \Filament\Forms\Components\Grid::make(7)
+                ->schema([
+                    // Día como texto
+                    \Filament\Forms\Components\Placeholder::make("label_$index")
+                        ->content($label)
+                        ->disableLabel()
+                        ->columnSpan(1),
+    
+                    // Desde
+                    Select::make("start_time.$index")
+                        ->label('')
+                        ->native(false)
+                        ->searchable()
+                        ->options(getSchedulesTimingSlot())
+                        ->columnSpan(2),
+    
+                    // Hasta
+                    Select::make("end_time.$index")
+                        ->label('')
+                        ->native(false)
+                        ->searchable()
+                        ->options(getSchedulesTimingSlot())
+                        ->columnSpan(2),
+    
+                    // Botón copiar
+                    $index > 1
+                        ? \Filament\Forms\Components\Actions::make([
+                            \Filament\Forms\Components\Actions\Action::make("copy_previous_$index")
+                                ->action(function (\Filament\Forms\Get $get, \Filament\Forms\Set $set) use ($index) {
+                                    $set("start_time.$index", $get("start_time." . ($index - 1)));
+                                    $set("end_time.$index", $get("end_time." . ($index - 1)));
+                                })
+                                ->iconButton()
+                                ->icon('heroicon-o-arrow-uturn-left')
+                                ->tooltip('Copiar horario anterior'),
+                        ])->columnSpan(1)
+                        : \Filament\Forms\Components\Placeholder::make("empty_$index")
+                            ->content('')
+                            ->disableLabel()
+                            ->columnSpan(1),
+    
+                    // Checkbox final (activo o no)
+                    Checkbox::make("day_of_week.$index")
+                        ->label('')
+                        ->extraAttributes(['class' => 'h-7 w-7'])
+                        ->columnSpan(1),
+                ])
+                ->columnSpanFull();
         }
+    
         return $fields;
     }
+    
+    
 
     public function getFormActions(): array
     {
@@ -126,63 +178,54 @@ class HospitalSchedule extends Page implements HasForms
     //         'slots' => $slots
     //     ];
     // }
-
     public function save()
     {
-        $this->data['day_of_week'] = array_values(
-            array_filter(
-                array_map(fn($value, $index) => $value === true ? $index + 1 : false, $this->data['day_of_week'], array_keys($this->data['day_of_week'])),
-                fn($value) => $value !== false
-            )
-        );
-
-        $this->data['start_time'] = array_map(fn($time) => $time ?? "00:00", $this->data['start_time']);
-        $this->data['end_time'] = array_map(fn($time) => $time ?? "23:45", $this->data['end_time']);
-
-        $input = Arr::only($this->data, ['day_of_week', 'start_time', 'end_time']);
-
-        $message = __('messages.flash.some_doctors');
-        // if (isset($input['day_of_week'])) {
-        //     $unCheckedDay = array_diff(array_keys(HospitalScheduleModel::WEEKDAY_FULL_NAME), $input['day_of_week']);
-        //     $getFullDayName = [];
-        //     foreach ($unCheckedDay as $item) {
-        //         $getFullDayName[] = HospitalScheduleModel::WEEKDAY_FULL_NAME[$item];
-        //     }
-        //     $scheduleDayExists = ScheduleDay::whereIn('available_on', $getFullDayName)->exists();
-        //     if ($scheduleDayExists) {
-        //         return Notification::make()
-        //             ->title($message)
-        //             ->danger()
-        //             ->send();
-        //     } else {
-        if (isset($input['day_of_week'])) {
-            $oldWeekDays = HospitalScheduleModel::pluck('day_of_week')->toArray();
-
-            foreach (array_diff($oldWeekDays, $input['day_of_week']) as $dayOfWeek) {
-                HospitalScheduleModel::whereDayOfWeek($dayOfWeek)->delete();
+        $tenantId = getLoggedInUser()->tenant_id;
+    
+        $this->data['start_time'] = $this->data['start_time'] ?? [];
+        $this->data['end_time'] = $this->data['end_time'] ?? [];
+        $this->data['day_of_week'] = $this->data['day_of_week'] ?? [];
+    
+        foreach (range(1, 7) as $day) {
+            $isActive = $this->data['day_of_week'][$day] ?? false;
+            $startTime = $this->data['start_time'][$day] ?? null;
+            $endTime = $this->data['end_time'][$day] ?? null;
+    
+            if ($isActive && $startTime && $endTime && strtotime($startTime) > strtotime($endTime)) {
+                return $this->sendError(HospitalScheduleModel::WEEKDAY[$day] . __('messages.new_change.time_invalid'));
             }
-
-            foreach ($input['day_of_week'] as $day) {
-                $startTime = $input['start_time'][$day];
-                $endTime = $input['end_time'][$day];
-                if (strtotime($startTime) > strtotime($endTime)) {
-                    return $this->sendError(HospitalScheduleModel::WEEKDAY[$day] . __('messages.new_change.time_invalid'));
-                }
-                HospitalScheduleModel::updateOrCreate(
-                    ['day_of_week' => $day],
-                    ['start_time' => $startTime, 'end_time' => $endTime]
-                );
+    
+            $schedule = HospitalScheduleModel::where('tenant_id', $tenantId)
+                ->where('day_of_week', $day)
+                ->first();
+    
+            if ($schedule) {
+                $schedule->update([
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'is_active' => $isActive,
+                ]);
+            } else {
+                HospitalScheduleModel::create([
+                    'tenant_id' => $tenantId,
+                    'day_of_week' => $day,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'is_active' => $isActive,
+                ]);
             }
-
-            Notification::make()
-                ->success()
-                ->title(__('messages.flash.hospital_schedule_saved'))
-                ->send();
-            $this->afterSave();
-            // }
-            // }
         }
+    
+        Notification::make()
+            ->success()
+            ->title(__('messages.flash.hospital_schedule_saved'))
+            ->send();
+    
+        $this->afterSave();
     }
+    
+    
+
     protected function afterSave()
     {
         $this->js('window.location.reload()');

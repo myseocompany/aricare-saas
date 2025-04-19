@@ -119,6 +119,9 @@ class Doctor extends Model implements HasMedia
         'specialist' => 'required',
         'image' => 'mimes:jpeg,png,jpg,gif,webp',
         'description' => 'nullable|string',
+        'appointment_charge' => 'nullable|numeric|min:0',
+
+
     ];
 
     public const GOOGLE_JSON_FILE_PATH = 'google_json_file';

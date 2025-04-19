@@ -38,7 +38,7 @@ class AuthPanelProvider extends PanelProvider
                 'gray' => Color::Gray,
                 'secondary' => Color::Gray,
                 'info' => Color::Blue,
-                'primary' => Color::hex('#6571ff'),
+                'primary' => Color::hex('#FF1354'),
                 'success' => Color::Emerald,
                 'warning' => Color::Orange,
                 'lime' => Color::Lime,
@@ -51,9 +51,9 @@ class AuthPanelProvider extends PanelProvider
                 (function () {
                     try {
                         \DB::connection()->getPdo();
-                        return SuperAdminSetting::where('key', 'favicon')->first()?->value ?? asset('web/img/hms-saas-favicon.ico');
+                        return SuperAdminSetting::where('key', 'favicon')->first()?->value ?? asset('web/img/logo_ari.png');
                     } catch (\Exception $e) {
-                        return asset('web/img/hms-saas-favicon.ico');
+                        return asset('web/img/logo_ari.png');
                     }
                 })()
             )

@@ -36,7 +36,10 @@ class ViewSchedulesTable extends Component implements HasForms, HasTable
         return $table
             ->query(Self::GetRecord())
             ->columns([
-                TextColumn::make('available_on'),
+                TextColumn::make('available_on')
+                    ->label(__('messages.schedule.available_on'))
+                    ->formatStateUsing(fn($state) => __('messages.weekdays.' . $state)) // <-- agrega esto
+                    ->searchable(),
                 TextColumn::make('available_from')
                     ->default(__('messages.common.n/a'))
                     ->formatStateUsing(fn($state) => date('H:i A', strtotime($state))),

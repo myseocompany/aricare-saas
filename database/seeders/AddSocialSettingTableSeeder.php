@@ -13,7 +13,7 @@ class AddSocialSettingTableSeeder extends Seeder
     public function run(): void
     {
         $userTenantId = session('tenant_id', null);
-        $favicon = ('web/img/hms-saas-favicon.ico');
+        $favicon = ('web/img/logo_ari.png');
 
         Setting::create(['key' => 'favicon', 'value' => $favicon,
             'tenant_id' => $userTenantId != null ? $userTenantId : null,

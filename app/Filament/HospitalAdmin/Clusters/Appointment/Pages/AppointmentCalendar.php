@@ -7,6 +7,7 @@ use App\Filament\HospitalAdmin\Clusters\Appointment\Widgets\AppoinmentCalenderWi
 use Filament\Pages\Page;
 use Filament\Pages\SubNavigationPosition;
 
+
 class AppointmentCalendar extends Page
 {
     protected static ?string $cluster = Appointment::class;

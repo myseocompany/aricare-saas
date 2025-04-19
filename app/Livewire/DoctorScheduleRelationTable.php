@@ -20,7 +20,7 @@ class DoctorScheduleRelationTable extends Component implements HasTable, HasForm
     use InteractsWithTable;
 
     public $record;
-    public function GetRecord()
+    public function GetRecordOld()
     {
         $id = Route::current()->parameter('record');
 
@@ -37,6 +37,19 @@ class DoctorScheduleRelationTable extends Component implements HasTable, HasForm
         return $data;
     }
 
+    public function GetRecord()
+    {
+        $id = Route::current()->parameter('record');
+        $doctor = Doctor::with('schedules')->findOrFail($id);
+        $schedule_ids = $doctor->schedules->pluck('id')->toArray();
+    
+        return ScheduleDay::query()
+            ->whereIn('schedule_id', $schedule_ids)
+            ->where('doctor_id', $doctor->id);
+    }
+    
+
+
     public function table(Table $table): Table
     {
         return $table
@@ -44,7 +57,9 @@ class DoctorScheduleRelationTable extends Component implements HasTable, HasForm
             ->columns([
                 TextColumn::make('available_on')
                     ->searchable()
-                    ->label(__('messages.schedule.available_on')),
+                    ->label(__('messages.schedule.available_on'))
+                    ->formatStateUsing(fn($state) => __('messages.weekdays.full.' . (int) $state)),
+
                 TextColumn::make('available_from')
                     ->label(__('messages.schedule.available_from'))
                     ->searchable()
@@ -81,5 +96,10 @@ class DoctorScheduleRelationTable extends Component implements HasTable, HasForm
     public function render()
     {
         return view('livewire.doctor-schedule-relation-table');
+    }
+    public function mount()
+    {
+        $id = Route::current()->parameter('record');
+        ///$this->doctor = Doctor::with('schedules.scheduleDays')->findOrFail($id);
     }
 }

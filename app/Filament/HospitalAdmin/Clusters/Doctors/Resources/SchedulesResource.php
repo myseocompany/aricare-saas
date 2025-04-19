@@ -2,12 +2,14 @@
 
 namespace App\Filament\HospitalAdmin\Clusters\Doctors\Resources;
 
-use Filament\Forms;
+
 use App\Models\User;
 use Filament\Tables;
 use App\Models\Doctor;
 use App\Models\Schedule;
+use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\Placeholder;
 use Filament\Tables\Table;
 use App\Models\HospitalSchedule;
 use Filament\Resources\Resource;
@@ -16,7 +18,8 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Model;
 use App\Repositories\ScheduleRepository;
 use Filament\Pages\SubNavigationPosition;
-use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+
 use App\Filament\HospitalAdmin\Clusters\Doctors;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\SchedulesResource\Pages;
@@ -81,277 +84,100 @@ class SchedulesResource extends Resource
         }
         return false;
     }
+
     public static function form(Form $form): Form
     {
-
+        $days = [
+            ['id' => 1, 'name' => 'Lunes', 'value' => 'Monday'],
+            ['id' => 2, 'name' => 'Martes', 'value' => 'Tuesday'],
+            ['id' => 3, 'name' => 'Miércoles', 'value' => 'Wednesday'],
+            ['id' => 4, 'name' => 'Jueves', 'value' => 'Thursday'],
+            ['id' => 5, 'name' => 'Viernes', 'value' => 'Friday'],
+            ['id' => 6, 'name' => 'Sábado', 'value' => 'Saturday'],
+            ['id' => 7, 'name' => 'Domingo', 'value' => 'Sunday'],
+        ];
+    
         $daysOfWeek = HospitalSchedule::pluck('day_of_week')->toArray();
-
-
+    
         return $form
             ->schema([
-                // Doctor and Per Patient Time Fields at the Top
-                Forms\Components\Grid::make(2)
-                    ->schema([
-                        Forms\Components\Select::make('doctor_id')
-                            ->label(__('messages.doctor_opd_charge.doctor') . ':')
-                            ->required()
-                            ->options(function ($operation) {
-
-                                $scheduleRepository = app(ScheduleRepository::class);
-                                $data = $scheduleRepository->getData($operation);
-
-                                return $data['doctors'];
-                            })
-                            ->native(false)
-                            ->searchable()
-                            ->preload()
-                            ->placeholder(__('messages.schedule.select_doctor_name'))
-                            ->columnSpan(2)
-                            ->validationMessages([
-                                'required' => __('messages.fields.the') . ' ' . __('messages.doctor_opd_charge.doctor') . ' ' . __('messages.fields.required'),
-                            ]), // First columnF
-
-                        Forms\Components\TimePicker::make('per_patient_time')
-                            ->label(__('messages.schedule.per_patient_time'))
-                            ->required()
-                            ->validationAttribute(__('messages.schedule.per_patient_time'))
-                            ->default('00:00:00')
-                            ->native(false)
-                            ->placeholder(__('messages.schedule.per_patient_time'))
-                            ->columnSpan(1), // Second column
-                    ])->columns(3),
-
-                // Days of the Week Form Layout
+                Forms\Components\Grid::make(2)->schema([
+                    Forms\Components\Select::make('doctor_id')
+                        ->label('Médico:')
+                        ->required()
+                        ->options(fn ($operation) => app(ScheduleRepository::class)->getData($operation)['doctors'])
+                        ->native(false)
+                        ->searchable()
+                        ->preload()
+                        ->placeholder('Seleccionar nombre del médico')
+                        ->validationMessages([
+                            'required' => 'El campo médico es obligatorio.',
+                        ])
+                        ->columnSpan(2),
+    
+                    Forms\Components\TimePicker::make('per_patient_time')
+                        ->label('Tiempo por paciente')
+                        ->required()
+                        ->default('00:00:00')
+                        ->native(false)
+                        ->columnSpan(1),
+                ])->columns(3),
+    
                 Forms\Components\Section::make('')
-                    ->schema([
-                        Forms\Components\Grid::make(7) // 5 columns: Available On, Available From, Available To, Action Button
-                            ->schema([
-                                // Monday
-                                Forms\Components\TextInput::make("schedule.0.available_on")
-                                    ->label(__('messages.schedule.available_on') . ':')
-                                    ->default('Monday')
-                                    ->readOnly()
+                    ->schema(
+                        collect($days)->map(function ($day, $i) use ($daysOfWeek) {
+                            return Forms\Components\Grid::make(7)->schema([
+                                // Día en texto
+                                Forms\Components\Placeholder::make("day_$i")
+                                    ->content($day['name'])
+                                    ->disableLabel()
                                     ->columnSpan(2),
-
-                                Forms\Components\TimePicker::make('schedule.0.available_from')
-                                    ->default('00:00:00')
+    
+                                Select::make("schedule.$i.available_from")
+                                    ->label('')
                                     ->native(false)
-                                    ->label(__('messages.schedule.available_from') . ':')
+                                    ->searchable()
+                                    ->options(getSchedulesTimingSlot())
+                                    ->disableLabel()
                                     ->columnSpan(2),
-
-                                Forms\Components\TimePicker::make('schedule.0.available_to')
-                                    ->label(__('messages.schedule.available_to') . ':')
-                                    ->default('00:00:00')
+                                
+                                Select::make("schedule.$i.available_to")
+                                    ->label('')
                                     ->native(false)
+                                    ->searchable()
+                                    ->options(getSchedulesTimingSlot())
+                                    ->disableLabel()
                                     ->columnSpan(2),
-
-                                Placeholder::make('')
-                                    ->label(__('messages.common.action')),
-                                // Action::make('copy')
-                                //     ->button()
-                                //     ->icon('heroicon-o-duplicate'),
-                                // Forms\Components\Button::make('monday_action')
-                                //     ->icon('heroicon-o-thumb-up')
-                                //     ->label(false)
-                                //     ->extraAttributes(['class' => 'bg-indigo-500 text-white rounded p-2'])
-                                //     ->columnSpan(1),
-                            ])->visible(fn(Forms\Get $get) =>  in_array('1', $daysOfWeek) == '1'),
-
-                        // Repeat for each other day (Tuesday to Sunday)
-                        Forms\Components\Grid::make(7)
-                            ->schema([
-                                // Tuesday
-                                Forms\Components\TextInput::make('schedule.1.available_on')
-                                    ->default('Tuesday')
-                                    ->label('')
-                                    ->readOnly()
-                                    ->columnSpan(2),
-
-                                Forms\Components\TimePicker::make('schedule.1.available_from')
-                                    ->label('')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->columnSpan(2),
-
-                                Forms\Components\TimePicker::make('schedule.1.available_to')
-                                    ->label('')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->columnSpan(2),
-
-                                Forms\Components\Actions::make([
-                                    Forms\Components\Actions\Action::make('copy_previous1')
-                                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                                            $set('schedule.1.available_from', str($get('schedule.0.available_from')));
-                                            $set('schedule.1.available_to', str($get('schedule.0.available_to')));
-                                        })
-                                        ->iconButton()
-                                        ->icon('fas-copy')
-                                        ->tooltip('copy-previous')
-
-                                ])->columnSpan(1),
-                                // Forms\Components\Button::make('tuesday_action')
-                                //     ->icon('heroicon-o-thumb-up')
-                                //     ->label(false)
-                                //     ->extraAttributes(['class' => 'bg-indigo-500 text-white rounded p-2'])
-                                //     ->columnSpan(1),
-                            ])->visible(fn(Forms\Get $get) =>  in_array('2', $daysOfWeek) == '2'),                        // Repeat the same for other days (Wednesday, Thursday, etc.)
-                        Forms\Components\Grid::make(7)
-                            ->schema([
-                                // Wednesday
-                                Forms\Components\TextInput::make('schedule.2.available_on')
-                                    ->default('Wednesday')
-                                    ->label('')
-                                    ->readOnly()
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.2.available_from')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.2.available_to')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\Actions::make([
-                                    Forms\Components\Actions\Action::make('copy_previous2')
-                                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                                            $set('schedule.2.available_from', str($get('schedule.1.available_from')));
-                                            $set('schedule.2.available_to', str($get('schedule.1.available_to')));
-                                        })
-                                        ->iconButton()
-                                        ->icon('fas-copy')
-                                        ->tooltip('copy-previous')
-                                ])->columnSpan(1),
-                            ])->visible(fn(Forms\Get $get) =>  in_array('3', $daysOfWeek) == '3'),
-
-                        Forms\Components\Grid::make(7)
-                            ->schema([
-                                // Thursday
-                                Forms\Components\TextInput::make('schedule.3.available_on')
-                                    ->default('Thursday')
-                                    ->label('')
-                                    ->readOnly()
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.3.available_from')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.3.available_to')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\Actions::make([
-                                    Forms\Components\Actions\Action::make('copy_previous3')
-                                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                                            $set('schedule.3.available_from', str($get('schedule.2.available_from')));
-                                            $set('schedule.3.available_to', str($get('schedule.2.available_to')));
-                                        })
-                                        ->iconButton()
-                                        ->icon('fas-copy')
-                                        ->tooltip('copy-previous')
-                                ])->columnSpan(1),
-                            ])->visible(fn(Forms\Get $get) =>  in_array('4', $daysOfWeek) == '4'),
-
-                        Forms\Components\Grid::make(7)
-                            ->schema([
-                                // Friday
-                                Forms\Components\TextInput::make('schedule.4.available_on')
-                                    ->default('Friday')
-                                    ->label('')
-                                    ->readOnly()
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.4.available_from')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.4.available_to')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\Actions::make([
-                                    Forms\Components\Actions\Action::make('copy_previous4')
-                                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                                            $set('schedule.4.available_from', str($get('schedule.3.available_from')));
-                                            $set('schedule.4.available_to', str($get('schedule.3.available_to')));
-                                        })
-                                        ->iconButton()
-                                        ->icon('fas-copy')
-                                        ->tooltip('copy-previous')
-
-                                ])->columnSpan(1),
-                            ])->visible(fn(Forms\Get $get) =>  in_array('5', $daysOfWeek) == '5'),
-
-                        Forms\Components\Grid::make(7)
-                            ->schema([
-                                // Saturday
-                                Forms\Components\TextInput::make('schedule.5.available_on')
-                                    ->default('Saturday')
-                                    ->label('')
-                                    ->readOnly()
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.5.available_from')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.5.available_to')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->label('')
-                                    ->columnSpan(2),
-                                Forms\Components\Actions::make([
-                                    Forms\Components\Actions\Action::make('copy_previous5')
-                                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                                            $set('schedule.5.available_from', str($get('schedule.4.available_from')));
-                                            $set('schedule.5.available_to', str($get('schedule.4.available_to')));
-                                        })
-                                        ->iconButton()
-                                        ->icon('fas-copy')
-                                        ->tooltip('copy-previous')
-
-                                ])->columnSpan(1),
-                            ])->visible(fn(Forms\Get $get) =>  in_array('6', $daysOfWeek) == '6'),
-
-                        Forms\Components\Grid::make(7)
-                            ->schema([
-                                // Sunday
-                                Forms\Components\TextInput::make('schedule.6.available_on')
-                                    ->default('Sunday')
-                                    ->label('')
-                                    ->readOnly()
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.6.available_from')
-                                    ->label('')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->columnSpan(2),
-                                Forms\Components\TimePicker::make('schedule.6.available_to')
-                                    ->label('')
-                                    ->default('00:00:00')
-                                    ->native(false)
-                                    ->columnSpan(2),
-                                Forms\Components\Actions::make([
-                                    Forms\Components\Actions\Action::make('copy_previous7')
-                                        ->action(function (Forms\Get $get, Forms\Set $set) {
-                                            $set('schedule.6.available_from', str($get('schedule.5.available_from')));
-                                            $set('schedule.6.available_to', str($get('schedule.5.available_to')));
-                                        })
-                                        ->iconButton()
-                                        ->icon('fas-copy')
-                                        ->tooltip('copy-previous')
-
-                                ])->columnSpan(1),
-                            ])->visible(fn(Forms\Get $get) =>  in_array('7', $daysOfWeek) == '7'),
-                    ])
-                    ->columns(1), // Ensures the section remains as one row per day
+                                    
+                                // Botón copiar
+                                $i > 0
+                                    ? Forms\Components\Actions::make([
+                                        Forms\Components\Actions\Action::make("copy_previous_$i")
+                                            ->action(function (Forms\Get $get, Forms\Set $set) use ($i) {
+                                                $set("schedule.$i.available_from", $get("schedule." . ($i - 1) . ".available_from"));
+                                                $set("schedule.$i.available_to", $get("schedule." . ($i - 1) . ".available_to"));
+                                            })
+                                            ->iconButton()
+                                            ->icon('heroicon-o-arrow-uturn-left')
+                                            ->tooltip('Copiar horario anterior'),
+                                    ])->columnSpan(1)
+                                    : Forms\Components\Placeholder::make("placeholder_$i")
+                                        ->content('')
+                                        ->disableLabel()
+                                        ->columnSpan(1),
+    
+                                Forms\Components\Hidden::make("schedule.$i.available_on")
+                                    ->default($day['id']),
+                            ])
+                            ->visible(fn (Forms\Get $get) => in_array($day['id'], $daysOfWeek));
+                        })->toArray()
+                    )
+                    ->columns(1),
             ]);
     }
+    
+
+
 
     public static function table(Table $table): Table
     {
@@ -429,4 +255,16 @@ class SchedulesResource extends Resource
             'edit' => Pages\EditSchedules::route('/{record}/edit'),
         ];
     }
+
+    function getSchedulesTimingSlot(): array {
+        $slots = [];
+        for ($hour = 0; $hour < 24; $hour++) {
+            for ($minute = 0; $minute < 60; $minute += 15) {
+                $time = sprintf('%02d:%02d', $hour, $minute);
+                $slots[$time] = $time;
+            }
+        }
+        return $slots;
+    }
+    
 }
