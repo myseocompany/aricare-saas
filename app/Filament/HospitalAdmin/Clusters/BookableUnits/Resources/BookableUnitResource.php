@@ -9,7 +9,6 @@ use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\SchedulesResource\Page
 use App\Models\BookableUnit;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Pages\Page as PagesPage;
 use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
@@ -23,11 +22,10 @@ class BookableUnitResource extends Resource
     protected static ?string $model = BookableUnit::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     protected static ?string $cluster = BookableUnits::class;
 
-
+    protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
     public static function form(Form $form): Form
     {
@@ -43,6 +41,7 @@ class BookableUnitResource extends Resource
                 Forms\Components\Toggle::make('is_available')
                     ->label(__('messages.bookable_units.fields.is_available'))
                     ->required(),
+                
             ]);
     }
 
@@ -53,21 +52,13 @@ class BookableUnitResource extends Resource
                 Tables\Columns\TextColumn::make('name')
                     ->label(__('messages.bookable_units.name'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('description')
-                    ->label(__('messages.bookable_units.description'))
-                    ->searchable(),
                 Tables\Columns\IconColumn::make('is_available')
-                    ->label(__('messages.bookable_units.fields.is_available'))
-                    ->boolean(),
+                ->label(__('messages.bookable_units.fields.is_available'))
+                ->boolean(),
+                Tables\Columns\TextColumn::make('description')
+                ->label(__('messages.bookable_units.description'))
+                ->searchable(),
                 
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
@@ -90,8 +81,6 @@ class BookableUnitResource extends Resource
         ];
     }
 
-
-
     public static function getPages(): array
     {
         return [
@@ -101,7 +90,6 @@ class BookableUnitResource extends Resource
             'edit' => Pages\EditBookableUnit::route('/{record}/edit'),
         ];
     }
-
     public static function getRecordSubNavigation(Page $page): array
     {
         return $page->generateNavigationItems([
@@ -111,9 +99,5 @@ class BookableUnitResource extends Resource
             CreateSchedules::class,
             
         ]);
-    }  
-    
-
-
-
+    }
 }

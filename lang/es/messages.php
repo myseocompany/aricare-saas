@@ -3110,6 +3110,8 @@ return [
             'is_available' => 'Está disponible',
         ],
     ],
+    'bookable_unit' => 'Unidad',
+    
 
     
     

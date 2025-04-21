@@ -13,5 +13,4 @@ class CreateBookableUnit extends CreateRecord
     {
         return __('messages.bookable_units.create');
     }
-
 }
