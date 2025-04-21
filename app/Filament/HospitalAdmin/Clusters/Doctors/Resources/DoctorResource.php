@@ -62,9 +62,10 @@ use Filament\Infolists\Components\Section as InfolistSection;
 use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\RelationManagers;
+use Filament\Resources\Pages\Page;
 
 class DoctorResource extends Resource
-{
+{   
     protected static ?string $model = Doctor::class;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;

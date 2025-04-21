@@ -5,15 +5,18 @@ namespace App\Filament\HospitalAdmin\Clusters\BookableUnits\Resources;
 use App\Filament\HospitalAdmin\Clusters\BookableUnits;
 use App\Filament\HospitalAdmin\Clusters\BookableUnits\Resources\BookableUnitResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\BookableUnits\Resources\BookableUnitResource\RelationManagers;
+use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\SchedulesResource\Pages\CreateSchedules;
 use App\Models\BookableUnit;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Pages\Page as PagesPage;
+use Filament\Pages\SubNavigationPosition;
+use Filament\Resources\Pages\Page;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Pages\SubNavigationPosition;
 
 class BookableUnitResource extends Resource
 {
@@ -24,18 +27,22 @@ class BookableUnitResource extends Resource
 
     protected static ?string $cluster = BookableUnits::class;
 
+
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label(__('messages.bookable_units.name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
+                    ->label(__('messages.bookable_units.description'))
                     ->columnSpanFull(),
                 Forms\Components\Toggle::make('is_available')
+                    ->label(__('messages.bookable_units.fields.is_available'))
                     ->required(),
-                
             ]);
     }
 
@@ -44,15 +51,29 @@ class BookableUnitResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label(__('messages.bookable_units.name'))
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label(__('messages.bookable_units.description'))
                     ->searchable(),
                 Tables\Columns\IconColumn::make('is_available')
+                    ->label(__('messages.bookable_units.fields.is_available'))
                     ->boolean(),
-
+                
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
@@ -69,31 +90,30 @@ class BookableUnitResource extends Resource
         ];
     }
 
+
+
     public static function getPages(): array
     {
         return [
             'index' => Pages\ListBookableUnits::route('/'),
             'create' => Pages\CreateBookableUnit::route('/create'),
+            'view' => Pages\ViewBookableUnit::route('/{record}'),
             'edit' => Pages\EditBookableUnit::route('/{record}/edit'),
         ];
     }
 
-    public static function getModelLabel(): string
+    public static function getRecordSubNavigation(Page $page): array
     {
-        return __('messages.bookable_units');
-    }
+        return $page->generateNavigationItems([
+            Pages\ListBookableUnits::class,
+            Pages\ViewBookableUnit::class,
+            Pages\EditBookableUnit::class,
+            CreateSchedules::class,
+            
+        ]);
+    }  
+    
 
-    public static function getPluralModelLabel(): string
-    {
-        return __('messages.bookable_units');
-    }
-    public static function getNavigationLabel(): string
-    {
-        return __('messages.bookable_units');
-    }
 
-    public static function getLabel(): string
-    {
-        return __('messages.bookable_units');
-    }
+
 }

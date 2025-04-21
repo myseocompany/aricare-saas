@@ -22,7 +22,7 @@ return [
     'pharmacists' => 'Farmacéuticos',
     'accountants' => 'Contadores',
     'appointments' => 'Citas',
-    'insurances' => 'Seguros',
+    'insurances' => 'Aseguradora',
     'investigation_reports' => 'Informes de investigación',
     'death_reports' => 'Informes de defunción',
     'birth_reports' => 'Informes de nacimiento',
@@ -1827,8 +1827,7 @@ return [
         'enter_a_new_password' => 'Ingrese una nueva contraseña',
         'confirm_your_new_password' => 'Confirma tu nueva contraseña',
     ],
-    'bookable_units' => 'Unidades',
-    'bookable_unit' => 'Unidade',
+
     'web_home' => [
         'home' => 'Hogar',
         'services' => 'Servicios',
@@ -3093,5 +3092,25 @@ return [
         'min_char' => 'La contraseña debe tener al menos 8 caracteres.',
         'confirm' => 'La confirmación de contraseña no coincide.',
     ],
+        //post keys
+    'bookable_units' => [
+        'label' => 'Unidades',
+        'singular' => 'Unidad',
+        'list' => 'Listar Unidades',
+        'view' => 'Ver Unidad',
+        'create' => 'Crear Unidad',
+        'edit' => 'Editar Unidad',
+        'create_schedules' => 'Crear Horarios',
+        'description' => 'Descripción',
+        'name' => 'Nombre',
+        
+        'fields' => [
+            'name' => 'Nombre',
+            'description' => 'Descripción',
+            'is_available' => 'Está disponible',
+        ],
+    ],
 
+    
+    
 ];

@@ -186,7 +186,7 @@ class InsuranceResource extends Resource
                             ->default(true),
 
                     ])->columns(2),
-
+                            /*
                 Repeater::make('disease_details')
                     ->live()
                     ->label(__('messages.insurance.disease_details'))
@@ -212,6 +212,7 @@ class InsuranceResource extends Resource
                     ->afterStateUpdated(function ($get, $set, $state) {
                         self::getTotal($get, $set, $state);
                     })->columns(2)->columnSpanFull(),
+                */
                 Grid::make('')->columns(6)->schema([
                     Grid::make('')->columns(1)->columnSpan(4),
                     Grid::make('Main')->schema([
@@ -225,7 +226,7 @@ class InsuranceResource extends Resource
             ]);
     }
 
-    public static function getTotal($get, $set, $state): void
+    public static function getTotalDesise($get, $set, $state): void
     {
 
         $items = collect($get('disease_details'))->values()->toArray();
@@ -248,6 +249,19 @@ class InsuranceResource extends Resource
         if (empty($total_amount) || $total_amount == '' || !is_numeric($total_amount) || $total_amount == 0) {
             $set('total', 0);
         }
+    }
+
+    public static function getTotal($get, $set, $state): void
+    {
+        $hospitalRate = $get('hospital_rate') ?? 0;
+        $serviceTax = $get('service_tax') ?? 0;
+        $discount = $get('discount') ?? 0;
+
+        $totalAmount = $hospitalRate + $serviceTax;
+        $totalAmount = $totalAmount - ($totalAmount * $discount / 100);
+        $totalAmount = is_numeric($totalAmount) && $totalAmount > 0 ? number_format($totalAmount, 2, '.', '') : '0.00';
+
+        $set('total', $totalAmount);
     }
 
     public static function table(Table $table): Table

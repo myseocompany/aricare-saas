@@ -9,12 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateBookableUnit extends CreateRecord
 {
     protected static string $resource = BookableUnitResource::class;
-
-
-    
-    protected function getRedirectUrl(): string
+    public function getTitle(): string
     {
-        return static::getResource()::getUrl('index');
+        return __('messages.bookable_units.create');
     }
 
 }

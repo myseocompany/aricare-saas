@@ -13,7 +13,13 @@ class EditBookableUnit extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\ViewAction::make(),
             Actions\DeleteAction::make(),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return __('messages.bookable_units.edit');
     }
 }

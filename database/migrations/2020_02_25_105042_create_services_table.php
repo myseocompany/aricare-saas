@@ -12,7 +12,7 @@ return new class extends Migration
     {
         Schema::create('services', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('name');
+            $table->text('name');
             $table->text('description')->nullable();
             $table->integer('quantity');
             $table->integer('rate');

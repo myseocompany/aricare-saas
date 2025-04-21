@@ -83,6 +83,7 @@ class ViewInsurance extends ViewRecord
                         Livewire::make(InsuranceDiseaseTable::class)
                     ]
                 )->columnSpanFull()
+                ->visible(fn () => $this->record->insuranceDiseases()->exists())
             ]);
     }
 }

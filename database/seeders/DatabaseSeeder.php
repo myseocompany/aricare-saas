@@ -83,5 +83,6 @@ class DatabaseSeeder extends Seeder
         $this->call(AddFieldForZoomInFeaturesTableSeeder::class);
         $this->call(DefaultPathologyModuleSeeder::class);
         $this->call(DefaultLanguageSeeder::class);
+       
     }
 }
