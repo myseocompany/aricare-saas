@@ -206,6 +206,16 @@ class PatientResource extends Resource
             ->schema([
                 Section::make()
                     ->schema([
+                        Forms\Components\TextInput::make('record_number')
+                            ->label('N°. Historia'),
+                        Forms\Components\TextInput::make('affiliate_number')
+                            ->label('N°. Afiliación'),
+                        /*    
+                        Forms\Components\DateTimePicker::make('admission_date')
+                            ->label('Fecha y Hora de Ingreso')
+                            ->required()
+                            ->native(false)
+                            ->maxDate(now()),*/
                         Forms\Components\TextInput::make('first_name')
                             ->required()
                             ->label(__('messages.user.first_name') . ':')

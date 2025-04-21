@@ -27,6 +27,16 @@ class BookableUnitResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
+    public static function getNavigationLabel(): string
+    {
+        return __('messages.bookable_unit');
+    }
+
+    public static function getLabel(): string
+    {
+        return __('messages.bookable_unit');
+    }
+
     public static function form(Form $form): Form
     {
         return $form
@@ -94,8 +104,6 @@ class BookableUnitResource extends Resource
     {
         return $page->generateNavigationItems([
             Pages\ListBookableUnits::class,
-            Pages\ViewBookableUnit::class,
-            Pages\EditBookableUnit::class,
             CreateSchedules::class,
             
         ]);

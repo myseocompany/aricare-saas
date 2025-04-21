@@ -21,4 +21,13 @@ class ListBookableUnits extends ListRecords
     {
         return __('messages.bookable_units.list');
     }
+    public static function getNavigationLabel(): string
+    {
+        return __('messages.bookable_unit');
+    }
+
+    public static function getLabel(): string
+    {
+        return __('messages.bookable_unit');
+    }
 }
