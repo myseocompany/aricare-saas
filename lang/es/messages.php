@@ -1109,8 +1109,8 @@ return [
         'total_subscribers' => 'Suscriptores totales',
         'total_enquiries' => 'Consultas totales',
         'total_revenue' => 'Los ingresos totales',
-        'total_active_hospital_plan' => 'Planes hospitalarios activos totales',
-        'total_expired_hospital_plan' => 'Planes hospitalarios vencidos totales',
+        'total_active_hospital_plan' => 'Planes de entidades activos totales',
+        'total_expired_hospital_plan' => 'Planes de entidades vencidos totales',
         'income_report' => 'Resumen de ingresos',
         'please_select_rang_picker' => 'Seleccione Selector de Rang',
     ],
@@ -1342,7 +1342,7 @@ return [
     //    income filter
     'income_filter' => [
         'canteen_rate' => 'Renta de Cantina',
-        'hospital_charges' => 'Cargos hospitalarios',
+        'hospital_charges' => 'Cargos de entidad',
         'special_campaign' => 'Campaña especial',
         'vehicle_stand_charge' => 'Cargo de parada de vehículos',
     ],
@@ -2157,7 +2157,7 @@ return [
         'sms' => 'SMS',
         'subscriber' => 'Suscriptores',
         'subscription_plan' => 'Plan de Suscripción',
-        'hospital' => 'Hospital',
+        'hospital' => 'Entidad',
         'enquiry' => 'Consulta',
         'user' => 'Usuario',
         'vaccinated_patient' => 'Paciente vacunado',
