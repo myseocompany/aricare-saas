@@ -3066,7 +3066,7 @@ return [
         'suggested_medicines' => 'Suggested Medicines',
     ],
 
-    'plan_frequency' => [
+    'about_usquency' => [
         '1' => 'Monthly',
         '2' => 'Yearly',
     ],

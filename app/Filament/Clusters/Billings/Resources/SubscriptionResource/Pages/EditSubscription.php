@@ -7,6 +7,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
@@ -30,6 +31,8 @@ class EditSubscription extends EditRecord
         $subscription->update([
             'ends_at' => $data['ends_at'],
             'sms_limit' => $data['sms_limit'],
+            'subscription_plan_id' => $data['subscription_plan_id'],
+            'trial_ends_at' => $data['trial_ends_at'],  
         ]);
 
         return $subscription;
@@ -46,12 +49,14 @@ class EditSubscription extends EditRecord
                             return $record->user->hospital_name;
                         })
                         ->readonly(),
-                    TextInput::make('subscriptionPlan.name')
+                    Select::make('subscription_plan_id')
+                        ->relationship('subscriptionPlan', 'name')
                         ->label(__('messages.subscription_plans.plan_name') . ': ')
-                        ->formatStateUsing(function ($record) {
-                            return $record->subscriptionPlan->name;
-                        })
-                        ->readonly(),
+                        ->required()
+                        ->searchable()
+                        ->preload()
+                        ->native(false),    
+                    
                     TextInput::make('plan_frequency')
                         ->label(__('messages.subscription_plans.frequency') . ': ')
                         ->formatStateUsing(function ($record) {
@@ -61,6 +66,11 @@ class EditSubscription extends EditRecord
                             return __('messages.subscription.year');
                         })
                         ->readonly(),
+                    DateTimePicker::make('trial_ends_at')
+                        ->native(false)
+                        ->label(__('messages.subscription_plans.trial_end_date') . ': ')
+                        ->displayFormat('d-m-Y H:i A'),
+                    
                     TextInput::make('status')
                         ->label(__('messages.user.status') . ':')
                         ->formatStateUsing(function ($record) {

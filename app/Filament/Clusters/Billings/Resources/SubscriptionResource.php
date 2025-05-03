@@ -49,7 +49,14 @@ class SubscriptionResource extends Resource
                         'required' => __('messages.fields.the') . ' ' . __('messages.user.name') . ' ' . __('messages.fields.required'),
                     ]),
                 Forms\Components\Select::make('subscription_plan_id')
-                    ->relationship('subscriptionPlan', 'name'),
+                    ->label('Plan id')
+                    ->relationship('subscriptionPlan', 'name')
+                    ->required()
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Select a plan')
+                    ->live(),
+                
                 Forms\Components\TextInput::make('transaction_id')
                     ->numeric(),
                 Forms\Components\TextInput::make('plan_amount')

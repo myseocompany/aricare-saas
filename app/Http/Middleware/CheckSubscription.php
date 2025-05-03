@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Log;
 
 class CheckSubscription
 {
@@ -43,8 +44,18 @@ class CheckSubscription
             ->where('user_id', Auth::id())
             ->first();
 
+            
+        Log::info('Subscription Debug', [
+            'subscription_id' => $subscription->id,
+            'ends_at' => $subscription->ends_at,
+            'trial_ends_at' => $subscription->trial_ends_at,
+            'is_expired' => $subscription->isExpired(),
+            'now' => now()->toDateTimeString(),
+        ]);
 
         if (!$subscription) {
+            
+
             return redirect()->route('filament.hospitalAdmin.pages.subscription-plans');
         }
 
