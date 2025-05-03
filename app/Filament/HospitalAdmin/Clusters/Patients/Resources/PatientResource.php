@@ -219,6 +219,15 @@ class PatientResource extends Resource
                             ->required()
                             ->maxLength(15)
                             ->placeholder('Ingrese número de documento'),
+                        Forms\Components\Select::make('patient_type_id')
+                            ->label(__('messages.patient.patient_type') . ':')
+                            ->relationship('patientType', 'name')
+                            ->required()
+                            ->native(false)
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Seleccione tipo de paciente'),
+                        
                         /* 
                         Forms\Components\TextInput::make('record_number')
                             ->label('N°. Historia'),

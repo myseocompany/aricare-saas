@@ -233,4 +233,10 @@ class Patient extends Model implements HasMedia
         return $this->belongsTo(DocumentType::class, 'document_type', 'abbreviation');
     }
 
+
+    public function patientType()
+    {
+        return $this->belongsTo(PatientType::class);
+    }
+
 }

@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('patients', function (Blueprint $table) {
             $table->string('document_type', 3)->nullable()->after('patient_unique_id');
             $table->string('document_number', 15)->nullable()->after('document_type');
-            $table->smallInteger('user_type')->nullable()->after('document_number');
+            $table->smallInteger('type_id')->nullable()->after('document_number');
             $table->date('birth_date')->nullable()->after('user_type');
             $table->string('sex_code', 2)->nullable()->after('birth_date');
             $table->string('country_code', 5)->nullable()->after('sex_code');
@@ -27,7 +27,7 @@ return new class extends Migration
             $table->dropColumn([
                 'document_type',
                 'document_number',
-                'user_type',
+                'type_id',
                 'birth_date',
                 'sex_code',
                 'country_code',
@@ -39,6 +39,3 @@ return new class extends Migration
     }
     
 };
-
-
-php artisan migrate --path=database/migrations/2025_05_03_135043_add_rips_fields_to_patients_table.php

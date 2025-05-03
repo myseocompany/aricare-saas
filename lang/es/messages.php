@@ -625,6 +625,7 @@ return [
         'total_appointments' => 'Citas totales',
         'document_number' => 'Número de documento',
         'document_type' => 'Tipo de documento',
+        'patient_type' => 'Tipo de paciente',
    
     ],
 
