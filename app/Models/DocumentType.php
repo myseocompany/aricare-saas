@@ -41,6 +41,7 @@ class DocumentType extends Model
 
     public $fillable = [
         'name',
+        'abbreviation'
     ];
 
     /**

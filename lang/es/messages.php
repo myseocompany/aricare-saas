@@ -623,6 +623,9 @@ return [
         'total_cases' => 'Casos Totales',
         'total_admissions' => 'Admisiones totales',
         'total_appointments' => 'Citas totales',
+        'document_number' => 'Número de documento',
+        'document_type' => 'Tipo de documento',
+   
     ],
 
     // payments keys

@@ -206,11 +206,26 @@ class PatientResource extends Resource
             ->schema([
                 Section::make()
                     ->schema([
+                        Forms\Components\Select::make('document_type')
+                            ->label(__('messages.patient.document_type').':')
+                            ->relationship('documentType', 'name')
+                            ->required()
+                            ->native(false)
+                            ->searchable()
+                            ->preload()
+                            ->placeholder('Seleccione tipo de documento'),
+                        Forms\Components\TextInput::make('document_number')
+                            ->label(__('messages.patient.document_number').':')
+                            ->required()
+                            ->maxLength(15)
+                            ->placeholder('Ingrese número de documento'),
+                        /* 
                         Forms\Components\TextInput::make('record_number')
                             ->label('N°. Historia'),
                         Forms\Components\TextInput::make('affiliate_number')
                             ->label('N°. Afiliación'),
-                        /*    
+                        
+                               
                         Forms\Components\DateTimePicker::make('admission_date')
                             ->label('Fecha y Hora de Ingreso')
                             ->required()

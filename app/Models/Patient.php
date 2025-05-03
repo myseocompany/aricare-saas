@@ -227,4 +227,10 @@ class Patient extends Model implements HasMedia
 
         return $patientUniqueId;
     }
+
+    public function documentType()
+    {
+        return $this->belongsTo(DocumentType::class, 'document_type', 'abbreviation');
+    }
+
 }
