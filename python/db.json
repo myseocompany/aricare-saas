@@ -1,0 +1,6450 @@
+{
+    "accountants": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "type",
+                "type": "tinyint"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "owner_id",
+                "type": "int"
+            },
+            {
+                "name": "owner_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "address1",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "address2",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "city",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "zip",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "position",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "advanced_payments": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "bigint"
+            },
+            {
+                "name": "receipt_no",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "vehicle_number",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "vehicle_model",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "year_made",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "driver_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "driver_license",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "driver_contact",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "note",
+                "type": "text"
+            },
+            {
+                "name": "is_available",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "vehicle_type",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "ambulance_id",
+                "type": "int"
+            },
+            {
+                "name": "driver_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "department_id",
+                "type": "bigint"
+            },
+            {
+                "name": "opd_date",
+                "type": "datetime"
+            },
+            {
+                "name": "problem",
+                "type": "text"
+            },
+            {
+                "name": "is_completed",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "payment_status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "payment_type",
+                "type": "int"
+            },
+            {
+                "name": "custom_field",
+                "type": "longtext"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "appointment_id",
+                "type": "bigint"
+            },
+            {
+                "name": "transaction_type",
+                "type": "int"
+            },
+            {
+                "name": "transaction_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "bed_type",
+                "type": "int"
+            },
+            {
+                "name": "bed_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "charge",
+                "type": "double"
+            },
+            {
+                "name": "is_available",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "bed_id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "case_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "assign_date",
+                "type": "datetime"
+            },
+            {
+                "name": "discharge_date",
+                "type": "datetime"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "title",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "bill_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "bill_date",
+                "type": "datetime"
+            },
+            {
+                "name": "amount",
+                "type": "decimal(16,2)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "patient_admission_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "item_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "bill_id",
+                "type": "int"
+            },
+            {
+                "name": "qty",
+                "type": "int"
+            },
+            {
+                "name": "price",
+                "type": "decimal(16,2)"
+            },
+            {
+                "name": "amount",
+                "type": "decimal(16,2)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "transaction_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "payment_type",
+                "type": "int"
+            },
+            {
+                "name": "amount",
+                "type": "decimal(16,2)"
+            },
+            {
+                "name": "bill_id",
+                "type": "int"
+            },
+            {
+                "name": "status",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "meta",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "is_manual_payment",
+                "type": "int"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "case_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "date",
+                "type": "datetime"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "blood_group",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "remained_bags",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "blood_donor_id",
+                "type": "int"
+            },
+            {
+                "name": "bags",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "age",
+                "type": "int"
+            },
+            {
+                "name": "gender",
+                "type": "int"
+            },
+            {
+                "name": "blood_group",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "last_donate_date",
+                "type": "datetime"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "issue_date",
+                "type": "datetime"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "donor_id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "amount",
+                "type": "decimal(10,2)"
+            },
+            {
+                "name": "remarks",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "email",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "phone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "key",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "value",
+                "type": "mediumtext"
+            },
+            {
+                "name": "expiration",
+                "type": "int"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "key",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "owner",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "expiration",
+                "type": "int"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "phone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "follow_up_date",
+                "type": "date"
+            },
+            {
+                "name": "note",
+                "type": "text"
+            },
+            {
+                "name": "call_type",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "is_active",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "charge_type",
+                "type": "int"
+            },
+            {
+                "name": "charge_category_id",
+                "type": "int"
+            },
+            {
+                "name": "code",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "standard_charge",
+                "type": "double"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "charge_type",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "currency_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "currency_code",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "currency_icon",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "deleted_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "module_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "field_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "field_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "is_required",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "values",
+                "type": "text"
+            },
+            {
+                "name": "grid",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "case_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "date",
+                "type": "datetime"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "is_active",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "guard_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "diagnosis_categories": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "doctor_department_id",
+                "type": "bigint"
+            },
+            {
+                "name": "specialist",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "appointment_charge",
+                "type": "double"
+            },
+            {
+                "name": "google_json_file_path",
+                "type": "longtext"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "title",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "date",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "standard_charge",
+                "type": "double"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "document_type_id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "uploaded_by",
+                "type": "bigint"
+            },
+            {
+                "name": "notes",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "domain",
+                "type": "varchar(191)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "sr_no",
+                "type": "bigint"
+            },
+            {
+                "name": "payroll_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "type",
+                "type": "int"
+            },
+            {
+                "name": "owner_id",
+                "type": "int"
+            },
+            {
+                "name": "owner_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "month",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "year",
+                "type": "int"
+            },
+            {
+                "name": "net_salary",
+                "type": "double"
+            },
+            {
+                "name": "status",
+                "type": "int"
+            },
+            {
+                "name": "basic_salary",
+                "type": "double"
+            },
+            {
+                "name": "allowance",
+                "type": "double"
+            },
+            {
+                "name": "deductions",
+                "type": "double"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "full_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "email",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "contact_no",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "type",
+                "type": "tinyint"
+            },
+            {
+                "name": "message",
+                "type": "text"
+            },
+            {
+                "name": "viewed_by",
+                "type": "bigint"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "google_calendar_list_id",
+                "type": "bigint"
+            },
+            {
+                "name": "google_calendar_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "expense_head",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "invoice_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "datetime"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "completed_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "file_disk",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "file_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "exporter",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "processed_rows",
+                "type": "int"
+            },
+            {
+                "name": "total_rows",
+                "type": "int"
+            },
+            {
+                "name": "successful_rows",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "uuid",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "connection",
+                "type": "text"
+            },
+            {
+                "name": "queue",
+                "type": "text"
+            },
+            {
+                "name": "payload",
+                "type": "longtext"
+            },
+            {
+                "name": "exception",
+                "type": "longtext"
+            },
+            {
+                "name": "failed_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "question",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "answer",
+                "type": "text"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "features": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "submenu",
+                "type": "int"
+            },
+            {
+                "name": "route",
+                "type": "longtext"
+            },
+            {
+                "name": "has_parent",
+                "type": "int"
+            },
+            {
+                "name": "is_default",
+                "type": "int"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "feature_subscriptionplan": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "feature_id",
+                "type": "bigint"
+            },
+            {
+                "name": "subscription_plan_id",
+                "type": "bigint"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "front_services": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "short_description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "front_settings": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "key",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "value",
+                "type": "text"
+            },
+            {
+                "name": "type",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "google_calendar_integrations": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "access_token",
+                "type": "text"
+            },
+            {
+                "name": "meta",
+                "type": "text"
+            },
+            {
+                "name": "last_used_at",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "calendar_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "google_calendar_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "meta",
+                "type": "text"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "day_of_week",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "start_time",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "end_time",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "income_head",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "invoice_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "datetime"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "service_tax",
+                "type": "double"
+            },
+            {
+                "name": "discount",
+                "type": "double"
+            },
+            {
+                "name": "remark",
+                "type": "text"
+            },
+            {
+                "name": "insurance_no",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "insurance_code",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "hospital_rate",
+                "type": "double"
+            },
+            {
+                "name": "total",
+                "type": "double"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "insurance_id",
+                "type": "int"
+            },
+            {
+                "name": "disease_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "disease_charge",
+                "type": "double"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "date",
+                "type": "datetime"
+            },
+            {
+                "name": "title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "status",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "invoice_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "invoice_date",
+                "type": "date"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "discount",
+                "type": "double"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "account_id",
+                "type": "int"
+            },
+            {
+                "name": "invoice_id",
+                "type": "int"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "quantity",
+                "type": "int"
+            },
+            {
+                "name": "price",
+                "type": "double"
+            },
+            {
+                "name": "total",
+                "type": "double"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "total_charges",
+                "type": "double"
+            },
+            {
+                "name": "total_payments",
+                "type": "double"
+            },
+            {
+                "name": "gross_total",
+                "type": "double"
+            },
+            {
+                "name": "discount_in_percentage",
+                "type": "int"
+            },
+            {
+                "name": "tax_in_percentage",
+                "type": "int"
+            },
+            {
+                "name": "other_charges",
+                "type": "double"
+            },
+            {
+                "name": "net_payable_amount",
+                "type": "double"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "charge_type_id",
+                "type": "int"
+            },
+            {
+                "name": "charge_category_id",
+                "type": "int"
+            },
+            {
+                "name": "charge_id",
+                "type": "int"
+            },
+            {
+                "name": "standard_charge",
+                "type": "double"
+            },
+            {
+                "name": "applied_charge",
+                "type": "double"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "applied_date",
+                "type": "datetime"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "instruction",
+                "type": "text"
+            },
+            {
+                "name": "instruction_date",
+                "type": "date"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "report_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "report_date",
+                "type": "datetime"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "height",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "weight",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "bp",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "symptoms",
+                "type": "text"
+            },
+            {
+                "name": "notes",
+                "type": "text"
+            },
+            {
+                "name": "admission_date",
+                "type": "datetime"
+            },
+            {
+                "name": "is_discharge",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "case_id",
+                "type": "int"
+            },
+            {
+                "name": "is_old_patient",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "bed_type_id",
+                "type": "int"
+            },
+            {
+                "name": "bed_id",
+                "type": "int"
+            },
+            {
+                "name": "custom_field",
+                "type": "longtext"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "bill_status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "payment_mode",
+                "type": "tinyint"
+            },
+            {
+                "name": "notes",
+                "type": "text"
+            },
+            {
+                "name": "transaction_id",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "header_note",
+                "type": "text"
+            },
+            {
+                "name": "footer_note",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_prescription_id",
+                "type": "int"
+            },
+            {
+                "name": "category_id",
+                "type": "int"
+            },
+            {
+                "name": "medicine_id",
+                "type": "int"
+            },
+            {
+                "name": "dosage",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "dose_interval",
+                "type": "int"
+            },
+            {
+                "name": "day",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "time",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "instruction",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "ipd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "visible_to_person",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "department_id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "issued_by",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "issued_date",
+                "type": "date"
+            },
+            {
+                "name": "return_date",
+                "type": "date"
+            },
+            {
+                "name": "item_category_id",
+                "type": "int"
+            },
+            {
+                "name": "item_id",
+                "type": "int"
+            },
+            {
+                "name": "quantity",
+                "type": "int"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "item_category_id",
+                "type": "int"
+            },
+            {
+                "name": "unit",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "available_quantity",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "item_category_id",
+                "type": "int"
+            },
+            {
+                "name": "item_id",
+                "type": "int"
+            },
+            {
+                "name": "supplier_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "store_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "quantity",
+                "type": "int"
+            },
+            {
+                "name": "purchase_price",
+                "type": "double"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "queue",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "payload",
+                "type": "longtext"
+            },
+            {
+                "name": "attempts",
+                "type": "tinyint"
+            },
+            {
+                "name": "reserved_at",
+                "type": "int"
+            },
+            {
+                "name": "available_at",
+                "type": "int"
+            },
+            {
+                "name": "created_at",
+                "type": "int"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "total_jobs",
+                "type": "int"
+            },
+            {
+                "name": "pending_jobs",
+                "type": "int"
+            },
+            {
+                "name": "failed_jobs",
+                "type": "int"
+            },
+            {
+                "name": "failed_job_ids",
+                "type": "longtext"
+            },
+            {
+                "name": "options",
+                "type": "mediumtext"
+            },
+            {
+                "name": "cancelled_at",
+                "type": "int"
+            },
+            {
+                "name": "created_at",
+                "type": "int"
+            },
+            {
+                "name": "finished_at",
+                "type": "int"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "text_main",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_img_one",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_img_two",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_img_three",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "main_img_one",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "main_img_two",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_one_text",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_two_text",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_three_text",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_one_text_secondary",
+                "type": "varchar(135)"
+            },
+            {
+                "name": "card_two_text_secondary",
+                "type": "varchar(135)"
+            },
+            {
+                "name": "card_three_text_secondary",
+                "type": "varchar(135)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "live_consultations": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "consultation_title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "consultation_date",
+                "type": "datetime"
+            },
+            {
+                "name": "host_video",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "participant_video",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "consultation_duration_minutes",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "type_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_by",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "status",
+                "type": "int"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "meeting_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "meta",
+                "type": "text"
+            },
+            {
+                "name": "time_zone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "password",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "platform_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "consultation_title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "consultation_date",
+                "type": "datetime"
+            },
+            {
+                "name": "consultation_duration_minutes",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "host_video",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "participant_video",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "created_by",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "meta",
+                "type": "text"
+            },
+            {
+                "name": "meeting_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "time_zone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "password",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "status",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "live_meeting_id",
+                "type": "bigint"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "break_from",
+                "type": "time"
+            },
+            {
+                "name": "break_to",
+                "type": "time"
+            },
+            {
+                "name": "every_day",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "date",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "to",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "subject",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "message",
+                "type": "text"
+            },
+            {
+                "name": "attachments",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "model_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "model_id",
+                "type": "bigint"
+            },
+            {
+                "name": "collection_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "file_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "mime_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "disk",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "size",
+                "type": "bigint"
+            },
+            {
+                "name": "manipulations",
+                "type": "text"
+            },
+            {
+                "name": "custom_properties",
+                "type": "text"
+            },
+            {
+                "name": "responsive_images",
+                "type": "text"
+            },
+            {
+                "name": "order_column",
+                "type": "int"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "conversions_disk",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "uuid",
+                "type": "char(36)"
+            },
+            {
+                "name": "generated_conversions",
+                "type": "text"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "medicines": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "category_id",
+                "type": "int"
+            },
+            {
+                "name": "brand_id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "selling_price",
+                "type": "double"
+            },
+            {
+                "name": "buying_price",
+                "type": "double"
+            },
+            {
+                "name": "quantity",
+                "type": "int"
+            },
+            {
+                "name": "available_quantity",
+                "type": "int"
+            },
+            {
+                "name": "salt_composition",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "side_effects",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "bill_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "doctor_id",
+                "type": "int"
+            },
+            {
+                "name": "model_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "model_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "discount",
+                "type": "double"
+            },
+            {
+                "name": "net_amount",
+                "type": "double"
+            },
+            {
+                "name": "total",
+                "type": "double"
+            },
+            {
+                "name": "tax_amount",
+                "type": "double"
+            },
+            {
+                "name": "payment_status",
+                "type": "int"
+            },
+            {
+                "name": "payment_type",
+                "type": "int"
+            },
+            {
+                "name": "note",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "bill_date",
+                "type": "datetime"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "migration",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "batch",
+                "type": "int"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "model_has_permissions": {
+        "columns": [
+            {
+                "name": "permission_id",
+                "type": "bigint"
+            },
+            {
+                "name": "model_type",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "model_id",
+                "type": "bigint"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "role_id",
+                "type": "bigint"
+            },
+            {
+                "name": "model_type",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "model_id",
+                "type": "bigint"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "modules": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "is_active",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "is_hidden",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "route",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "notice_boards": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "type",
+                "type": "int"
+            },
+            {
+                "name": "notification_for",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "text",
+                "type": "text"
+            },
+            {
+                "name": "meta",
+                "type": "text"
+            },
+            {
+                "name": "read_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "opd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "report_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "report_date",
+                "type": "datetime"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "report_generated",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "opd_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "height",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "weight",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "bp",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "symptoms",
+                "type": "text"
+            },
+            {
+                "name": "notes",
+                "type": "text"
+            },
+            {
+                "name": "appointment_date",
+                "type": "datetime"
+            },
+            {
+                "name": "case_id",
+                "type": "int"
+            },
+            {
+                "name": "is_old_patient",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "standard_charge",
+                "type": "double"
+            },
+            {
+                "name": "payment_mode",
+                "type": "tinyint"
+            },
+            {
+                "name": "custom_field",
+                "type": "longtext"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "opd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "header_note",
+                "type": "text"
+            },
+            {
+                "name": "footer_note",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "opd_prescription_id",
+                "type": "bigint"
+            },
+            {
+                "name": "category_id",
+                "type": "int"
+            },
+            {
+                "name": "medicine_id",
+                "type": "int"
+            },
+            {
+                "name": "dosage",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "dose_interval",
+                "type": "int"
+            },
+            {
+                "name": "day",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "time",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "instruction",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "opd_patient_department_id",
+                "type": "int"
+            },
+            {
+                "name": "title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "visible_to_person",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "case_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "date",
+                "type": "datetime"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "discount",
+                "type": "double"
+            },
+            {
+                "name": "total_amount",
+                "type": "double"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "package_id",
+                "type": "int"
+            },
+            {
+                "name": "service_id",
+                "type": "int"
+            },
+            {
+                "name": "quantity",
+                "type": "double"
+            },
+            {
+                "name": "rate",
+                "type": "double"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "email",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "token",
+                "type": "longtext"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "parameter_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "reference_range",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "unit_id",
+                "type": "int"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "pathology_id",
+                "type": "int"
+            },
+            {
+                "name": "patient_result",
+                "type": "text"
+            },
+            {
+                "name": "parameter_id",
+                "type": "int"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "test_name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "short_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "test_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "category_id",
+                "type": "int"
+            },
+            {
+                "name": "unit",
+                "type": "int"
+            },
+            {
+                "name": "subcategory",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "method",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "report_days",
+                "type": "int"
+            },
+            {
+                "name": "charge_category_id",
+                "type": "int"
+            },
+            {
+                "name": "standard_charge",
+                "type": "double"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "template_id",
+                "type": "int"
+            },
+            {
+                "name": "custom_field",
+                "type": "longtext"
+            },
+            {
+                "name": "patient_unique_id",
+                "type": "varchar(191)"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_admission_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "admission_date",
+                "type": "datetime"
+            },
+            {
+                "name": "discharge_date",
+                "type": "datetime"
+            },
+            {
+                "name": "package_id",
+                "type": "int"
+            },
+            {
+                "name": "insurance_id",
+                "type": "int"
+            },
+            {
+                "name": "bed_id",
+                "type": "int"
+            },
+            {
+                "name": "policy_no",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "agent_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "guardian_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "guardian_relation",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "guardian_contact",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "guardian_address",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "case_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "phone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "date",
+                "type": "datetime"
+            },
+            {
+                "name": "fee",
+                "type": "double"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_diagnosis_id",
+                "type": "bigint"
+            },
+            {
+                "name": "property_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "property_value",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "category_id",
+                "type": "bigint"
+            },
+            {
+                "name": "report_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "payment_date",
+                "type": "date"
+            },
+            {
+                "name": "account_id",
+                "type": "int"
+            },
+            {
+                "name": "pay_to",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "guard_name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "pharmacists": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "from_title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "to_title",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "reference_no",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "address",
+                "type": "text"
+            },
+            {
+                "name": "type",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "food_allergies",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tendency_bleed",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "heart_disease",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "high_blood_pressure",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "diabetic",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "surgery",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "accident",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "others",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "medical_history",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "current_medication",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "female_pregnancy",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "breast_feeding",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "health_insurance",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "low_income",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "reference",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "plus_rate",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "temperature",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "problem_description",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "test",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "advice",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "next_visit_qty",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "next_visit_time",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "prescription_id",
+                "type": "int"
+            },
+            {
+                "name": "medicine",
+                "type": "int"
+            },
+            {
+                "name": "dosage",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "day",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "time",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "dose_interval",
+                "type": "int"
+            },
+            {
+                "name": "comment",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "purchase_medicines_id",
+                "type": "bigint"
+            },
+            {
+                "name": "medicine_id",
+                "type": "int"
+            },
+            {
+                "name": "expiry_date",
+                "type": "datetime"
+            },
+            {
+                "name": "lot_no",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tax",
+                "type": "double"
+            },
+            {
+                "name": "quantity",
+                "type": "int"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "purchase_no",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tax",
+                "type": "double"
+            },
+            {
+                "name": "total",
+                "type": "double"
+            },
+            {
+                "name": "net_amount",
+                "type": "double"
+            },
+            {
+                "name": "payment_type",
+                "type": "int"
+            },
+            {
+                "name": "payment_status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "discount",
+                "type": "double"
+            },
+            {
+                "name": "note",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "payment_note",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "test_name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "short_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "test_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "category_id",
+                "type": "int"
+            },
+            {
+                "name": "subcategory",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "report_days",
+                "type": "int"
+            },
+            {
+                "name": "charge_category_id",
+                "type": "int"
+            },
+            {
+                "name": "standard_charge",
+                "type": "double"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "charge_id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "bigint"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "permission_id",
+                "type": "bigint"
+            },
+            {
+                "name": "role_id",
+                "type": "bigint"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "sale_medicines": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "medicine_bill_id",
+                "type": "int"
+            },
+            {
+                "name": "medicine_id",
+                "type": "int"
+            },
+            {
+                "name": "sale_quantity",
+                "type": "int"
+            },
+            {
+                "name": "sale_price",
+                "type": "double"
+            },
+            {
+                "name": "tax",
+                "type": "double"
+            },
+            {
+                "name": "expiry_date",
+                "type": "date"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "per_patient_time",
+                "type": "time"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "doctor_id",
+                "type": "bigint"
+            },
+            {
+                "name": "schedule_id",
+                "type": "int"
+            },
+            {
+                "name": "available_on",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "available_from",
+                "type": "time"
+            },
+            {
+                "name": "available_to",
+                "type": "time"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "main_img_url",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_img_url_one",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_img_url_two",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_img_url_three",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_img_url_four",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_one_number",
+                "type": "int"
+            },
+            {
+                "name": "card_two_number",
+                "type": "int"
+            },
+            {
+                "name": "card_three_number",
+                "type": "int"
+            },
+            {
+                "name": "card_four_number",
+                "type": "int"
+            },
+            {
+                "name": "card_one_text",
+                "type": "varchar(15)"
+            },
+            {
+                "name": "card_two_text",
+                "type": "varchar(15)"
+            },
+            {
+                "name": "card_three_text",
+                "type": "varchar(15)"
+            },
+            {
+                "name": "card_four_text",
+                "type": "varchar(15)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "section_fours": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "text_main",
+                "type": "varchar(30)"
+            },
+            {
+                "name": "text_secondary",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "img_url_one",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "img_url_two",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "img_url_three",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "img_url_four",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "img_url_five",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "img_url_six",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_text_one",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_text_two",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_text_three",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_text_four",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_text_five",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_text_six",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_text_one_secondary",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "card_text_two_secondary",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "card_text_three_secondary",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "card_text_four_secondary",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "card_text_five_secondary",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "card_text_six_secondary",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "section_ones": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "text_main",
+                "type": "varchar(45)"
+            },
+            {
+                "name": "text_secondary",
+                "type": "varchar(135)"
+            },
+            {
+                "name": "img_url",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "section_threes": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "text_main",
+                "type": "varchar(30)"
+            },
+            {
+                "name": "text_secondary",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "img_url",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "text_one",
+                "type": "varchar(50)"
+            },
+            {
+                "name": "text_two",
+                "type": "varchar(50)"
+            },
+            {
+                "name": "text_three",
+                "type": "varchar(50)"
+            },
+            {
+                "name": "text_four",
+                "type": "varchar(50)"
+            },
+            {
+                "name": "text_five",
+                "type": "varchar(50)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "section_twos": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "text_main",
+                "type": "varchar(30)"
+            },
+            {
+                "name": "text_secondary",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "card_one_image",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_one_text",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_one_text_secondary",
+                "type": "varchar(90)"
+            },
+            {
+                "name": "card_two_image",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_two_text",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_two_text_secondary",
+                "type": "varchar(90)"
+            },
+            {
+                "name": "card_third_image",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "card_third_text",
+                "type": "varchar(20)"
+            },
+            {
+                "name": "card_third_text_secondary",
+                "type": "varchar(90)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "services": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "quantity",
+                "type": "int"
+            },
+            {
+                "name": "rate",
+                "type": "double"
+            },
+            {
+                "name": "status",
+                "type": "int"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "sessions": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "ip_address",
+                "type": "varchar(45)"
+            },
+            {
+                "name": "user_agent",
+                "type": "text"
+            },
+            {
+                "name": "payload",
+                "type": "longtext"
+            },
+            {
+                "name": "last_activity",
+                "type": "int"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "key",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "value",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "smart_patient_cards": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "template_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "header_color",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "show_email",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "show_phone",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "show_dob",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "show_blood_group",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "show_address",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "show_patient_unique_id",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "show_insurance",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "send_to",
+                "type": "bigint"
+            },
+            {
+                "name": "region_code",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "phone_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "message",
+                "type": "text"
+            },
+            {
+                "name": "send_by",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "email",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "subscribe",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "subscription_plan_id",
+                "type": "bigint"
+            },
+            {
+                "name": "transaction_id",
+                "type": "bigint"
+            },
+            {
+                "name": "plan_amount",
+                "type": "double"
+            },
+            {
+                "name": "plan_frequency",
+                "type": "int"
+            },
+            {
+                "name": "starts_at",
+                "type": "datetime"
+            },
+            {
+                "name": "ends_at",
+                "type": "datetime"
+            },
+            {
+                "name": "trial_ends_at",
+                "type": "datetime"
+            },
+            {
+                "name": "sms_limit",
+                "type": "bigint"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "currency",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "price",
+                "type": "double"
+            },
+            {
+                "name": "frequency",
+                "type": "int"
+            },
+            {
+                "name": "is_default",
+                "type": "int"
+            },
+            {
+                "name": "trial_days",
+                "type": "int"
+            },
+            {
+                "name": "sms_limit",
+                "type": "bigint"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "super_admin_currency_settings": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "currency_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "currency_code",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "currency_icon",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "deleted_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "super_admin_enquiries": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "first_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "last_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "email",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "phone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "message",
+                "type": "text"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "key",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "value",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "tenants": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_username",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "hospital_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "data",
+                "type": "text"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "transaction_id",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "payment_type",
+                "type": "int"
+            },
+            {
+                "name": "amount",
+                "type": "double"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "status",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "is_manual_payment",
+                "type": "bigint"
+            },
+            {
+                "name": "meta",
+                "type": "longtext"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "notes",
+                "type": "text"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "stock_used",
+                "type": "int"
+            },
+            {
+                "name": "medicine_id",
+                "type": "int"
+            },
+            {
+                "name": "model_id",
+                "type": "int"
+            },
+            {
+                "name": "model_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "department_id",
+                "type": "bigint"
+            },
+            {
+                "name": "first_name",
+                "type": "varchar(160)"
+            },
+            {
+                "name": "last_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "email",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "city",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "password",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "designation",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "phone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "region_code",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "is_super_admin_default",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "gender",
+                "type": "int"
+            },
+            {
+                "name": "is_admin_default",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "qualification",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "blood_group",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "dob",
+                "type": "date"
+            },
+            {
+                "name": "email_verified_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "owner_id",
+                "type": "int"
+            },
+            {
+                "name": "owner_type",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "status",
+                "type": "tinyint(1)"
+            },
+            {
+                "name": "language",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "username",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "hospital_name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "remember_token",
+                "type": "varchar(100)"
+            },
+            {
+                "name": "facebook_url",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "twitter_url",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "instagram_url",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "linkedIn_url",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "theme_mode",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "hospital_type_id",
+                "type": "bigint"
+            },
+            {
+                "name": "INSERT",
+                "type": "INTO"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    },
+    "user_google_event_schedules": {
+        "columns": [
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "google_live_consultation_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "google_calendar_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "google_event_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "google_meet_link",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "last_login_at",
+                "type": "datetime"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "zoom_api_key",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "zoom_api_secret",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "patient_id",
+                "type": "int"
+            },
+            {
+                "name": "vaccination_id",
+                "type": "int"
+            },
+            {
+                "name": "vaccination_serial_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "dose_number",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "dose_given_date",
+                "type": "datetime"
+            },
+            {
+                "name": "description",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "manufactured_by",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "brand",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "purpose",
+                "type": "int"
+            },
+            {
+                "name": "name",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "phone",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "id_card",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "no_of_person",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "date",
+                "type": "date"
+            },
+            {
+                "name": "in_time",
+                "type": "time"
+            },
+            {
+                "name": "out_time",
+                "type": "time"
+            },
+            {
+                "name": "note",
+                "type": "text"
+            },
+            {
+                "name": "tenant_id",
+                "type": "varchar(255)"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "CREATE",
+                "type": "TABLE"
+            },
+            {
+                "name": "id",
+                "type": "bigint"
+            },
+            {
+                "name": "user_id",
+                "type": "bigint"
+            },
+            {
+                "name": "access_token",
+                "type": "text"
+            },
+            {
+                "name": "refresh_token",
+                "type": "text"
+            },
+            {
+                "name": "created_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "updated_at",
+                "type": "timestamp"
+            },
+            {
+                "name": "ALTER",
+                "type": "TABLE"
+            },
+            {
+                "name": "ADD",
+                "type": "PRIMARY"
+            },
+            {
+                "name": "ADD",
+                "type": "KEY"
+            },
+            {
+                "name": "ADD",
+                "type": "KEY"
+            }
+        ],
+        "primary_keys": [],
+        "foreign_keys": []
+    }
+}
