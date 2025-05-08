@@ -9,28 +9,38 @@ use Illuminate\Support\Facades\File;
 class CupsTableSeeder extends Seeder
 {
     public function run(): void
-    {
-        $path = database_path('data/CUPS.csv'); // Asegúrate de subirlo ahí
+{
+    $path = database_path('seeders/data/cups.csv');
 
-        if (!File::exists($path)) {
-            throw new \Exception("El archivo CUPS.csv no se encuentra en storage/app");
-        }
-
-        $file = fopen($path, 'r');
-        $headers = fgetcsv($file, 0, ';'); // Saltamos encabezados
-
-        while (($row = fgetcsv($file, 0, ';')) !== false) {
-            DB::table('cups')->insert([
-                'code' => $row[1],
-                'name' => $row[2],
-                'description' => $row[3],
-                'group' => $row[8],             // SUBCATEGORIA
-                'subgroup_code' => $row[9],     // Código tipo 01.0.1.01
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
-
-        fclose($file);
+    if (!File::exists($path)) {
+        throw new \Exception("El archivo cups.csv no se encuentra en database/seeders/data");
     }
+
+    $file = fopen($path, 'r');
+    $headers = fgetcsv($file, 0, ',');
+
+    $count = 0;
+
+    while (($row = fgetcsv($file, 0, ',')) !== false) {
+        
+        if (!isset($row[1], $row[2], $row[3], $row[8], $row[9])) continue;
+
+        DB::table('cups')->insert([
+            'code' => trim($row[1]),
+            'name' => trim($row[2]),
+            'description' => trim($row[3]),
+            'group' => trim($row[8]),
+            'subgroup_code' => trim($row[9]),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $count++;
+    }
+
+    fclose($file);
+
+    $this->command->info("Se importaron $count códigos CUPS correctamente.");
+}
+
 }
