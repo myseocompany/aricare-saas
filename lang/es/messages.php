@@ -3115,7 +3115,21 @@ return [
         ],
     ],
     'bookable_unit' => 'Unidad',
-    
+
+    'rips' => [
+        'patientservice' => [
+            'patient' => 'Paciente',
+            'tenant_code' => 'Código del Hospital o IPS',
+            'doctor' => 'Médico Tratante',
+            'location_code' => 'Código del Lugar de Atención',
+            'has_incapacity' => '¿Tiene Incapacidad?',
+            'service_datetime' => 'Fecha y Hora del Servicio',
+            'service_group_code' => 'Código del Grupo de Servicio',
+            'service_code' => 'Código del Servicio',
+            'technology_purpose_code' => 'Código de Finalidad Tecnológica',
+            'collection_concept_code' => 'Código Concepto de Recaudo',
+        ],
+    ],
 
     
     
