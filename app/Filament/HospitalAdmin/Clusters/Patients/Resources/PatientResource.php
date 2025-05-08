@@ -60,6 +60,8 @@ use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Pages;
+use App\Models\Municipality;
+use App\Models\Country;
 
 class PatientResource extends Resource
 {
@@ -202,208 +204,309 @@ class PatientResource extends Resource
             $form->model = User::find($caseHandler->user_id);
         }
         return $form
-
+    ->schema([
+        Section::make()
             ->schema([
-                Section::make()
+                Forms\Components\Select::make('document_type')
+                    ->label(__('messages.patient.document_type') . ':')
+                    ->relationship('documentType', 'name')
+                    ->required()
+                    ->native(false)
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Seleccione tipo de documento'),
+
+                Forms\Components\TextInput::make('document_number')
+                    ->label(__('messages.patient.document_number') . ':')
+                    ->required()
+                    ->maxLength(15)
+                    ->placeholder('Ingrese número de documento'),
+
+                Forms\Components\Select::make('patient_type_id')
+                    ->label(__('messages.patient.patient_type') . ':')
+                    ->relationship('patientType', 'name')
+                    ->required()
+                    ->native(false)
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Seleccione tipo de paciente'),
+
+                Forms\Components\TextInput::make('first_name')
+                    ->required()
+                    ->label(__('messages.user.first_name') . ':')
+                    ->validationAttribute(__('messages.user.first_name'))
+                    ->placeholder(__('messages.user.first_name'))
+                    ->maxLength(255),
+
+                Forms\Components\TextInput::make('last_name')
+                    ->required()
+                    ->validationAttribute(__('messages.user.last_name'))
+                    ->label(__('messages.user.last_name') . ':')
+                    ->placeholder(__('messages.user.last_name'))
+                    ->maxLength(255),
+
+                Forms\Components\Select::make('origin_country_id')
+                    ->label(__('País de Origen') . ':')
+                    ->relationship('originCountry', 'name')
+                    ->required()
+                    ->native(false)
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Seleccione país de origen')
+                    ->columnSpan(1)
+                    ->live()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        // Obtener el país de origen seleccionado
+                        $country = \App\Models\Country::find($state);
+                
+                        // Establecer el código del país en el campo 'country_of_origin'
+                        $set('country_of_origin', $country?->code); // Suponiendo que tienes un campo 'code' en el modelo Country
+                    }),
+                
+
+                Forms\Components\TextInput::make('email')
+                    ->unique(
+                        'users',
+                        'email',
+                        null,
+                        false,
+                        function ($rule, $record) {
+                            if ($record) {
+                                $rule->whereNot('id', $record->id);
+                            }
+                            return $rule;
+                        }
+                    )
+                    ->label(__('messages.user.email') . ':')
+                    ->validationMessages([
+                        'unique' => __('messages.user.email') . ' ' . __('messages.common.is_already_exists'),
+                    ])
+                    ->placeholder(__('messages.user.email'))
+                    ->email()
+                    ->required(),
+
+                DatePicker::make('dob')
+                    ->native(false)
+                    ->maxDate(now())
+                    ->label(__('messages.user.dob') . ':'),
+
+                PhoneInput::make('phone')
+                    ->defaultCountry('IN')
+                    ->rules(function ($get) {
+                        return [
+                            'phone:AUTO,' . strtoupper($get('prefix_code')),
+                        ];
+                    })
+                    ->countryStatePath('region_code')
+                    ->afterStateHydrated(function ($component, $record, $operation) {
+                        if ($operation == 'edit') {
+                            if (!empty($record->phone)) {
+                                $phoneNumber = (empty($record->region_code) ? '+' : $record->region_code) . getPhoneNumber($record->phone);
+                            } else {
+                                $phoneNumber = null;
+                            }
+                            $component->state($phoneNumber);
+                        }
+                    })
+                    ->validationMessages([
+                        'phone' => __('messages.common.invalid_number'),
+                    ])
+                    ->label(__('messages.user.phone') . ':')
+                    ->required(),
+
+                Hidden::make('region_code'),
+
+                Group::make()
                     ->schema([
-                        Forms\Components\Select::make('document_type')
-                            ->label(__('messages.patient.document_type').':')
-                            ->relationship('documentType', 'name')
+                        Radio::make('gender')
+                            ->label(__('messages.user.gender') . ':')
                             ->required()
-                            ->native(false)
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Seleccione tipo de documento'),
-                        Forms\Components\TextInput::make('document_number')
-                            ->label(__('messages.patient.document_number').':')
-                            ->required()
-                            ->maxLength(15)
-                            ->placeholder('Ingrese número de documento'),
-                        Forms\Components\Select::make('patient_type_id')
-                            ->label(__('messages.patient.patient_type') . ':')
-                            ->relationship('patientType', 'name')
-                            ->required()
-                            ->native(false)
-                            ->searchable()
-                            ->preload()
-                            ->placeholder('Seleccione tipo de paciente'),
-                        
-                        /* 
-                        Forms\Components\TextInput::make('record_number')
-                            ->label('N°. Historia'),
-                        Forms\Components\TextInput::make('affiliate_number')
-                            ->label('N°. Afiliación'),
-                        
-                               
-                        Forms\Components\DateTimePicker::make('admission_date')
-                            ->label('Fecha y Hora de Ingreso')
-                            ->required()
-                            ->native(false)
-                            ->maxDate(now()),*/
-                        Forms\Components\TextInput::make('first_name')
-                            ->required()
-                            ->label(__('messages.user.first_name') . ':')
-                            ->validationAttribute(__('messages.user.first_name'))
-                            ->placeholder(__('messages.user.first_name'))
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('last_name')
-                            ->required()
-                            ->validationAttribute(__('messages.user.last_name'))
-                            ->label(__('messages.user.last_name') . ':')
-                            ->placeholder(__('messages.user.last_name'))
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('email')
-                            ->unique(
-                                'users',
-                                'email',
-                                null,
-                                false,
-                                function ($rule, $record) {
-                                    if ($record) {
-                                        $rule->whereNot('id', $record->id);
-                                    }
-                                    return $rule;
-                                }
-                            )->label(__('messages.user.email') . ':')
-                            ->validationMessages([
-                                'unique' => __('messages.user.email') . ' ' . __('messages.common.is_already_exists'),
+                            ->validationAttribute(__('messages.user.gender'))
+                            ->default(0)
+                            ->options([
+                                0 => __('messages.user.male'),
+                                1 => __('messages.user.female'),
                             ])
-                            ->placeholder(__('messages.user.email'))
-                            ->email()
-                            ->required(),
-                        DatePicker::make('dob')
-                            ->native(false)
-                            ->maxDate(now())
-                            ->label(__('messages.user.dob') . ':'),
-                        PhoneInput::make('phone')
-                            ->defaultCountry('IN')
-                            ->rules(function ($get) {
-                                return [
-                                    'phone:AUTO,' . strtoupper($get('prefix_code')),
-                                ];
-                            })
-                            ->countryStatePath('region_code')
-                            ->afterStateHydrated(function ($component, $record, $operation) {
-                                if ($operation == 'edit') {
-                                    if (!empty($record->phone)) {
-                                        $phoneNumber = (empty($record->region_code) ? '+' : $record->region_code) . getPhoneNumber($record->phone);
-                                    } else {
-                                        $phoneNumber = null;
-                                    }
-                                    $component->state($phoneNumber);
-                                }
-                            })
-                            ->validationMessages([
-                                'phone' => __('messages.common.invalid_number'),
-                            ])
-                            ->label(__('messages.user.phone') . ':')
-                            ->required(),
-                        Hidden::make('region_code'),
-                        Group::make()->schema([
-                            Radio::make('gender')
-                                ->label(__('messages.user.gender') . ':')
-                                ->required()
-                                ->validationAttribute(__('messages.user.gender'))
-                                ->default(0)
-                                ->options([
-                                    0 => __('messages.user.male'),
-                                    1 => __('messages.user.female'),
-                                ])->columns(2)->columnSpan(2),
-                            Toggle::make('status')
-                                ->default(1)
-                                ->live()
-                                ->label(__('messages.user.status') . ':')
-                                ->inline(false)
-                                ->columnSpan(1)
-                        ])->columns(3),
-                        Select::make('blood_group')
-                            ->label(__('messages.user.blood_group') . ':')
-                            ->options(
-                                getBloodGroups()
-                            )
-                            ->native(false),
-                        Group::make()->schema([
-                            Forms\Components\TextInput::make('password')
-                                ->revealable()
-                                ->visible(function (?string $operation) {
-                                    return $operation == 'create';
-                                })
-                                ->rules(['min:8', 'max:20'])
-                                ->confirmed()
-                                ->label(__('messages.user.password') . ':')
-                                ->placeholder(__('messages.user.password'))
-                                ->validationAttribute(__('messages.user.password'))
-                                ->required()
-                                ->password()
-                                ->maxLength(20),
-                            TextInput::make('password_confirmation')
-                                ->dehydrated(false)
-                                ->visible(function (?string $operation) {
-                                    return $operation == 'create';
-                                })
-                                ->label(__('messages.user.password_confirmation') . ':')
-                                ->placeholder(__('messages.user.password_confirmation'))
-                                ->validationAttribute(__('messages.user.password_confirmation'))
-                                ->revealable()
-                                ->required()
-                                ->password()
-                                ->maxLength(20),
-                        ])->columns(2),
-                        Section::make('')
-                            ->schema($customFieldComponents)
-                            ->columns(12)
-                            ->visible(function () {
-                                $customFields = CustomField::where('module_name', CustomField::Patient)->Where('tenant_id', getLoggedInUser()->tenant_id)->get();
-                                if ($customFields->count() == 0) {
-                                    return false;
-                                } else {
-                                    return true;
-                                }
-                            }),
-                        SpatieMediaLibraryFileUpload::make('user.profile')
-                            ->label(__('messages.common.profile') . ':')
-                            ->avatar()
-                            ->image()
-                            ->disk(config('app.media_disk'))
-                            ->collection(User::COLLECTION_PROFILE_PICTURES),
-                        Fieldset::make('Address Details')
+                            ->columns(2)
+                            ->columnSpan(2),
+
+                        Toggle::make('status')
+                            ->default(1)
+                            ->live()
+                            ->label(__('messages.user.status') . ':')
+                            ->inline(false)
+                            ->columnSpan(1),
+                    ])
+                    ->columns(3),
+
+                Select::make('blood_group')
+                    ->label(__('messages.user.blood_group') . ':')
+                    ->options(getBloodGroups())
+                    ->native(false),
+
+                Group::make()
+                    ->schema([
+                        Forms\Components\TextInput::make('password')
+                            ->revealable()
+                            ->visible(fn (?string $operation) => $operation === 'create')
+                            ->rules(['min:8', 'max:20'])
+                            ->confirmed()
+                            ->label(__('messages.user.password') . ':')
+                            ->placeholder(__('messages.user.password'))
+                            ->validationAttribute(__('messages.user.password'))
+                            ->required()
+                            ->password()
+                            ->maxLength(20),
+
+                        TextInput::make('password_confirmation')
+                            ->dehydrated(false)
+                            ->visible(fn (?string $operation) => $operation === 'create')
+                            ->label(__('messages.user.password_confirmation') . ':')
+                            ->placeholder(__('messages.user.password_confirmation'))
+                            ->validationAttribute(__('messages.user.password_confirmation'))
+                            ->revealable()
+                            ->required()
+                            ->password()
+                            ->maxLength(20),
+                    ])
+                    ->columns(2),
+
+                Section::make('')
+                    ->schema($customFieldComponents)
+                    ->columns(12)
+                    ->visible(function () {
+                        $customFields = CustomField::where('module_name', CustomField::Patient)
+                            ->where('tenant_id', getLoggedInUser()->tenant_id)
+                            ->get();
+                        return $customFields->count() > 0;
+                    }),
+
+                SpatieMediaLibraryFileUpload::make('user.profile')
+                    ->label(__('messages.common.profile') . ':')
+                    ->avatar()
+                    ->image()
+                    ->disk(config('app.media_disk'))
+                    ->collection(User::COLLECTION_PROFILE_PICTURES),
+
+                Fieldset::make('Address Details')
+                    ->schema([
+                        TextInput::make('address1')
+                            ->label(__('messages.user.address1') . ':')
+                            ->placeholder(__('messages.user.address1')),
+
+                        TextInput::make('address2')
+                            ->label(__('messages.user.address2') . ':')
+                            ->placeholder(__('messages.user.address2')),
+
+                        Group::make()
                             ->schema([
-                                TextInput::make('address1')
-                                    ->label(__('messages.user.address1') . ':')
-                                    ->placeholder(__('messages.user.address1')),
-                                TextInput::make('address2')
-                                    ->label(__('messages.user.address2') . ':')
-                                    ->placeholder(__('messages.user.address2')),
-                                Group::make()->schema([
-                                    TextInput::make('city')
-                                        ->label(__('messages.user.city') . ':')
-                                        ->placeholder(__('messages.user.city')),
-                                    TextInput::make('zip')
-                                        ->label(__('messages.user.zip') . ':')
-                                        ->placeholder(__('messages.user.zip')),
-                                ])->columns(2),
-                            ]),
+                                Forms\Components\Select::make('residence_country_id')
+                                ->label(__('País de Residencia') . ':')
+                                ->relationship('residenceCountry', 'name')
+                                ->required()
+                                ->native(false)
+                                ->searchable()
+                                ->preload()
+                                ->placeholder('Seleccione país de residencia')
+                                ->live()
+                                ->afterStateUpdated(function ($state, callable $set) {
+                                    // Obtener el país seleccionado
+                                    $country = \App\Models\Country::find($state);
+
+                                    // Establecer el código del país en el campo 'country_code'
+                                    $set('country_code', $country?->code); // Suponiendo que tienes un campo 'code' en el modelo Country
+                                }),
+
+
+                                Forms\Components\Select::make('department_country_id')
+                                    ->label(__('Departamento') . ':')
+                                    ->options(function (callable $get) {
+                                        $countryId = $get('residence_country_id');
+                                        return $countryId
+                                            ? \App\Models\DepartmentCountry::where('country_id', $countryId)->pluck('name', 'id')
+                                            : [];
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->placeholder('Seleccione departamento')
+                                    ->live(),
+                            ])
+                            ->columns(2),
+
+                        Group::make()
+                            ->schema([
+                                Forms\Components\Select::make('municipality_id')
+                                    ->label(__('Ciudad') . ':')
+                                    ->options(function (callable $get) {
+                                        $departmentId = $get('department_country_id');
+                                        return $departmentId
+                                            ? \App\Models\Municipality::where('department_country_id', $departmentId)->pluck('name', 'id')
+                                            : [];
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->required()
+                                    ->placeholder('Seleccione ciudad')
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Obtener el municipio seleccionado
+                                        $municipality = \App\Models\Municipality::find($state);
+
+                                        // Establecer el nombre de la ciudad en el campo 'city' (esto ya lo tienes)
+                                        $set('city', $municipality?->name);
+
+                                        // Establecer el código del municipio en el campo 'municipality_code'
+                                        $set('municipality_code', $municipality?->code); // Suponiendo que tienes un campo 'code' en el modelo Municipality
+                                    }),
+
+
+                                Forms\Components\Select::make('territorial_zone')
+                                    ->label(__('Zona Territorial') . ':')
+                                    ->options([
+                                        '01' => 'Urbana',
+                                        '02' => 'Rural',
+                                    ])
+                                    ->required()
+                                    ->placeholder('Seleccione zona territorial')
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, callable $set) {
+                                        // Asignamos el código de la zona territorial al campo 'zone_code'
+                                        $zoneCode = $state; // En este caso el valor de 'state' es directamente el código de la zona
+                                        $set('zone_code', $zoneCode); // Asignamos el código de la zona al campo 'zone_code'
+                                    }),
+                                
+                            ])
+                            ->columns(2),
+
                         Fieldset::make(__('messages.setting.social_details'))
                             ->schema([
                                 TextInput::make('facebook_url')
                                     ->label(__('messages.facebook_url') . ':')
                                     ->url()
                                     ->placeholder(__('messages.facebook_url')),
+
                                 TextInput::make('twitter_url')
                                     ->label(__('messages.twitter_url') . ':')
                                     ->url()
                                     ->placeholder(__('messages.twitter_url')),
+
                                 TextInput::make('instagram_url')
                                     ->label(__('messages.instagram_url') . ':')
                                     ->url()
                                     ->placeholder(__('messages.instagram_url')),
+
                                 TextInput::make('linkedIn_url')
                                     ->label(__('messages.linkedIn_url') . ':')
                                     ->url()
                                     ->placeholder(__('messages.linkedIn_url')),
-                            ])
-                    ])->columns(2),
-            ]);
+                            ]),
+                    ])
+                    ->columns(2),
+            ])
+            ->columns(2),
+    ]);
+
     }
 
     public static function table(Table $table): Table
@@ -419,6 +522,24 @@ class PatientResource extends Resource
             ->paginated([10,25,50])
             ->defaultSort('id', 'desc')
             ->columns([
+                // Nueva columna para país de origen
+                TextColumn::make('user.originCountry.name')
+                    ->label(__('País de Origen'))
+                    ->searchable()
+                    ->sortable(),
+
+                // Nueva columna para país de residencia
+                TextColumn::make('user.residenceCountry.name')
+                    ->label(__('País Residencia'))
+                    ->searchable()
+                    ->sortable(),
+            
+                // Nueva columna para municipio
+                TextColumn::make('user.municipality.name')
+                    ->label(__('Municipio'))
+                    ->searchable()
+                    ->sortable(),
+
                 SpatieMediaLibraryImageColumn::make('user.profile')
                     ->label(__('messages.invoice.patient'))
                     ->circular()
