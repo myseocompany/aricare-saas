@@ -23,4 +23,15 @@ class RipsPatientService extends Model
     public function consultation() {
         return $this->hasOne(RipsPatientServiceConsultation::class, 'patient_service_id');
     }
+
+    public function patient()
+    {
+        return $this->belongsTo(Patient::class);
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(User::class, 'doctor_id');
+    }
+
 }

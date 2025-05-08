@@ -24,9 +24,14 @@ class RipsPatientServiceResource extends Resource
         return $form->schema([
             Forms\Components\Select::make('patient_id')
                 ->label(__('messages.rips.patientservice.patient'))
-                ->relationship('patient', 'full_name')
+                ->relationship(
+                    name: 'patient',
+                    titleAttribute: 'full_name',
+                    modifyQueryUsing: fn ($query) => $query->orderBy('first_name')
+                )
                 ->searchable()
-                ->required(),
+                ->required()
+            ,
 
     
             Forms\Components\TextInput::make('tenant_code')
@@ -34,11 +39,15 @@ class RipsPatientServiceResource extends Resource
                 ->required()
                 ->maxLength(20),
     
-            Forms\Components\Select::make('doctor_id')
+                Forms\Components\Select::make('doctor_id')
                 ->label(__('messages.rips.patientservice.doctor'))
-                ->relationship('doctor', 'full_name')
+                ->relationship(
+                    name: 'doctor',
+                    titleAttribute: 'full_name',
+                    modifyQueryUsing: fn ($query) => $query->orderBy('first_name')
+                )
                 ->searchable()
-                ->preload(),
+            ,
             
     
             Forms\Components\TextInput::make('location_code')

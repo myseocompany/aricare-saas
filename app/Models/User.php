@@ -580,4 +580,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
     }
     // protected static bool $hasTitleCaseModelLabel = false;
 
+
+
+
 }
