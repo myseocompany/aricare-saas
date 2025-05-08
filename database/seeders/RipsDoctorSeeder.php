@@ -15,7 +15,7 @@ use Faker\Factory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
-class DoctorSeeder extends Seeder
+class RipsDoctorSeeder extends Seeder
 {
     public function run(): void
     {
