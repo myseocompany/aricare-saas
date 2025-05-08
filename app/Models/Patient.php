@@ -239,4 +239,29 @@ class Patient extends Model implements HasMedia
         return $this->belongsTo(PatientType::class);
     }
 
+    // Nuevvas relaciones agregadas por Julian
+    /**
+     * Relación con el país de origen
+     */
+    public function originCountry()
+    {
+        return $this->belongsTo(Country::class, 'origin_country_id');
+    }
+
+    /**
+     * Relación con el país de residencia
+     */
+    public function residenceCountry()
+    {
+        return $this->belongsTo(Country::class, 'residence_country_id');
+    }
+
+    /**
+     * Relación con el municipio
+     */
+    public function municipality()
+    {
+        return $this->belongsTo(Municipality::class);
+    }
+
 }

@@ -28,6 +28,9 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotificationCollection;
 use App\Notifications\UserVerificationMail;
+use App\Models\Municipality;
+use App\Models\Country;
+
 
 /**
  * App\Models\User
@@ -310,7 +313,10 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
         'is_super_admin_default',
         'is_admin_default',
         'region_code',
-        'full_name'
+        // 👇 Campos nuevos que agrega Julian
+        'origin_country_id',
+        'residence_country_id',
+        'municipality_id',
     ];
 
     /**
@@ -546,6 +552,31 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
     public function getFilamentAvatarUrl(): ?string
     {
         return $this->getProfileAttribute();
+    }
+
+    // Nuevvas relaciones agregadas por Julian
+    /**
+     * Relación con el país de origen
+     */
+    public function originCountry()
+    {
+        return $this->belongsTo(Country::class, 'origin_country_id');
+    }
+
+    /**
+     * Relación con el país de residencia
+     */
+    public function residenceCountry()
+    {
+        return $this->belongsTo(Country::class, 'residence_country_id');
+    }
+
+    /**
+     * Relación con el municipio
+     */
+    public function municipality()
+    {
+        return $this->belongsTo(Municipality::class);
     }
     // protected static bool $hasTitleCaseModelLabel = false;
 

@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('patients', function (Blueprint $table) {
-            $table->string('record_number')->nullable()->after('user_id');
-            $table->string('affiliate_number')->nullable()->after('record_number');
+        Schema::table('department_countries', function (Blueprint $table) {
+            $table->string('code', 5)->nullable()->after('name');
         });
-        
     }
 
     /**
@@ -23,10 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('patients', function (Blueprint $table) {
-            //
+        Schema::table('department_countries', function (Blueprint $table) {
+            $table->dropColumn('code');
         });
     }
 };
-
-
