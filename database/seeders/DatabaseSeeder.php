@@ -85,6 +85,13 @@ class DatabaseSeeder extends Seeder
         $this->call(DefaultLanguageSeeder::class);
         $this->call(CountriesTableSeeder::class);
         $this->call(MunicipalitiesTableSeeder::class);
-       
+        //seeders csv
+        $this->call(ModalidadAtencionSeeder::class);
+        $this->call(TipoIdentificacionPisisSeeder::class);
+        $this->call(ZonaSeeder::class);
+        $this->call(PaisSeeder::class);
+        $this->call(MunicipioSeeder::class);
+        $this->call(GrupoServicioSeeder::class);
+
     }
 }
