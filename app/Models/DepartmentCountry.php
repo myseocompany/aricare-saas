@@ -22,7 +22,7 @@ class DepartmentCountry extends Model
 
     public function municipalities()
     {
-        return $this->hasMany(Municipality::class, 'department_country_id');
+        return $this->hasMany(Municipality::class);
     }
     //
 }

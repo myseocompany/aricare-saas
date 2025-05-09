@@ -240,28 +240,26 @@ class Patient extends Model implements HasMedia
     }
 
     // Nuevvas relaciones agregadas por Julian
-    /**
-     * Relación con el país de origen
-     */
+    
+    // Relación con país de origen (usando country_of_origin como código)
     public function originCountry()
     {
-        return $this->belongsTo(Country::class, 'origin_country_id');
+        return $this->belongsTo(Country::class, 'country_of_origin', 'code');
     }
 
-    /**
-     * Relación con el país de residencia
-     */
+    // Relación con país de residencia (usando country_code)
     public function residenceCountry()
     {
-        return $this->belongsTo(Country::class, 'residence_country_id');
+        return $this->belongsTo(Country::class, 'country_code', 'code');
     }
-
-    /**
-     * Relación con el municipio
-     */
-    public function municipality()
+    // Convertir zone_code a string (accesor)
+    public function getZoneTextAttribute()
     {
-        return $this->belongsTo(Municipality::class);
+        return match((string)$this->zone_code) {
+            '1' => 'Urbana',
+            '2' => 'Rural',
+            default => 'No especificada'
+        };
     }
 
 }

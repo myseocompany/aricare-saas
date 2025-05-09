@@ -626,6 +626,11 @@ return [
         'document_number' => 'Número de documento',
         'document_type' => 'Tipo de documento',
         'patient_type' => 'Tipo de paciente',
+        'origin_country' => 'País de origen',
+        'residence_country' => 'País de residencia',
+        'residence_department' => 'Departamento',
+        'residence_city' => 'Ciudad',
+        'residence_zone' => 'Zona Territorial',
    
     ],
 

@@ -19,8 +19,9 @@ class Country extends Model
     ];
 
     // Relación con municipios
-    public function municipalities()
+    
+    public function departments()
     {
-        return $this->hasMany(Municipality::class);
+        return $this->hasMany(DepartmentCountry::class);
     }
 }
