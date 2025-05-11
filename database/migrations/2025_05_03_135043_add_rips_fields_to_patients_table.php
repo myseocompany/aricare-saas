@@ -21,7 +21,7 @@ return new class extends Migration
 
             // Verificar si la columna 'birth_date' no existe antes de agregarla
             if (!Schema::hasColumn('patients', 'birth_date')) {
-                $table->date('birth_date')->nullable()->after('user_type');
+                $table->date('birth_date')->nullable()->after('document_type');
             }
 
             // Verificar si la columna 'type_id' no existe antes de agregarla

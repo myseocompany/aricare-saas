@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Country; // Importa el modelo Country
+use App\Models\Country; 
 
 class CountriesTableSeeder extends Seeder
 {

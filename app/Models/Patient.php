@@ -63,16 +63,27 @@ class Patient extends Model implements HasMedia
 
     public $table = 'patients';
 
-    public $fillable = [
+    protected $fillable = [
         'user_id',
         'tenant_id',
         'template_id',
         'patient_unique_id',
         'custom_field',
+        'record_number',
+        'affiliate_number',
+        'document_type',
+        'document_number',
         'rips_identification_type_id',
-        'rips_user_type_id',
+        'type_id',
+        'birth_date',
+        'sex_code',
+        'rips_country_id',
+        'rips_department_id',
+        'rips_municipality_id',
+        'zone_code',
+        'country_of_origin_id',
     ];
-
+    
     const STATUS_ALL = 2;
 
     const ACTIVE = 1;
@@ -246,13 +257,13 @@ class Patient extends Model implements HasMedia
     // Relación con país de origen (usando country_of_origin como código)
     public function originCountry()
     {
-        return $this->belongsTo(RipsCountry::class, 'country_of_origin', 'code');
+        return $this->belongsTo(RipsCountry::class, 'country_of_origin_id', 'id');
     }
 
     // Relación con país de residencia (usando country_code)
     public function residenceCountry()
     {
-        return $this->belongsTo(Country::class, 'country_code', 'code');
+        return $this->belongsTo(RipsCountry::class, 'rips_country_id', 'id');
     }
     // Convertir zone_code a string (accesor)
     public function getZoneTextAttribute()
@@ -282,5 +293,10 @@ class Patient extends Model implements HasMedia
     {
         return $this->belongsTo(RipsMunicipality::class);
     }
-    
+
+    public function ripsCountry()
+    {
+        return $this->belongsTo(\App\Models\RipsCountry::class, 'rips_country_id');
+    }
+
 }

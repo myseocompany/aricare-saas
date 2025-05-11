@@ -456,7 +456,7 @@ class MedicineBillsResource extends Resource
                     ->validationAttribute(__('messages.medicine_bills.sale_price'))
                     ->reactive()
                     ->minValue(0)
-                    ->afterStateUpdated(function ($state, Forms\Set $set = null, $get = null) {
+                    ->afterStateUpdated(function ($state, Forms\Set $set, $get = null) {
                         self::updateTotal($get, $set);
                     })
                     ->live()
@@ -465,7 +465,7 @@ class MedicineBillsResource extends Resource
                     ->label(__('messages.purchase_medicine.quantity'))
                     ->placeholder(__('messages.purchase_medicine.quantity'))
                     ->reactive()
-                    ->afterStateUpdated(function ($state, Forms\Set $set = null, $get = null) {
+                    ->afterStateUpdated(function ($state, Forms\Set $set, $get = null) {
                         self::updateTotal($get, $set);
                     })
                     ->numeric()

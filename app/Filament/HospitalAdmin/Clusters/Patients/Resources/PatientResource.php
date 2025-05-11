@@ -64,6 +64,8 @@ use App\Models\RipsMunicipality;
 use App\Models\RipsDepartment;
 use App\Models\DepartmentCountry;
 use App\Models\RipsCountry;
+use App\Enums\Gender;
+
 
 class PatientResource extends Resource
 {
@@ -160,29 +162,22 @@ class PatientResource extends Resource
     
         return $form->schema([
             Section::make()->schema([
-                /*
                 Forms\Components\Select::make('rips_identification_type_id')
                     ->label('Tipo de documento (RIPS)')
-                    ->relationship('ripsIdentificationType', 'name')
+                    ->options(\App\Models\RipsIdentificationType::pluck('name', 'id'))
                     ->required()
                     ->native(false)
                     ->searchable()
                     ->preload()
                     ->placeholder('Seleccione tipo de documento'),
-*/
+
     
                 Forms\Components\TextInput::make('document_number')
                     ->label(__('messages.patient.document_number') . ':')
                     ->required()
                     ->maxLength(15),
     
-                Forms\Components\Select::make('patient_type_id')
-                    ->label(__('messages.patient.patient_type') . ':')
-                    ->relationship('ripsUserType', 'name')
-                    ->required()
-                    ->native(false)
-                    ->searchable()
-                    ->preload(),
+
     
                 Forms\Components\TextInput::make('first_name')
                     ->required()
@@ -193,6 +188,14 @@ class PatientResource extends Resource
                     ->required()
                     ->label(__('messages.user.last_name') . ':')
                     ->maxLength(255),
+                Forms\Components\Select::make('type_id')
+                    ->label(__('messages.patient.patient_type') . ':')
+                    
+                    ->options(\App\Models\RipsUserType::pluck('name', 'id'))
+                    ->required()
+                    ->native(false)
+                    ->searchable()
+                    ->preload(),
     
                 Forms\Components\Select::make('country_of_origin_id')
                     ->label(__('messages.patient.origin_country') . ':')
@@ -200,16 +203,14 @@ class PatientResource extends Resource
                     ->required()
                     ->native(false)
                     ->searchable()
+                    ->default(fn () => RipsCountry::where('name', 'Colombia')->value('id'))
                     ->preload()
                     ->placeholder('Seleccione país de origen'),
     
                 Forms\Components\Radio::make('gender')
                     ->label(__('messages.user.gender') . ':')
                     ->required()
-                    ->options([
-                        0 => __('messages.user.male'),
-                        1 => __('messages.user.female'),
-                    ])
+                    ->options(Gender::options())
                     ->columns(2),
     
                 Forms\Components\DatePicker::make('dob')
@@ -223,6 +224,7 @@ class PatientResource extends Resource
                     Forms\Components\Select::make('rips_country_id')
                         ->label(__('messages.patient.residence_country') . ':')
                         ->options(RipsCountry::all()->pluck('name', 'id'))
+                        ->default(fn () => RipsCountry::where('name', 'Colombia')->value('id'))
                         ->required()
                         ->searchable()
                         ->live()
@@ -236,6 +238,7 @@ class PatientResource extends Resource
                         })
                         ->required()
                         ->searchable()
+                        ->default(fn () => RipsDepartment::where('name', 'Antioquia')->value('id'))
                         ->live()
                         ->afterStateUpdated(fn (callable $set) => $set('rips_municipality_id', null)),
                 ])->columns(2),
@@ -247,6 +250,7 @@ class PatientResource extends Resource
                             if (!$get('rips_department_id')) return [];
                             return RipsMunicipality::where('rips_department_id', $get('rips_department_id'))->pluck('name', 'id');
                         })
+                        ->default(fn () => RipsMunicipality::where('name', 'Medellín')->value('id'))
                         ->required()
                         ->searchable(),
     
@@ -257,6 +261,7 @@ class PatientResource extends Resource
                             '02' => 'Rural',
                         ])
                         ->required()
+                        ->default('01')
                         ->placeholder('Seleccione zona territorial'),
                 ])->columns(2)
             ]),
@@ -278,94 +283,82 @@ class PatientResource extends Resource
         if (auth()->user()->hasRole(['Admin', 'Doctor', 'Receptionist']) && !getModuleAccess('Patients')) {
             abort(404);
         }
-        return
-            $table = $table->modifyQueryUsing(function (Builder $query) {
-                $query->with('patientUser.media')->whereTenantId(auth()->user()->tenant_id);
-                return $query;
-            })->emptyStateHeading(__('messages.common.no_data_found'))
-            ->paginated([10,25,50])
+    
+        return $table
+            ->modifyQueryUsing(function (Builder $query) {
+                return $query->with([
+                    'patientUser.media',
+                    'originCountry',
+                    'ripsCountry',
+                    'ripsMunicipality',
+                    'ripsIdentificationType',
+                ])->whereTenantId(auth()->user()->tenant_id);
+            })
+            ->emptyStateHeading(__('messages.common.no_data_found'))
+            ->paginated([10, 25, 50])
             ->defaultSort('id', 'desc')
             ->columns([
-                // Nueva columna para país de origen
-                TextColumn::make('user.originCountry.name')
-                    ->label(__('País de Origen'))
-                    ->searchable()
-                    ->sortable(),
-
-                // Nueva columna para país de residencia
-                TextColumn::make('user.residenceCountry.name')
-                    ->label(__('País Residencia'))
-                    ->searchable()
-                    ->sortable(),
-            
-                // Nueva columna para municipio
-                TextColumn::make('user.municipality.name')
-                    ->label(__('Municipio'))
-                    ->searchable()
-                    ->sortable(),
-
                 SpatieMediaLibraryImageColumn::make('user.profile')
-                    ->label(__('messages.invoice.patient'))
-                    ->circular()
-                    ->defaultImageUrl(function ($record) {
-                        if (!$record->user->hasMedia(User::COLLECTION_PROFILE_PICTURES)) {
-                            return getUserImageInitial($record->id, $record->user->full_name);
-                        }
-                    })
-                    ->url(fn($record) => PatientResource::getUrl('view', ['record' => $record->id]))
-                    ->collection('profile')
-                    ->width(50)->height(50),
-                TextColumn::make('user.full_name')
-                    ->label('')
-                    ->color('primary')
-                    ->weight(FontWeight::SemiBold)
-                    ->html()
-                    ->formatStateUsing(function ($record) {
-                        if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Doctor')) {
-                            return '<a href="' . PatientResource::getUrl('view', ['record' => $record->id]) . '"class="hoverLink">' . $record->user->full_name . '</a>';
-                        } else {
-                            return $record->user->full_name;
-                        }
-                    })
-                    ->description(function ($record) {
-                        return $record->user->email;
-                    })
-                    ->searchable(['first_name', 'last_name', 'email']),
-                PhoneColumn::make('user.phone')
-                    ->label(__('messages.user.phone'))
-                    ->default(__('messages.common.n/a'))
-                    ->searchable()
-                    ->formatStateUsing(function ($state, $record) {
-                        if (str_starts_with($state, '+') && strlen($state) > 4) {
-                            return $state;
-                        }
-                        if (empty($record->user->phone)) {
-                            return __('messages.common.n/a');
-                        }
+                ->label(__('messages.invoice.patient'))
+                ->circular()
+                ->defaultImageUrl(function ($record) {
+                    if (!$record->user->hasMedia(User::COLLECTION_PROFILE_PICTURES)) {
+                        return getUserImageInitial($record->id, $record->user->full_name);
+                    }
+                })
+                ->url(fn($record) => PatientResource::getUrl('view', ['record' => $record->id]))
+                ->collection('profile')
+                ->width(50)->height(50),
 
-                        return $record->user->region_code . $record->user->phone;
-                    })
-                    ->sortable(),
-                TextColumn::make('user.blood_group')
-                    ->label(__('messages.user.blood_group'))
-                    ->getStateUsing(fn($record) => $record->user->blood_group ?? __('messages.common.n/a'))
-                    ->badge()
-                    ->color(fn($record) => $record->user->blood_group ? 'success' : 'blank')
+            TextColumn::make('user.full_name')
+                ->label('')
+                ->color('primary')
+                ->weight(FontWeight::SemiBold)
+                ->html()
+                ->formatStateUsing(function ($record) {
+                    if (auth()->user()->hasRole('Admin') || auth()->user()->hasRole('Doctor')) {
+                        return '<a href="' . PatientResource::getUrl('view', ['record' => $record->id]) . '" class="hoverLink">' . $record->user->full_name . '</a>';
+                    }
+                    return $record->user->full_name;
+                })
+                ->description(fn($record) => $record->user->email)
+                ->searchable(['first_name', 'last_name', 'email']),
+                
+                TextColumn::make('originCountry.name')
+                    ->label('País de Origen')
                     ->searchable()
                     ->sortable(),
+    
+                TextColumn::make('ripsCountry.name')
+                    ->label('País Residencia')
+                    ->searchable()
+                    ->sortable(),
+    
+                TextColumn::make('ripsMunicipality.name')
+                    ->label('Municipio')
+                    ->searchable()
+                    ->sortable(),
+    
+                TextColumn::make('ripsIdentificationType.name')
+                    ->label('Tipo de documento')
+                    ->searchable()
+                    ->sortable(),
+    
+                TextColumn::make('document_number')
+                    ->label('Número de documento')
+                    ->searchable()
+                    ->sortable(),
+    
+
+    
                 ToggleColumn::make('user.status')
                     ->label(__('messages.common.status'))
                     ->afterStateUpdated(function ($record) {
-                        $record->user->status;
-
                         return Notification::make()
                             ->success()
                             ->title(__('messages.common.status_updated_successfully'))
                             ->send();
-                    })
-            ])
-            ->filters([
-                //
+                    }),
             ])
             ->recordUrl(null)
             ->actions([
@@ -378,7 +371,7 @@ class PatientResource extends Resource
                                 ->title(__('messages.flash.patient_not_found'))
                                 ->send();
                         }
-
+    
                         $patientModels = [
                             BirthReport::class,
                             DeathReport::class,
@@ -394,31 +387,26 @@ class PatientResource extends Resource
                             Prescription::class,
                             IpdPatientDepartment::class,
                         ];
-                        $result = canDelete($patientModels, 'patient_id', $record->id);
-                        if ($result) {
+                        if (canDelete($patientModels, 'patient_id', $record->id)) {
                             return Notification::make()
                                 ->warning()
                                 ->title(__('messages.flash.Patient_cant_deleted'))
                                 ->send();
                         }
+    
                         $record->user()->delete();
                         $record->address()->delete();
                         $record->delete();
-
+    
                         Notification::make()
                             ->success()
                             ->title(__('messages.flash.Patient_deleted'))
                             ->send();
                     }),
-            ])->actionsColumnLabel(__('messages.common.action'))
-            ->bulkActions([
-                // Tables\Actions\BulkActionGroup::make([
-                //     Tables\Actions\DeleteBulkAction::make(),
-                // ]),
-            ]);
-
-        // }
+            ])
+            ->actionsColumnLabel(__('messages.common.action'));
     }
+    
 
     public static function getRelations(): array
     {
@@ -465,6 +453,13 @@ class PatientResource extends Resource
                 Hidden::make('phone')
                     ->required()
                     ->default('+573001234567'), // Número genérico colombiano
+                
+                Hidden::make('region_code')
+                    ->default('+57'),
+                
+                Hidden::make('designation')
+                    ->default('patient'),
+                
 
                 // Estado
                 Hidden::make('status')

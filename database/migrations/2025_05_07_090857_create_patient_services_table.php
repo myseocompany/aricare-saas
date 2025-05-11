@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        /*
-        Schema::table('services', function (Blueprint $table) {
-            $table->index('name');
+        Schema::create('patient_services', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
-        */
     }
 
     /**
@@ -23,8 +22,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('services', function (Blueprint $table) {
-            $table->dropIndex('services_name_index');
-        });
+        Schema::dropIfExists('patient_services');
     }
 };

@@ -84,14 +84,19 @@ class DatabaseSeeder extends Seeder
         $this->call(DefaultPathologyModuleSeeder::class);
         $this->call(DefaultLanguageSeeder::class);
         $this->call(CountriesTableSeeder::class);
-        $this->call(MunicipalitiesTableSeeder::class);
+        //$this->call(MunicipalitiesTableSeeder::class);
         //seeders csv
+        /*
         $this->call(ModalidadAtencionSeeder::class);
         $this->call(TipoIdentificacionPisisSeeder::class);
         $this->call(ZonaSeeder::class);
         $this->call(PaisSeeder::class);
         $this->call(MunicipioSeeder::class);
         $this->call(GrupoServicioSeeder::class);
-
+        */
+        $this->call(RipsCountrySeeder::class);
+        $this->call(RipsDepartmentMunicipalitySeeder::class);
+        $this->call(RipsIdentificationTypeSeeder::class);
+        $this->call(RipsUserTypeSeeder::class);
     }
 }

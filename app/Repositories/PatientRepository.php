@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Notifications\Notification as FilamentNotification;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
+use App\Enums\Gender;
 
 /**
  * Class PatientRepository
@@ -86,27 +87,36 @@ class PatientRepository extends BaseRepository
             $patientData = [
                 'user_id' => $user->id,
                 'patient_unique_id' => strtoupper(Patient::generateUniquePatientId()),
-                'custom_field' => $jsonFields,
+                'custom_field' => !empty($jsonFields) ? json_encode($jsonFields) : null,
             
-                // Asignaciones explícitas desde $input
+                // Nuevos campos que estaban en el formulario pero no se guardaban
+                'record_number' => $input['record_number'] ?? null,
+                'affiliate_number' => $input['affiliate_number'] ?? null,
+                'template_id' => $input['template_id'] ?? null,
+                'document_type' => $input['document_type'] ?? null,
+            
+                // Ya existentes:
                 'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
                 'document_number' => $input['document_number'] ?? null,
                 'type_id' => $input['patient_type_id'] ?? null,
                 'birth_date' => $input['dob'] ?? null,
-                'sex_code' => isset($input['gender']) ? ($input['gender'] == 1 ? 'F' : 'M') : null,
-            
+                'sex_code' => Gender::from((int) $input['gender'])->sexCode(),
                 'rips_country_id' => $input['rips_country_id'] ?? null,
                 'rips_department_id' => $input['rips_department_id'] ?? null,
                 'rips_municipality_id' => $input['rips_municipality_id'] ?? null,
                 'zone_code' => $input['zone_code'] ?? null,
                 'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
             ];
+            
+            
 
-            dd([
-                'user_id' => $user->id,
-                'input' => $input,
-                'patientData' => $patientData,
-            ]);
+            foreach ($patientData as $key => $value) {
+                if ($value === null) {
+                    logger()->warning("Campo $key es NULL");
+                }else {
+                    logger()->info("Campo $key tiene valor: $value");
+                }
+            }
             
             $patient = Patient::create($patientData);
 
@@ -139,11 +149,16 @@ class PatientRepository extends BaseRepository
             return $user;
         } catch (Exception $e) {
             // throw new UnprocessableEntityHttpException($e->getMessage());
+            /*
             FilamentNotification::make()
                 ->title($e->getMessage())
                 ->danger()
                 ->send();
             return null; // Evita el uso de una variable no definida
+            */
+            \Log::error('Excepción al crear paciente', ['exception' => $e]);
+
+            throw new \RuntimeException('Error creando el paciente: ' . json_encode($e->getMessage()), previous: $e);
 
         }
 

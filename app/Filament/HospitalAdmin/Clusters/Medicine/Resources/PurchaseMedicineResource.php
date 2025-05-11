@@ -326,7 +326,7 @@ class PurchaseMedicineResource extends Resource
                     ->label(__('messages.purchase_medicine.quantity'))
                     ->placeholder(__('messages.purchase_medicine.quantity'))
                     ->reactive()
-                    ->afterStateUpdated(function ($state, Forms\Set $set = null, $get = null) {
+                    ->afterStateUpdated(function ($state, Forms\Set $set, $get = null) {
                         // $set('quantity', round($state));
                         self::updateTotal($get, $set);
                     })

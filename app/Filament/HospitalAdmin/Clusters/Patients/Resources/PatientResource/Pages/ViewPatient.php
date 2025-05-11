@@ -107,6 +107,7 @@ class ViewPatient extends ViewRecord
                 Tabs::make('Tabs')
                     ->tabs([
                         Tabs\Tab::make(__('messages.overview'))->schema([
+                            /*
                             PhoneEntry::make('user.phone')
                                 ->label(__('messages.user.phone') . ':')
                                 ->default(__('messages.common.n/a'))
@@ -119,21 +120,25 @@ class ViewPatient extends ViewRecord
                                     }
                                     return $record->user->region_code . $record->user->phone;
                                 }),
+                            */
                             TextEntry::make('user.gender')
                                 ->label(__('messages.user.gender') . ':')
                                 ->getStateUsing(fn($record) => $record->user->gender == 0 ? __('messages.user.male') : __('messages.user.female')),
-                            TextEntry::make('user.blood_group')
-                                ->label(__('messages.user.blood_group') . ':')
-                                ->getStateUsing(fn($record) => $record->user->blood_group ?? __('messages.common.n/a')),
+
+                            TextEntry::make('ripsIdentificationType.name')
+                                ->label('Tipo de documento RIPS:')
+                                ->getStateUsing(fn($record) => optional($record->ripsIdentificationType)?->name ?? __('messages.common.n/a')),
+                            TextEntry::make('document_number')
+                                ->label('Número de documento:')
+                                ->getStateUsing(fn($record) => $record->document_number ?? __('messages.common.n/a')),
+                            TextEntry::make('ripsCountry.name')
+                                ->label('País de residencia:')
+                                ->getStateUsing(fn($record) => optional($record->ripsCountry)?->name ?? __('messages.common.n/a')),
+                                                        
                             TextEntry::make('user.dob')
                                 ->label(__('messages.user.dob') . ':')
                                 ->getStateUsing(fn($record) => $record->user->dob ? Carbon::parse($record->user->dob)->translatedFormat('jS M, Y') : __('messages.common.n/a')),
-                            TextEntry::make('created_at')
-                                ->label(__('messages.common.created_at') . ':')
-                                ->getStateUsing(fn($record) => $record->user->created_at->diffForHumans()),
-                            TextEntry::make('updated_at')
-                                ->label(__('messages.common.last_updated') . ':')
-                                ->getStateUsing(fn($record) => $record->user->updated_at->diffForHumans()),
+                            
                         ])->columns(2),
                         Tabs\Tab::make(__('messages.cases'))->schema([
                             Livewire::make(PatientCasesRelationTable::class)
