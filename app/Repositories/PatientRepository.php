@@ -89,7 +89,7 @@ class PatientRepository extends BaseRepository
                 'custom_field' => $jsonFields,
             
                 // Asignaciones explícitas desde $input
-                'document_type' => $input['document_type'] ?? null,
+                'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
                 'document_number' => $input['document_number'] ?? null,
                 'type_id' => $input['patient_type_id'] ?? null,
                 'birth_date' => $input['dob'] ?? null,
@@ -101,6 +101,13 @@ class PatientRepository extends BaseRepository
                 'zone_code' => $input['zone_code'] ?? null,
                 'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
             ];
+
+            dd([
+                'user_id' => $user->id,
+                'input' => $input,
+                'patientData' => $patientData,
+            ]);
+            
             $patient = Patient::create($patientData);
 
             //$patient = Patient::create(['user_id' => $user->id, 'patient_unique_id' => strtoupper(Patient::generateUniquePatientId()), 'custom_field' => $jsonFields]);

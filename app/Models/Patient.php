@@ -69,6 +69,8 @@ class Patient extends Model implements HasMedia
         'template_id',
         'patient_unique_id',
         'custom_field',
+        'rips_identification_type_id',
+        'rips_user_type_id',
     ];
 
     const STATUS_ALL = 2;
