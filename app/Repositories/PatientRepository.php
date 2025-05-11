@@ -57,12 +57,15 @@ class PatientRepository extends BaseRepository
     {
         try {
             // $input['phone'] = preparePhoneNumber($input, 'phone');
-            $input['department_id'] = Department::whereName('Patient')->first()->id;
+            //$input['department_id'] = Department::whereName('Patient')->first()->id;
+            $input['department_id'] = Department::where('name', 'Patient')->value('id') ?? 3;
+
             $input['password'] = Hash::make($input['password']);
             if (!empty(getSuperAdminSettingValue()['default_language']->value)) {
                 $input['language'] = getSuperAdminSettingValue()['default_language']->value;
             }
-            $input['tenant_id'] = getLoggedInUser()->tenant_id;
+            $input['tenant_id'] = $input['tenant_id'] ?? getLoggedInUser()?->tenant_id;
+
 
             $user = User::create($input);
 
@@ -80,7 +83,27 @@ class PatientRepository extends BaseRepository
                     $jsonFields[$key] = $value;
                 }
             }
-            $patient = Patient::create(['user_id' => $user->id, 'patient_unique_id' => strtoupper(Patient::generateUniquePatientId()), 'custom_field' => $jsonFields]);
+            $patientData = [
+                'user_id' => $user->id,
+                'patient_unique_id' => strtoupper(Patient::generateUniquePatientId()),
+                'custom_field' => $jsonFields,
+            
+                // Asignaciones explícitas desde $input
+                'document_type' => $input['document_type'] ?? null,
+                'document_number' => $input['document_number'] ?? null,
+                'type_id' => $input['patient_type_id'] ?? null,
+                'birth_date' => $input['dob'] ?? null,
+                'sex_code' => isset($input['gender']) ? ($input['gender'] == 1 ? 'F' : 'M') : null,
+            
+                'rips_country_id' => $input['rips_country_id'] ?? null,
+                'rips_department_id' => $input['rips_department_id'] ?? null,
+                'rips_municipality_id' => $input['rips_municipality_id'] ?? null,
+                'zone_code' => $input['zone_code'] ?? null,
+                'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
+            ];
+            $patient = Patient::create($patientData);
+
+            //$patient = Patient::create(['user_id' => $user->id, 'patient_unique_id' => strtoupper(Patient::generateUniquePatientId()), 'custom_field' => $jsonFields]);
 
             $ownerId = $patient->id;
             $ownerType = Patient::class;
@@ -96,8 +119,12 @@ class PatientRepository extends BaseRepository
             */
 
             if (!empty($address = Address::prepareAddressArray($input))) {
-                Address::create(array_merge($address, ['owner_id' => $ownerId, 'owner_type' => $ownerType]));
+                Address::create(array_merge($address, [
+                    'owner_id' => $ownerId,
+                    'owner_type' => $ownerType,
+                ]));
             }
+            
 
             $user->update(['owner_id' => $ownerId, 'owner_type' => $ownerType]);
             $user->assignRole($input['department_id']);
@@ -109,6 +136,8 @@ class PatientRepository extends BaseRepository
                 ->title($e->getMessage())
                 ->danger()
                 ->send();
+            return null; // Evita el uso de una variable no definida
+
         }
 
         return $user;

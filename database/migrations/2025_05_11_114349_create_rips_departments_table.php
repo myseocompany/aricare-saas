@@ -7,11 +7,14 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('rips_municipalities', function (Blueprint $table) {
+        Schema::create('rips_departments', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 10)->unique(); // Código DANE del municipio
+            $table->string('code')->unique();
             $table->string('name');
-            $table->foreignId('rips_department_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('rips_country_id')
+                ->constrained('rips_countries')
+                ->onDelete('cascade');
+
             $table->timestamps();
         });
         
@@ -19,6 +22,6 @@ return new class extends Migration {
 
     public function down(): void
     {
-        Schema::dropIfExists('rips_municipalities');
+        Schema::dropIfExists('rips_departments');
     }
 };

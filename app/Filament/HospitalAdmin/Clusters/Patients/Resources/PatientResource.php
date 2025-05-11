@@ -60,7 +60,8 @@ use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Pages;
-use App\Models\Municipality;
+use App\Models\RipsMunicipality;
+use App\Models\RipsDepartment;
 use App\Models\DepartmentCountry;
 use App\Models\RipsCountry;
 
@@ -132,7 +133,10 @@ class PatientResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $customFields = CustomField::where('module_name', CustomField::Patient)->Where('tenant_id', getLoggedInUser()->tenant_id)->get();
+        $customFields = CustomField::where('module_name', CustomField::Patient)
+            ->where('tenant_id', getLoggedInUser()->tenant_id)
+            ->get();
+    
         $customFieldComponents = [];
         foreach ($customFields as $field) {
             $fieldType = CustomField::FIELD_TYPE_ARR[$field->field_type];
@@ -140,74 +144,22 @@ class PatientResource extends Resource
             $fieldLabel = $field->field_name;
             $isRequired = $field->is_required;
             $gridSpan = $field->grid;
-
+    
             $customFieldComponents[] = match ($fieldType) {
-                'text' => Forms\Components\TextInput::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->placeholder($fieldLabel)
-                    ->columnSpan($gridSpan),
-
-                'textarea' => Forms\Components\Textarea::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->placeholder($fieldLabel)
-                    ->rows(4)
-                    ->columnSpan($gridSpan),
-
-                'toggle' => Forms\Components\Toggle::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->columnSpan($gridSpan),
-
-                'number' => Forms\Components\TextInput::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->placeholder($fieldLabel)
-                    ->numeric()
-                    ->columnSpan($gridSpan),
-
-                'select' => Forms\Components\Select::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->options(explode(',', $field->values))
-                    ->placeholder($fieldLabel)
-                    ->columnSpan($gridSpan),
-
-                'multiSelect' => Forms\Components\MultiSelect::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->options(explode(',', $field->values))
-                    ->placeholder($fieldLabel)
-                    ->columnSpan($gridSpan),
-
-                'date' => Forms\Components\DatePicker::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->columnSpan($gridSpan),
-
-                'date & Time' => Forms\Components\DateTimePicker::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->columnSpan($gridSpan),
-
-                default => Forms\Components\TextInput::make($fieldName)
-                    ->label($fieldLabel)
-                    ->required($isRequired)
-                    ->placeholder($fieldLabel)
-                    ->columnSpan($gridSpan),
+                'text' => Forms\Components\TextInput::make($fieldName)->label($fieldLabel)->required($isRequired)->placeholder($fieldLabel)->columnSpan($gridSpan),
+                'textarea' => Forms\Components\Textarea::make($fieldName)->label($fieldLabel)->required($isRequired)->placeholder($fieldLabel)->rows(4)->columnSpan($gridSpan),
+                'toggle' => Forms\Components\Toggle::make($fieldName)->label($fieldLabel)->required($isRequired)->columnSpan($gridSpan),
+                'number' => Forms\Components\TextInput::make($fieldName)->label($fieldLabel)->required($isRequired)->placeholder($fieldLabel)->numeric()->columnSpan($gridSpan),
+                'select' => Forms\Components\Select::make($fieldName)->label($fieldLabel)->required($isRequired)->options(explode(',', $field->values))->placeholder($fieldLabel)->columnSpan($gridSpan),
+                'multiSelect' => Forms\Components\MultiSelect::make($fieldName)->label($fieldLabel)->required($isRequired)->options(explode(',', $field->values))->placeholder($fieldLabel)->columnSpan($gridSpan),
+                'date' => Forms\Components\DatePicker::make($fieldName)->label($fieldLabel)->required($isRequired)->columnSpan($gridSpan),
+                'date & Time' => Forms\Components\DateTimePicker::make($fieldName)->label($fieldLabel)->required($isRequired)->columnSpan($gridSpan),
+                default => Forms\Components\TextInput::make($fieldName)->label($fieldLabel)->required($isRequired)->placeholder($fieldLabel)->columnSpan($gridSpan),
             };
         }
-
-
-        if ($form->getOperation() === 'edit') {
-            $caseHandler = $form->model;
-            $form->model = User::find($caseHandler->user_id);
-        }
-        return $form
-    ->schema([
-        Section::make()
-            ->schema([
+    
+        return $form->schema([
+            Section::make()->schema([
                 Forms\Components\Select::make('document_type')
                     ->label(__('messages.patient.document_type') . ':')
                     ->relationship('ripsIdentificationType', 'name')
@@ -216,308 +168,108 @@ class PatientResource extends Resource
                     ->searchable()
                     ->preload()
                     ->placeholder('Seleccione tipo de documento'),
-
+    
                 Forms\Components\TextInput::make('document_number')
                     ->label(__('messages.patient.document_number') . ':')
                     ->required()
-                    ->maxLength(15)
-                    ->placeholder('Ingrese número de documento'),
-
+                    ->maxLength(15),
+    
                 Forms\Components\Select::make('patient_type_id')
                     ->label(__('messages.patient.patient_type') . ':')
                     ->relationship('ripsUserType', 'name')
                     ->required()
                     ->native(false)
                     ->searchable()
-                    ->preload()
-                    ->placeholder('Seleccione tipo de paciente'),
-
+                    ->preload(),
+    
                 Forms\Components\TextInput::make('first_name')
                     ->required()
                     ->label(__('messages.user.first_name') . ':')
-                    ->validationAttribute(__('messages.user.first_name'))
-                    ->placeholder(__('messages.user.first_name'))
                     ->maxLength(255),
-
+    
                 Forms\Components\TextInput::make('last_name')
                     ->required()
-                    ->validationAttribute(__('messages.user.last_name'))
                     ->label(__('messages.user.last_name') . ':')
-                    ->placeholder(__('messages.user.last_name'))
                     ->maxLength(255),
-
-                // Selector de País de Origen (versión comentada)
-                Forms\Components\Select::make('country_of_origin')
-                    ->label(__('messages.patient.origin_country') . ':') 
-                    ->options(RipsCountry::all()->pluck('name', 'code'))
+    
+                Forms\Components\Select::make('country_of_origin_id')
+                    ->label(__('messages.patient.origin_country') . ':')
+                    ->options(RipsCountry::all()->pluck('name', 'id'))
                     ->required()
-                    ->native(false)  // Select personalizado
-                    ->searchable()->preload()  // Precarga opciones
-                    ->placeholder('Seleccione país de origen')  // Texto guía
-                    ->columnSpan(1),
-
-                Radio::make('gender')
-                        ->label(__('messages.user.gender') . ':')
-                        ->required()
-                        ->validationAttribute(__('messages.user.gender'))
-                        ->default(0)
-                        ->options([
-                            0 => __('messages.user.male'),
-                            1 => __('messages.user.female'),
-                        ])
-                        ->columns(2),
-
-
-                
-
-                DatePicker::make('dob')
+                    ->native(false)
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Seleccione país de origen'),
+    
+                Forms\Components\Radio::make('gender')
+                    ->label(__('messages.user.gender') . ':')
+                    ->required()
+                    ->options([
+                        0 => __('messages.user.male'),
+                        1 => __('messages.user.female'),
+                    ])
+                    ->columns(2),
+    
+                Forms\Components\DatePicker::make('dob')
                     ->native(false)
                     ->maxDate(now())
                     ->label(__('messages.user.dob') . ':'),
-
-                /*PhoneInput::make('phone')
-                    ->defaultCountry('IN')
-                    ->rules(function ($get) {
-                        return [
-                            'phone:AUTO,' . strtoupper($get('prefix_code')),
-                        ];
-                    })
-                    ->countryStatePath('region_code')
-                    ->afterStateHydrated(function ($component, $record, $operation) {
-                        if ($operation == 'edit') {
-                            if (!empty($record->phone)) {
-                                $phoneNumber = (empty($record->region_code) ? '+' : $record->region_code) . getPhoneNumber($record->phone);
-                            } else {
-                                $phoneNumber = null;
-                            }
-                            $component->state($phoneNumber);
-                        }
-                    })
-                    ->validationMessages([
-                        'phone' => __('messages.common.invalid_number'),
-                    ])
-                    ->label(__('messages.user.phone') . ':')
-                    ->required(),
-
-                Hidden::make('region_code'),*/
-
-                /*Group::make()
-                    ->schema([
-                        Forms\Components\TextInput::make('email')
-                            ->unique(
-                                'users',
-                                'email',
-                                null,
-                                false,
-                                function ($rule, $record) {
-                                    if ($record) {
-                                        $rule->whereNot('id', $record->id);
-                                    }
-                                    return $rule;
-                                }
-                            )
-                            ->label(__('messages.user.email') . ':')
-                            ->validationMessages([
-                                'unique' => __('messages.user.email') . ' ' . __('messages.common.is_already_exists'),
-                            ])
-                            ->placeholder(__('messages.user.email'))
-                            ->email()
-                            ->required(),
-
-                        Toggle::make('status')
-                            ->default(1)
-                            ->live()
-                            ->label(__('messages.user.status') . ':')
-                            ->inline(false)
-                            ->columnSpan(1),
-                    ])
-                    ->columns(1),
-
-                Select::make('blood_group')
-                    ->label(__('messages.user.blood_group') . ':')
-                    ->options(getBloodGroups())
-                    ->native(false),
-
-                Group::make()
-                    ->schema([
-                        Forms\Components\TextInput::make('password')
-                            ->revealable()
-                            ->visible(fn (?string $operation) => $operation === 'create')
-                            ->rules(['min:8', 'max:20'])
-                            ->confirmed()
-                            ->label(__('messages.user.password') . ':')
-                            ->placeholder(__('messages.user.password'))
-                            ->validationAttribute(__('messages.user.password'))
-                            ->required()
-                            ->password()
-                            ->maxLength(20),
-
-                        TextInput::make('password_confirmation')
-                            ->dehydrated(false)
-                            ->visible(fn (?string $operation) => $operation === 'create')
-                            ->label(__('messages.user.password_confirmation') . ':')
-                            ->placeholder(__('messages.user.password_confirmation'))
-                            ->validationAttribute(__('messages.user.password_confirmation'))
-                            ->revealable()
-                            ->required()
-                            ->password()
-                            ->maxLength(20),
-                    ])
-                    ->columns(2),
-
-                Section::make('')
-                    ->schema($customFieldComponents)
-                    ->columns(12)
-                    ->visible(function () {
-                        $customFields = CustomField::where('module_name', CustomField::Patient)
-                            ->where('tenant_id', getLoggedInUser()->tenant_id)
-                            ->get();
-                        return $customFields->count() > 0;
-                    }),
-
-                SpatieMediaLibraryFileUpload::make('user.profile')
-                    ->label(__('messages.common.profile') . ':')
-                    ->avatar()
-                    ->image()
-                    ->disk(config('app.media_disk'))
-                    ->collection(User::COLLECTION_PROFILE_PICTURES),*/
-
-                Fieldset::make('Address Details')
-                    ->schema([
-                        /*TextInput::make('address1')
-                            ->label(__('messages.user.address1') . ':')
-                            ->placeholder(__('messages.user.address1')),
-
-                        TextInput::make('address2')
-                            ->label(__('messages.user.address2') . ':')
-                            ->placeholder(__('messages.user.address2')),*/
-
-                        // Grupo de Países y Departamentos (comentado)
-        Group::make()  // Agrupa campos en un layout
-        ->schema([  // Define los campos internos
-            // País de Residencia (trigger inicial)
-            Forms\Components\Select::make('country_code') // Usamos el campo country_code de patients
-                ->label(__('messages.patient.residence_country') . ':')
-                ->options(RipsCountry::all()->pluck('name', 'code'))
-                ->required()
-                ->placeholder('Seleccione país de residencia')
-                ->live() // Hace que el campo sea reactivo
-                ->afterStateUpdated(fn (callable $set) => $set('department_code', null)), // Limpia departamento al cambiar país
-            
-                /*Forms\Components\Select::make('country_code')
-                ->label(__('messages.patient.residence_country') . ':')
-                ->options(Country::all()->pluck('name', 'code'))
-                ->required()
-                ->native(false)
-                ->searchable()
-                ->preload()
-                ->placeholder('Seleccione país de residencia')
-                ->live(),*/
-                            
-            // Selector de Departamento (dependiente)
-            // Departamento (dependiente del país)
-            Forms\Components\Select::make('department_code')
-                ->label(__('messages.patient.residence_department') . ':')
-                ->options(function (callable $get) {
-                    if (!$get('country_code')) {
-                        return [];
-                    }
-                    
-                    return DepartmentCountry::whereHas('country', fn($q) => $q->where('code', $get('country_code')))
-                        ->where('is_active', true)
-                        ->pluck('name', 'code');
-                })
-                ->required()
-                ->live() // Hace que el campo sea reactivo
-                ->afterStateUpdated(fn (callable $set) => $set('municipality_code', null)), // Limpia municipio al cambiar departamento
-            
-            /*Forms\Components\Select::make('department_country_id')
-                ->label(__('residence_department') . ':')
-                ->options(function (callable $get) {  // Opciones dinámicas
-                    // Filtra departamentos por país seleccionado:
-                    return $get('residence_country_id')  // ID del país
-                        ? \App\Models\DepartmentCountry::where('country_id', $get('residence_country_id'))->pluck('name', 'id')
-                        : [];  // Array vacío si no hay país
-                })
-                ->searchable()
-                ->preload()
-                ->required()
-                ->placeholder('Seleccione departamento')
-                ->live(),  // Actualiza municipios al cambiar*/
-
-                // Municipio (dependiente del departamento)
-            
-        ])
-        ->columns(2),  // Distribuye en 2 columnas
-
-        // ----------------------------------------------------------
-
-        // Grupo de Municipio y Zona (comentado)
-        Group::make()
-        ->schema([
-            // Selector de Municipio (dependiente)
-            // Municipio (municipality_code)
-            Forms\Components\Select::make('municipality_code')
-                ->label(__('messages.patient.residence_city') . ':')
-                ->options(function (callable $get) {
-                    if (!$get('department_code')) {
-                        return [];
-                    }
-                    
-                    return Municipality::whereHas('department', fn($q) => $q->where('code', $get('department_code')))
-                        ->where('is_active', true)
-                        ->pluck('name', 'code');
-                })
-                ->required()
-                ->searchable(),
-
-            
-                    
-            // Selector de Zona Territorial
-            Forms\Components\Select::make('territorial_zone')
-                ->label(__('messages.patient.residence_zone') . ':')
-                ->options([  // Opciones fijas
-                    '01' => 'Urbana',  // Valor: '01', Label: 'Urbana'
-                    '02' => 'Rural',
-                ])
-                ->required()
-                ->placeholder('Seleccione zona territorial')
-        ])
-        ->columns(2)  // 2 columnas
-
-                        /*Fieldset::make(__('messages.setting.social_details'))
-                            ->schema([
-                                TextInput::make('facebook_url')
-                                    ->label(__('messages.facebook_url') . ':')
-                                    ->url()
-                                    ->placeholder(__('messages.facebook_url')),
-
-                                TextInput::make('twitter_url')
-                                    ->label(__('messages.twitter_url') . ':')
-                                    ->url()
-                                    ->placeholder(__('messages.twitter_url')),
-
-                                TextInput::make('instagram_url')
-                                    ->label(__('messages.instagram_url') . ':')
-                                    ->url()
-                                    ->placeholder(__('messages.instagram_url')),
-
-                                TextInput::make('linkedIn_url')
-                                    ->label(__('messages.linkedIn_url') . ':')
-                                    ->url()
-                                    ->placeholder(__('messages.linkedIn_url')),
-                            ]),*/
-                    ])
-                    ->columns(2),
-                    // Nueva sección para campos ocultos
-                
-
-            ])
-            ->columns(2),
+            ])->columns(2),
+    
+            Fieldset::make('Detalles de residencia')->schema([
+                Group::make()->schema([
+                    Forms\Components\Select::make('rips_country_id')
+                        ->label(__('messages.patient.residence_country') . ':')
+                        ->options(RipsCountry::all()->pluck('name', 'id'))
+                        ->required()
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(fn (callable $set) => $set('rips_department_id', null)),
+    
+                    Forms\Components\Select::make('rips_department_id')
+                        ->label(__('messages.patient.residence_department') . ':')
+                        ->options(function (callable $get) {
+                            if (!$get('rips_country_id')) return [];
+                            return RipsDepartment::where('rips_country_id', $get('rips_country_id'))->pluck('name', 'id');
+                        })
+                        ->required()
+                        ->searchable()
+                        ->live()
+                        ->afterStateUpdated(fn (callable $set) => $set('rips_municipality_id', null)),
+                ])->columns(2),
+    
+                Group::make()->schema([
+                    Forms\Components\Select::make('rips_municipality_id')
+                        ->label(__('messages.patient.residence_city') . ':')
+                        ->options(function (callable $get) {
+                            if (!$get('rips_department_id')) return [];
+                            return RipsMunicipality::where('rips_department_id', $get('rips_department_id'))->pluck('name', 'id');
+                        })
+                        ->required()
+                        ->searchable(),
+    
+                    Forms\Components\Select::make('zone_code')
+                        ->label(__('messages.patient.residence_zone') . ':')
+                        ->options([
+                            '01' => 'Urbana',
+                            '02' => 'Rural',
+                        ])
+                        ->required()
+                        ->placeholder('Seleccione zona territorial'),
+                ])->columns(2)
+            ]),
+    
+            Section::make('')
+                ->schema($customFieldComponents)
+                ->columns(12)
+                ->visible(fn () => $customFields->count() > 0),
+    
             self::hiddenFieldsSection(),
-    ]);
-
+        ]);
     }
+    
+    
+    
 
     public static function table(Table $table): Table
     {

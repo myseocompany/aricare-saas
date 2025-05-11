@@ -31,13 +31,33 @@ class CreatePatient extends CreateRecord
 
     protected function handleRecordCreation(array $input): Model
     {
-        $input['region_code'] = !empty($input['phone']) ? getRegionCode($input['region_code'] ?? '') : null;
-        $input['phone'] = getPhoneNumber($input['phone']);
-
-        $record =app(PatientRepository::class)->store($input);
+        // Asegura campos necesarios para crear el User
+        $input['email'] = $input['email'] ?? 'paciente_' . uniqid() . '@aricare.co';
+        $input['password'] = $input['password'] ?? 'PacienteTemp123!';
+        $input['password_confirmation'] = $input['password_confirmation'] ?? 'PacienteTemp123!';
+        $input['phone'] = $input['phone'] ?? '+573000000000';
+        $input['region_code'] = $input['region_code'] ?? '+57';
+        $input['designation'] = 'patient';
+        $input['language'] = app()->getLocale();
+        $input['status'] = true;
+        $input['department_id'] = \App\Models\Department::where('name', 'Patient')->first()->id ?? 3;
+        $input['theme_mode'] = '0';
+    
+        // fallback al tenant si no lo tiene (por si lo pierdes en tests)
+        $input['tenant_id'] = $input['tenant_id'] ?? getLoggedInUser()?->tenant_id;
+    
+        // Intenta crear
+        $record = app(PatientRepository::class)->store($input);
+    
+        if (! $record instanceof Model) {
+            throw new \RuntimeException('Error creando el paciente');
+        }
+    
         app(PatientRepository::class)->createNotification($input);
         return $record;
     }
+    
+    
 
     protected function getCreatedNotificationTitle(): ?string
     {

@@ -271,5 +271,14 @@ class Patient extends Model implements HasMedia
     {
         return $this->belongsTo(\App\Models\RipsUserType::class);
     }
-
+    public function ripsDepartment()
+    {
+        return $this->belongsTo(RipsDepartment::class);
+    }
+    
+    public function ripsMunicipality()
+    {
+        return $this->belongsTo(RipsMunicipality::class);
+    }
+    
 }
