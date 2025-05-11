@@ -62,7 +62,7 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Pages;
 use App\Models\Municipality;
 use App\Models\DepartmentCountry;
-use App\Models\Country;
+use App\Models\RipsCountry;
 
 class PatientResource extends Resource
 {
@@ -210,7 +210,7 @@ class PatientResource extends Resource
             ->schema([
                 Forms\Components\Select::make('document_type')
                     ->label(__('messages.patient.document_type') . ':')
-                    ->relationship('documentType', 'name')
+                    ->relationship('ripsIdentificationType', 'name')
                     ->required()
                     ->native(false)
                     ->searchable()
@@ -225,7 +225,7 @@ class PatientResource extends Resource
 
                 Forms\Components\Select::make('patient_type_id')
                     ->label(__('messages.patient.patient_type') . ':')
-                    ->relationship('patientType', 'name')
+                    ->relationship('ripsUserType', 'name')
                     ->required()
                     ->native(false)
                     ->searchable()
@@ -249,7 +249,7 @@ class PatientResource extends Resource
                 // Selector de País de Origen (versión comentada)
                 Forms\Components\Select::make('country_of_origin')
                     ->label(__('messages.patient.origin_country') . ':') 
-                    ->options(Country::all()->pluck('name', 'code'))
+                    ->options(RipsCountry::all()->pluck('name', 'code'))
                     ->required()
                     ->native(false)  // Select personalizado
                     ->searchable()->preload()  // Precarga opciones
@@ -398,7 +398,7 @@ class PatientResource extends Resource
             // País de Residencia (trigger inicial)
             Forms\Components\Select::make('country_code') // Usamos el campo country_code de patients
                 ->label(__('messages.patient.residence_country') . ':')
-                ->options(Country::where('is_active', true)->pluck('name', 'code'))
+                ->options(RipsCountry::all()->pluck('name', 'code'))
                 ->required()
                 ->placeholder('Seleccione país de residencia')
                 ->live() // Hace que el campo sea reactivo

@@ -4,10 +4,10 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\TipoIdentificacionPisis;
+use App\Models\RipsIdentificationType;
 
 
-class TipoIdentificacionPisisSeeder extends Seeder
+class RipsIdentificationTypeSeeder extends Seeder
 {
     public function run(): void
     {
@@ -24,9 +24,9 @@ class TipoIdentificacionPisisSeeder extends Seeder
 
             if (count($row) < 2) continue;
 
-            TipoIdentificacionPisis::create([
-                'codigo' => $row[0],
-                'nombre' => $row[1],
+            RipsIdentificationType::create([
+                'code' => $row[0],
+                'name' => $row[1],
             ]);
         }
     }

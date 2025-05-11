@@ -244,7 +244,7 @@ class Patient extends Model implements HasMedia
     // Relación con país de origen (usando country_of_origin como código)
     public function originCountry()
     {
-        return $this->belongsTo(Country::class, 'country_of_origin', 'code');
+        return $this->belongsTo(RipsCountry::class, 'country_of_origin', 'code');
     }
 
     // Relación con país de residencia (usando country_code)
@@ -260,6 +260,16 @@ class Patient extends Model implements HasMedia
             '2' => 'Rural',
             default => 'No especificada'
         };
+    }
+
+    public function ripsIdentificationType()
+    {
+        return $this->belongsTo(\App\Models\RipsIdentificationType::class);
+    }
+
+    public function ripsUserType()
+    {
+        return $this->belongsTo(\App\Models\RipsUserType::class);
     }
 
 }
