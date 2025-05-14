@@ -1,0 +1,12 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class RipsServiceGroup extends Model
+{
+    protected $table = 'rips_service_group';
+
+    protected $fillable = ['name'];
+}

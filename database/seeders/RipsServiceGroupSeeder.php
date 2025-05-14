@@ -4,14 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\GrupoServicio;
+use App\Models\RipsServiceGroup;
 
-
-class GrupoServicioSeeder extends Seeder
+class RipsServiceGroupSeeder extends Seeder
 {
     public function run(): void
     {
-        $path = database_path('seeders/data/gruposervicios.csv');
+        $path = database_path('seeders/data/rips_service_group.csv');
         $rows = array_map('str_getcsv', file($path));
 
         $headerSkipped = false;
@@ -24,9 +23,10 @@ class GrupoServicioSeeder extends Seeder
 
             if (count($row) < 2) continue;
 
-            GrupoServicio::create([
-                'codigo' => $row[0],
-                'nombre' => $row[1],
+            RipsServiceGroup::create([
+                
+                
+                'name' => $row[1],
             ]);
         }
     }
