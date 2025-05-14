@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rips_service_group', function (Blueprint $table) {
+        Schema::create('rips_service_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rips_service_group');
+        Schema::dropIfExists('rips_service_groups');
     }
 };
