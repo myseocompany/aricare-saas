@@ -65,6 +65,9 @@ use App\Models\RipsDepartment;
 use App\Models\DepartmentCountry;
 use App\Models\RipsCountry;
 use App\Enums\Gender;
+use App\Models\RipsGenderType;
+use App\Models\RipsTerritorialZoneType;
+
 
 
 class PatientResource extends Resource
@@ -138,6 +141,9 @@ class PatientResource extends Resource
         $customFields = CustomField::where('module_name', CustomField::Patient)
             ->where('tenant_id', getLoggedInUser()->tenant_id)
             ->get();
+        // Obtener los tipos de género desde el modelo RipsGenderType    
+        $genderOptions = \App\Models\RipsGenderType::pluck('name', 'code')->toArray();
+        $territorialZoneOptions = RipsTerritorialZoneType::pluck('name', 'code')->toArray();
     
         $customFieldComponents = [];
         foreach ($customFields as $field) {
@@ -207,16 +213,18 @@ class PatientResource extends Resource
                     ->preload()
                     ->placeholder('Seleccione país de origen'),
     
+                
                 Forms\Components\Radio::make('gender')
                     ->label(__('messages.user.gender') . ':')
                     ->required()
-                    ->options(Gender::options())
-                    ->columns(2),
+                    ->options($genderOptions)
+                    ->columns(count($genderOptions)),
     
                 Forms\Components\DatePicker::make('dob')
                     ->native(false)
                     ->maxDate(now())
                     ->label(__('messages.user.dob') . ':'),
+
             ])->columns(2),
     
             Fieldset::make('Detalles de residencia')->schema([
@@ -253,13 +261,10 @@ class PatientResource extends Resource
                         ->default(fn () => RipsMunicipality::where('name', 'Medellín')->value('id'))
                         ->required()
                         ->searchable(),
-    
+
                     Forms\Components\Select::make('zone_code')
                         ->label(__('messages.patient.residence_zone') . ':')
-                        ->options([
-                            '01' => 'Urbana',
-                            '02' => 'Rural',
-                        ])
+                        ->options($territorialZoneOptions)
                         ->required()
                         ->default('01')
                         ->placeholder('Seleccione zona territorial'),

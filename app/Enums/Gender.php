@@ -8,12 +8,14 @@ enum Gender: int
 {
     case Male = 0;
     case Female = 1;
+    case Indeterminate = 2;
 
     public function label(): string
     {
         return match ($this) {
             self::Male => 'Masculino',
             self::Female => 'Femenino',
+            self::Indeterminate => 'Indeterminado',
         };
     }
 
@@ -22,6 +24,7 @@ enum Gender: int
         return match ($this) {
             self::Male => 'M',
             self::Female => 'F',
+            self::Indeterminate => 'I',
         };
     }
 
@@ -30,6 +33,7 @@ enum Gender: int
         return [
             self::Male->value => self::Male->label(),
             self::Female->value => self::Female->label(),
+            self::Indeterminate->value => self::Indeterminate->label(),
         ];
     }
 }
