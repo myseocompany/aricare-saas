@@ -9,7 +9,7 @@ class RipsGenderTypesSeeder extends Seeder
 {
     public function run(): void
     {
-        $path = database_path('seeders/data/gender_types.csv');
+        $path = database_path('seeders/data/rips_gender_types.csv');
         $rows = array_map('str_getcsv', file($path));
 
         $headerSkipped = false;

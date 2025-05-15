@@ -9,7 +9,7 @@ class RipsTerritorialZoneTypeSeeder extends Seeder
 {
     public function run(): void
     {
-        $path = database_path('seeders/data/territorial_zone_types.csv');
+        $path = database_path('seeders/data/rips_territorial_zone_types.csv');
         $rows = array_map('str_getcsv', file($path));
 
         $headerSkipped = false;
