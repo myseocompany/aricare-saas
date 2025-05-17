@@ -4,8 +4,12 @@ set -x
 #php artisan migrate --path=database/migrations/2025_05_15_103326_create_rips_technology_purposes_table.php
 php artisan migrate --path=database/migrations/2025_05_15_110219_create_rips_collection_concept_table.php
 php artisan migrate --path=database/migrations/2025_05_15_110806_create_rips_service_reasons_table.php
+php artisan migrate --path=database/migrations/2025_05_17_010755_create_rips_admission_routes_table.php
+
 #php artisan db:seed --class=RipsServiceSeeder
 #php artisan db:seed --class=RipsTechnologyPurposesSeeder
-php artisan db:seed --class=RipsUserTypeSeeder
-php artisan db:seed --class=RipsDepartmentMunicipalitySeeder
+php artisan db:seed --class=RipsServiceReasonSeeder
+php artisan db:seed --class=RipsCollectionConceptSeeder
+
+php artisan db:seed --class=RipsAdmissionRouteSeeder
 echo "Migración ejecutada"

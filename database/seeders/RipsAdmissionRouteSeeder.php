@@ -2,12 +2,13 @@
 
 namespace Database\Seeders;
 
-use App\Models\RipsServiceReason;
+use App\Models\RipsAdmissionRoute;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
-class RipsServiceReasonSeeder extends Seeder
+class RipsAdmissionRouteSeeder extends Seeder
 {
+
     /**
      * Run the database seeds.
      */
@@ -27,11 +28,10 @@ class RipsServiceReasonSeeder extends Seeder
 
             if (count($row) < 2) continue;
 
-            RipsServiceReason::create([
+            RipsAdmissionRoute::create([
                 'code' => $row[0],
                 'name' => $row[1],
             ]);
         }
     }
-    
 }

@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rips_collection_concepts', function (Blueprint $table) {
+        Schema::create('rips_admission_routes', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('code')->unique();
+            
             $table->string('name');
-
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rips_collection_concepts');
+        Schema::dropIfExists('rips_admission_routes');
     }
 };
