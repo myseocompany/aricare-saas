@@ -7,9 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class RipsPatientService extends Model
 {
     protected $fillable = [
-        'patient_id', 'tenant_code', 'doctor_id', 'location_code',
-        'has_incapacity', 'service_datetime', 'service_group_code',
-        'service_code', 'technology_purpose_code', 'collection_concept_code'
+        'patient_id',
+        'tenant_code',
+        'doctor_id',
+        'location_code',
+        'has_incapacity',
+        'service_datetime',
+        'rips_service_group_id',
+        'rips_service_id',
+        'rips_technology_purpose_id',
+        'rips_collection_concept_id',
     ];
 
     public function diagnoses() {
@@ -32,6 +39,26 @@ class RipsPatientService extends Model
     public function doctor()
     {
         return $this->belongsTo(User::class, 'doctor_id');
+    }
+
+        public function serviceGroup(): BelongsTo
+    {
+        return $this->belongsTo(RipsServiceGroup::class, 'rips_service_group_id');
+    }
+
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(RipsService::class, 'rips_service_id');
+    }
+
+    public function technologyPurpose(): BelongsTo
+    {
+        return $this->belongsTo(RipsTechnologyPurpose::class, 'rips_technology_purpose_id');
+    }
+
+    public function collectionConcept(): BelongsTo
+    {
+        return $this->belongsTo(RipsCollectionConcept::class, 'rips_collection_concept_id');
     }
 
 

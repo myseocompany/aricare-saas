@@ -89,22 +89,33 @@ class RipsPatientServiceResource extends Resource
                 ->label(__('messages.rips.patientservice.service_datetime'))
                 ->default(now())
                 ->required(),
-    
-            Forms\Components\TextInput::make('service_group_code')
-                ->label(__('messages.rips.patientservice.service_group_code'))
-                ->maxLength(5),
-    
-            Forms\Components\TextInput::make('service_code')
-                ->label(__('messages.rips.patientservice.service_code'))
-                ->numeric(),
-    
-            Forms\Components\TextInput::make('technology_purpose_code')
-                ->label(__('messages.rips.patientservice.technology_purpose_code'))
-                ->maxLength(10),
-    
-            Forms\Components\TextInput::make('collection_concept_code')
-                ->label(__('messages.rips.patientservice.collection_concept_code'))
-                ->maxLength(10),
+Forms\Components\Select::make('rips_service_group_id')
+    ->label('Grupo de Servicio')
+    ->options(
+        \App\Models\RipsServiceGroup::all()->pluck('name', 'id')
+    )
+    ->searchable()
+    ->required(),
+
+Forms\Components\Select::make('rips_service_id')
+    ->label('Servicio')
+    ->options(
+        \App\Models\RipsService::all()->mapWithKeys(fn ($item) => [$item->id => "{$item->code} - {$item->name}"])
+    )
+    ->searchable()
+    ->required(),
+
+Forms\Components\Select::make('rips_technology_purpose_id')
+    ->label('Finalidad Tecnológica')
+    ->options(
+        \App\Models\RipsTechnologyPurpose::all()->pluck('name', 'id')
+    )
+    ->searchable()
+    ->required(),
+
+
+
+
                 ]);
     }
     
@@ -114,19 +125,6 @@ class RipsPatientServiceResource extends Resource
         return $table
             ->columns([
 
-                Forms\Components\Select::make('patient_id')
-    ->label('Paciente')
-    ->relationship(
-        name: 'patient',
-        titleAttribute: 'id', // usar una columna real de `patients`
-        modifyQueryUsing: fn ($query) => $query->with('user') // carga eager de usuarios
-    )
-    ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
-    ->searchable()
-    ->searchDebounce(500)
-    ->preload()
-    ->required()
-,
 
                 Tables\Columns\TextColumn::make('tenant_code')
                     ->searchable(),
@@ -140,14 +138,14 @@ class RipsPatientServiceResource extends Resource
                 Tables\Columns\TextColumn::make('service_datetime')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('service_group_code')
+                Tables\Columns\TextColumn::make('service_group_id')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('service_code')
+                Tables\Columns\TextColumn::make('service_id')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('technology_purpose_code')
+                Tables\Columns\TextColumn::make('technology_purpose_id')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('collection_concept_code')
+                Tables\Columns\TextColumn::make('collection_concept_id')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
