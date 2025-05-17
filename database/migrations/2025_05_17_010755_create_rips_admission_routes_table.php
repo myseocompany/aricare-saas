@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('rips_admission_routes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('code')->unique();
+            $table->string('code')->unique();
             
             $table->string('name');
             $table->timestamps();

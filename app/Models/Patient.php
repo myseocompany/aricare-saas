@@ -156,6 +156,16 @@ class Patient extends Model implements HasMedia
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function getDocumentTypeAttribute()
+    {
+        return $this->user ? $this->user->document_type : null;
+    }
+
+    public function getDocumentNumberAttribute()
+    {
+        return $this->user ? $this->user->document_number : null;
+    }
+
     public function address(): MorphOne
     {
         return $this->morphOne(Address::class, 'owner');
@@ -297,6 +307,11 @@ class Patient extends Model implements HasMedia
     public function ripsCountry()
     {
         return $this->belongsTo(\App\Models\RipsCountry::class, 'rips_country_id');
+    }
+
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
     }
 
 }

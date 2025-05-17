@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::create('rips_technology_purposes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedInteger('code')->unique();
+            $table->string('code')->unique();
 
             $table->string('name');
             $table->timestamps();

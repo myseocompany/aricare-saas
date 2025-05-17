@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('municipios', function (Blueprint $table) {
-            $table->id();
-            $table->string('codigo')->unique();
-            $table->string('nombre');
-            $table->timestamps();
+        Schema::table('patients', function (Blueprint $table) {
+           $table->dropColumn(['document_type', 'document_number']);
         });
-        
     }
 
     /**
@@ -25,6 +21,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('municipios');
+        Schema::table('patients', function (Blueprint $table) {
+            $table->string('document_type', 3)->nullable();
+            $table->string('document_number', 15)->nullable();
+        });
     }
 };
