@@ -2,6 +2,7 @@
 
 namespace App\Filament\HospitalAdmin\Resources;
 
+use Illuminate\Support\Facades\Auth;
 use App\Filament\HospitalAdmin\Resources\RipsPatientServiceResource\Pages;
 use App\Filament\HospitalAdmin\Resources\RipsPatientServiceResource\RelationManagers;
 use App\Models\RipsPatientService;
@@ -22,43 +23,71 @@ class RipsPatientServiceResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+
+
             Forms\Components\Select::make('patient_id')
-                ->label(__('messages.rips.patientservice.patient'))
-                ->relationship(
-                    name: 'patient',
-                    titleAttribute: 'full_name',
-                    modifyQueryUsing: fn ($query) => $query->orderBy('first_name')
-                )
+                ->label('Paciente')
                 ->searchable()
-                ->required()
-            ,
+                ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
+                ->options(function (string $search = null) {
+                    $tenantId = Auth::user()->tenant_id;
+
+                    return \App\Models\Patient::query()
+                        ->where('tenant_id', $tenantId)
+                        ->whereHas('user', function ($query) use ($search) {
+                            $query->where('first_name', 'like', "%{$search}%")
+                                ->orWhere('last_name', 'like', "%{$search}%");
+                        })
+                        ->with('user')
+                        ->limit(20)
+                        ->get()
+                        ->mapWithKeys(function ($patient) {
+                            $name = $patient->user?->first_name . ' ' . $patient->user?->last_name;
+                            return [$patient->id => $name];
+                        });
+                })
+                ->required(),
+
+
 
     
-            Forms\Components\TextInput::make('tenant_code')
-                ->label(__('messages.rips.patientservice.tenant_code'))
-                ->required()
-                ->maxLength(20),
-    
+      
+
+
                 Forms\Components\Select::make('doctor_id')
-                ->label(__('messages.rips.patientservice.doctor'))
-                ->relationship(
-                    name: 'doctor',
-                    titleAttribute: 'full_name',
-                    modifyQueryUsing: fn ($query) => $query->orderBy('first_name')
-                )
-                ->searchable()
-            ,
+                    ->label('Doctor')
+                    ->searchable()
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
+                    ->options(function (string $search = null) {
+                        $tenantId = Auth::user()->tenant_id;
+
+                        return \App\Models\Doctor::query()
+                            ->where('tenant_id', $tenantId)
+                            ->whereHas('user', function ($query) use ($search) {
+                                $query->where('first_name', 'like', "%{$search}%")
+                                    ->orWhere('last_name', 'like', "%{$search}%");
+                            })
+                            ->with('user')
+                            ->limit(20)
+                            ->get()
+                            ->mapWithKeys(function ($doctor) {
+                                $name = $doctor->user?->first_name . ' ' . $doctor->user?->last_name;
+                                return [$doctor->id => $name];
+                            });
+                    })
+                    ->preload()
+                    ->required(),
+
             
     
-            Forms\Components\TextInput::make('location_code')
-                ->label(__('messages.rips.patientservice.location_code'))
-                ->maxLength(12),
+
     
             Forms\Components\Toggle::make('has_incapacity')
                 ->label(__('messages.rips.patientservice.has_incapacity')),
     
             Forms\Components\DateTimePicker::make('service_datetime')
                 ->label(__('messages.rips.patientservice.service_datetime'))
+                ->default(now())
                 ->required(),
     
             Forms\Components\TextInput::make('service_group_code')
@@ -76,7 +105,7 @@ class RipsPatientServiceResource extends Resource
             Forms\Components\TextInput::make('collection_concept_code')
                 ->label(__('messages.rips.patientservice.collection_concept_code'))
                 ->maxLength(10),
-        ]);
+                ]);
     }
     
 
@@ -84,9 +113,21 @@ class RipsPatientServiceResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('patient_id')
-                    ->numeric()
-                    ->sortable(),
+
+                Forms\Components\Select::make('patient_id')
+    ->label('Paciente')
+    ->relationship(
+        name: 'patient',
+        titleAttribute: 'id', // usar una columna real de `patients`
+        modifyQueryUsing: fn ($query) => $query->with('user') // carga eager de usuarios
+    )
+    ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
+    ->searchable()
+    ->searchDebounce(500)
+    ->preload()
+    ->required()
+,
+
                 Tables\Columns\TextColumn::make('tenant_code')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('doctor_id')
