@@ -18,6 +18,20 @@ class RipsPatientServiceResource extends Resource
     protected static ?string $model = RipsPatientService::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    public static function getNavigationLabel(): string
+    {
+        return __('messages.rips_patient_service_navigation');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('messages.rips_patient_service_model');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('messages.rips_patient_service_plural_model');
+    }
 
     public static function form(Form $form): Form
     {

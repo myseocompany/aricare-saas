@@ -143,6 +143,11 @@ return [
     'hospital' => 'Entidad',
     'hospital_details' => 'Detalles del entidad',
     'overview' => 'Descripción general',
+
+    
+    'rips_patient_service_navigation' => 'RIPS',
+    'rips_patient_service_model' => 'RIPS',
+    'rips_patient_service_plural_model' => 'RIPS',
     
     'billing_detail' => 'Detalle de facturación',
     'our_hospitals' => 'Nuestras entidades',
