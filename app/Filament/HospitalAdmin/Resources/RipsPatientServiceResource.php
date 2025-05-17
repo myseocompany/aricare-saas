@@ -126,7 +126,7 @@ Forms\Components\Select::make('rips_technology_purpose_id')
             ->columns([
 
 
-                Tables\Columns\TextColumn::make('tenant_code')
+                Tables\Columns\TextColumn::make('tenant_id')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('doctor_id')
                     ->numeric()

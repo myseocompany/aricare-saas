@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
 
 
-            $table->string('tenant_code', 20);
+            $table->string('tenant_id', 255);
             $table->foreignId('doctor_id')->nullable()->constrained('doctors');
             $table->string('location_code', 12)->nullable();
             $table->boolean('has_incapacity')->default(false);

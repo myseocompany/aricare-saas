@@ -8,7 +8,7 @@ class RipsPatientService extends Model
 {
     protected $fillable = [
         'patient_id',
-        'tenant_code',
+        'tenant_id',
         'doctor_id',
         'location_code',
         'has_incapacity',
