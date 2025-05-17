@@ -309,4 +309,9 @@ class Patient extends Model implements HasMedia
         return $this->belongsTo(\App\Models\RipsCountry::class, 'rips_country_id');
     }
 
+    public function getFullNameAttribute(): string
+    {
+        return "{$this->first_name} {$this->last_name}";
+    }
+
 }
