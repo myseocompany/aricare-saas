@@ -168,7 +168,7 @@ class PatientResource extends Resource
     
         return $form->schema([
             Section::make()->schema([
-                Forms\Components\Select::make('rips_identification_type_id')
+                Forms\Components\Select::make('user.document_type')
                     ->label('Tipo de documento (RIPS)')
                     ->options(\App\Models\RipsIdentificationType::pluck('name', 'id'))
                     ->required()
@@ -178,7 +178,7 @@ class PatientResource extends Resource
                     ->placeholder('Seleccione tipo de documento'),
 
     
-                Forms\Components\TextInput::make('document_number')
+                Forms\Components\TextInput::make('user.document_number')
                     ->label(__('messages.patient.document_number') . ':')
                     ->required()
                     ->maxLength(15),

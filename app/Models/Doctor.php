@@ -136,6 +136,16 @@ class Doctor extends Model implements HasMedia
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function getDocumentTypeAttribute()
+    {
+        return $this->user ? $this->user->document_type : null;
+    }
+
+    public function getDocumentNumberAttribute()
+    {
+        return $this->user ? $this->user->document_number : null;
+    }
+
     public function address(): MorphOne
     {
         return $this->morphOne(Address::class, 'owner');
