@@ -2,18 +2,15 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\RipsIdentificationType;
+use App\Models\RipsTechnologyPurposes;
 
-
-class RipsIdentificationTypeSeeder extends Seeder
+class RipsTechnologyPurposesSeeder extends Seeder
 {
     public function run(): void
     {
-        $path = database_path('seeders/data/rips_identification_type.csv');
+        $path = database_path('seeders/data/rips_technology_purposes.csv');
         $rows = array_map('str_getcsv', file($path));
-
         $headerSkipped = false;
 
         foreach ($rows as $row) {
@@ -24,11 +21,10 @@ class RipsIdentificationTypeSeeder extends Seeder
 
             if (count($row) < 2) continue;
 
-            RipsIdentificationType::create([
-                'code' => $row[0],
-                'name' => $row[1],
-            ]);
+            RipsTechnologyPurposes::updateOrCreate(
+                ['code' => (int) trim($row[0])],
+                ['name' => ucfirst(strtolower(trim($row[1])))]
+            );
         }
     }
-
 }

@@ -1,7 +1,5 @@
 <?php
 
-// app/Enums/Gender.php
-
 namespace App\Enums;
 
 enum Gender: int

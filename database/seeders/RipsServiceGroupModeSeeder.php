@@ -4,13 +4,13 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\ModalidadAtencion;
+use App\Models\RipsServiceGroupMode;
 
-class ModalidadAtencionSeeder extends Seeder
+class RipsServiceGroupModeSeeder extends Seeder
 {
     public function run(): void
     {
-        $path = database_path('seeders/data/modalidadatencion.csv');
+        $path = database_path('seeders/data/rips_service_group_mode.csv');
         $rows = array_map('str_getcsv', file($path));
 
         // Saltar encabezado
@@ -24,9 +24,9 @@ class ModalidadAtencionSeeder extends Seeder
 
             if (count($row) < 2) continue;
 
-            ModalidadAtencion::create([
-                'codigo' => $row[0],
-                'nombre' => $row[1],
+            RipsServiceGroupMode::create([
+                
+                'name' => $row[1],
             ]);
         }
     }

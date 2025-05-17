@@ -11,20 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('modalidades_atencion', function (Blueprint $table) {
+        Schema::create('rips_service_reasons', function (Blueprint $table) {
             $table->id();
-            $table->string('codigo')->unique();
-            $table->string('nombre');
+            $table->unsignedInteger('code')->unique();
+            $table->string('name');
+
             $table->timestamps();
         });
     }
-
 
     /**
      * Reverse the migrations.
      */
     public function down(): void
     {
-        Schema::dropIfExists('modalidad_atencions');
+        Schema::dropIfExists('rips_service_reasons');
     }
 };
