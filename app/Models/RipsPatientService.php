@@ -7,22 +7,31 @@ use Illuminate\Database\Eloquent\Model;
 class RipsPatientService extends Model
 {
     protected $fillable = [
-        'patient_id', 'tenant_code', 'doctor_id', 'location_code',
-        'has_incapacity', 'service_datetime', 'service_group_code',
-        'service_code', 'technology_purpose_code', 'collection_concept_code'
+        'patient_id',
+        'tenant_id',
+        'doctor_id',
+        'location_code',
+        'has_incapacity',
+        'service_datetime',
+
     ];
 
-    public function diagnoses() {
-        return $this->hasMany(RipsPatientServiceDiagnosis::class, 'patient_service_id');
-    }
 
-    public function procedures() {
-        return $this->hasMany(RipsPatientServiceProcedure::class, 'patient_service_id');
-    }
+    public function consultations()
+{
+    return $this->hasMany(\App\Models\RipsPatientServiceConsultation::class, 'rips_patient_service_id');
+}
 
-    public function consultation() {
-        return $this->hasOne(RipsPatientServiceConsultation::class, 'patient_service_id');
-    }
+public function procedures()
+{
+    return $this->hasMany(\App\Models\RipsPatientServiceProcedure::class, 'rips_patient_service_id');
+}
+
+public function diagnoses()
+{
+    return $this->hasMany(\App\Models\RipsPatientServiceConsultationDiagnosis::class, 'rips_patient_service_id');
+}
+
 
     public function patient()
     {
@@ -34,6 +43,7 @@ class RipsPatientService extends Model
         return $this->belongsTo(User::class, 'doctor_id');
     }
 
+    
 
 
 }

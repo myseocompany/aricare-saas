@@ -1,0 +1,98 @@
+[
+    {
+        "rips": {
+            "numDocumentoIdObligado": null,
+            "numFactura": null,
+            "tipoNota": "RS",
+            "numNota": "900",
+            "usuarios": [
+                {
+                    "tipoDocumentoIdentificacion": "CC",
+                    "numDocumentoIdentificacion": "357848787",
+                    "tipoUsuario": "12",
+                    "fechaNacimiento": "1980-08-12",
+                    "codSexo": "M",
+                    "codPaisResidencia": "170",
+                    "codMunicipioResidencia": "05001",
+                    "codZonaTerritorialResidencia": "02",
+                    "incapacidad": "NO",
+                    "consecutivo": 1,
+                    "codPaisOrigen": "170",
+                    "servicios": {
+                        "consultas": [
+                            {
+                                "codPrestador": null,
+                                "fechaInicioAtencion": "2025-05-15 00:00",
+                                "codConsulta": "890203",
+                                "modalidadGrupoServicioTecSal": "01",
+                                "grupoServicios": "01",
+                                "codServicio": 334,
+                                "finalidadTecnologiaSalud": "12",
+                                "causaMotivoAtencion": "35",
+                                "codDiagnosticoPrincipal": "S024",
+                                "codDiagnosticoRelacionado1": null,
+                                "codDiagnosticoRelacionado2": null,
+                                "codDiagnosticoRelacionado3": null,
+                                "tipoDiagnosticoPrincipal": "02",
+                                "tipoDocumentoIdentificacion": "CC",
+                                "numDocumentoIdentificacion": "3",
+                                "vrServicio": 0,
+                                "conceptoRecaudo": "05",
+                                "valorPagoModerador": 0,
+                                "numFEVPagoModerador": "",
+                                "consecutivo": 1
+                            }
+                        ],
+                        "procedimientos": [
+                            {
+                                "codPrestador": null,
+                                "fechaInicioAtencion": "2025-05-15 00:00",
+                                "idMIPRES": "",
+                                "numAutorizacion": "",
+                                "codProcedimiento": "232102",
+                                "viaIngresoServicioSalud": "01",
+                                "modalidadGrupoServicioTecSal": "01",
+                                "grupoServicios": "01",
+                                "codServicio": 334,
+                                "finalidadTecnologiaSalud": "12",
+                                "tipoDocumentoIdentificacion": "CC",
+                                "numDocumentoIdentificacion": "3",
+                                "codDiagnosticoPrincipal": "S024",
+                                "codDiagnosticoRelacionado": null,
+                                "codComplicacion": null,
+                                "vrServicio": 0,
+                                "conceptoRecaudo": "05",
+                                "valorPagoModerador": 0,
+                                "numFEVPagoModerador": "",
+                                "consecutivo": 1
+                            },
+                            {
+                                "codPrestador": null,
+                                "fechaInicioAtencion": "2025-05-15 00:00",
+                                "idMIPRES": "",
+                                "numAutorizacion": "",
+                                "codProcedimiento": "240200",
+                                "viaIngresoServicioSalud": "01",
+                                "modalidadGrupoServicioTecSal": "01",
+                                "grupoServicios": "01",
+                                "codServicio": 334,
+                                "finalidadTecnologiaSalud": "12",
+                                "tipoDocumentoIdentificacion": "CC",
+                                "numDocumentoIdentificacion": "3",
+                                "codDiagnosticoPrincipal": "S024",
+                                "codDiagnosticoRelacionado": null,
+                                "codComplicacion": null,
+                                "vrServicio": 0,
+                                "conceptoRecaudo": "05",
+                                "valorPagoModerador": 0,
+                                "numFEVPagoModerador": "",
+                                "consecutivo": 2
+                            }
+                        ]
+                    }
+                }
+            ]
+        },
+        "xmlFevFile": null
+    }
+]

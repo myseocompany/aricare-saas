@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class RipsPatientServiceDiagnosis extends Model
+class RipsPatientServiceConsultationDiagnosis extends Model
 {
     protected $fillable = ['patient_service_id', 'cie10_id', 'sequence'];
 

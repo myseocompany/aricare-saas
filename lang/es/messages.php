@@ -143,6 +143,11 @@ return [
     'hospital' => 'Entidad',
     'hospital_details' => 'Detalles del entidad',
     'overview' => 'Descripción general',
+
+    
+    'rips_patient_service_navigation' => 'RIPS',
+    'rips_patient_service_model' => 'RIPS',
+    'rips_patient_service_plural_model' => 'RIPS',
     
     'billing_detail' => 'Detalle de facturación',
     'our_hospitals' => 'Nuestras entidades',
@@ -3124,7 +3129,7 @@ return [
     'rips' => [
         'patientservice' => [
             'patient' => 'Paciente',
-            'tenant_code' => 'Código del Hospital o IPS',
+            'tenant_id' => 'Código del Hospital o IPS',
             'doctor' => 'Médico Tratante',
             'location_code' => 'Código del Lugar de Atención',
             'has_incapacity' => '¿Tiene Incapacidad?',
