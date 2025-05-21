@@ -71,8 +71,6 @@ class Patient extends Model implements HasMedia
         'custom_field',
         'record_number',
         'affiliate_number',
-        'document_type',
-        'document_number',
         'rips_identification_type_id',
         'type_id',
         'birth_date',
@@ -159,6 +157,13 @@ class Patient extends Model implements HasMedia
     public function getDocumentTypeAttribute()
     {
         return $this->user ? $this->user->document_type : null;
+    }
+
+    public function getDocumentTypeNameAttribute()
+    {
+        return $this->user && $this->user->documentType
+            ? $this->user->documentType->name
+            : null;
     }
 
     public function getDocumentNumberAttribute()
@@ -251,10 +256,10 @@ class Patient extends Model implements HasMedia
         return $patientUniqueId;
     }
 
-    public function documentType()
+   /* public function documentType()
     {
         return $this->belongsTo(DocumentType::class, 'document_type', 'abbreviation');
-    }
+    }*/
 
 
     public function patientType()
