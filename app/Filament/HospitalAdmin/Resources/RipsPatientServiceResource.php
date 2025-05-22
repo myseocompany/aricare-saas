@@ -110,7 +110,7 @@ class RipsPatientServiceResource extends Resource
             ->minValue(1)
             ->maxValue(4)
             ->required()
-            ->helperText('1 = Principal, 2+ = Relacionados'),
+            ->helperText('1 = Principal, 2+ = Relacionados. Maximo 4 diagnósticos'),
     ])
     ->columns(2)
     ->columnSpanFull()
