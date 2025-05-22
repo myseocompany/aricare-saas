@@ -37,6 +37,7 @@ class RipsPatientServiceResource extends Resource
     public static function form(Form $form): Form
     {
         return $form->schema([
+
             Forms\Components\Select::make('patient_id')
                 ->label('Paciente')
                 ->searchable()
@@ -85,36 +86,65 @@ class RipsPatientServiceResource extends Resource
                 ->label('Fecha y hora de atención')
                 ->default(now())
                 ->required(),
+            Forms\Components\TextInput::make('sequence')
+                ->label('DEBUG: Secuencia')
+                ->disabled()
+                ->dehydrated(false)
+                ,
     
             // Consultas
             Forms\Components\Repeater::make('consultations')
-    ->label('Consultas')
-    ->relationship()
-    ->schema([
+                ->label('Consultas')
+                ->relationship()
+                ->schema([
+                    // Subrepeater de diagnósticos dentro de cada consulta
+                    Forms\Components\Repeater::make('diagnoses')
+                        ->label('Diagnósticos')
+                        ->relationship()
+                        ->minItems(1)
+                        ->maxItems(4)
+                        ->defaultItems(1)
+                        ->columns(2)
+                        ->columnSpanFull()
+                        ->schema([
+                            Forms\Components\Hidden::make('sequence')
+                                ->afterStateHydrated(function (Forms\Set $set, Forms\Get $get, $component) {
+                                    $path = $component->getStatePath(); // esto sí funciona
+                                    preg_match('/diagnoses\.(\d+)/', $path, $matches);
+                                    $index = isset($matches[1]) ? intval($matches[1]) : 0;
+                                    $set('sequence', $index + 1);
+                                }),
 
-        Forms\Components\Repeater::make('diagnoses')
-    ->label('Diagnósticos')
-    ->relationship()
-    ->minItems(1)
-    ->maxItems(4)
-    ->schema([
-        Forms\Components\Select::make('cie10_id')
-            ->label('Código CIE10')
-            ->options(\App\Models\Cie10::all()->pluck('description', 'id'))
-            ->searchable()
-            ->required(),
 
-        Forms\Components\TextInput::make('sequence')
-            ->label('Secuencia')
-            ->numeric()
-            ->minValue(1)
-            ->maxValue(4)
-            ->required()
-            ->helperText('1 = Principal, 2+ = Relacionados. Maximo 4 diagnósticos'),
-    ])
-    ->columns(2)
-    ->columnSpanFull()
-,
+                            Forms\Components\Select::make('cie10_id')
+                                ->label('Código CIE10')
+                                ->options(\App\Models\Cie10::all()->pluck('description', 'id'))
+                                ->searchable()
+                                ->required(),
+
+                            Forms\Components\Placeholder::make('diagnosis_type')
+                                ->label('Rol')
+                                ->content(function (Forms\Get $get, Forms\Set $set, $component) {
+                                    $path = $component->getStatePath(); // e.g., consultations.0.diagnoses.1.diagnosis_type
+                                    preg_match('/diagnoses\.(\d+)/', $path, $matches);
+                                    $index = isset($matches[1]) ? intval($matches[1]) : null;
+
+                                    if ($index !== null) {
+                                        $set('sequence', $index + 1); // actualiza el campo oculto
+                                        return $index === 0
+                                            ? '🟢 Diagnóstico Principal'
+                                            : '🔵 Relacionado #' . $index;
+                                    }
+
+                                    return '—';
+                                }),
+
+                        ]),
+
+                        
+
+
+
         Forms\Components\Select::make('cups_id')
             ->label('Consulta')
             ->options(\App\Models\Cups::where('description', 'CapItulo 16 CONSULTA, MONITORIZACION Y PROCEDIMIENTOS DIAGNOSTICOS')->pluck('name', 'id'))
