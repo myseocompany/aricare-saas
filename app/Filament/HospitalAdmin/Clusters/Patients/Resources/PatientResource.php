@@ -142,7 +142,7 @@ class PatientResource extends Resource
             ->where('tenant_id', getLoggedInUser()->tenant_id)
             ->get();
         // Obtener los tipos de género desde el modelo RipsGenderType    
-        $genderOptions = \App\Models\RipsGenderType::pluck('name', 'code')->toArray();
+        $genderOptions = \App\Models\RipsGenderType::pluck('name', 'id')->toArray();
         $territorialZoneOptions = RipsTerritorialZoneType::pluck('name', 'code')->toArray();
     
         $customFieldComponents = [];
@@ -168,7 +168,7 @@ class PatientResource extends Resource
     
         return $form->schema([
             Section::make()->schema([
-                Forms\Components\Select::make('user.document_type')
+                Forms\Components\Select::make('user.rips_identification_type_id')
                     ->label('Tipo de documento (RIPS)')
                     ->options(\App\Models\RipsIdentificationType::pluck('name', 'id'))
                     ->required()
@@ -178,7 +178,7 @@ class PatientResource extends Resource
                     ->placeholder('Seleccione tipo de documento'),
 
     
-                Forms\Components\TextInput::make('user.document_number')
+                Forms\Components\TextInput::make('user.rips_identification_number')
                     ->label(__('messages.patient.document_number') . ':')
                     ->required()
                     ->maxLength(15),

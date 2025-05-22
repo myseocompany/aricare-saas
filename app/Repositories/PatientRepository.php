@@ -60,7 +60,10 @@ class PatientRepository extends BaseRepository
             // $input['phone'] = preparePhoneNumber($input, 'phone');
             //$input['department_id'] = Department::whereName('Patient')->first()->id;
             $input['department_id'] = Department::where('name', 'Patient')->value('id') ?? 3;
-
+            // Asegúrate de que estos campos estén en el $input para User::create()
+            $input['gender'] = $input['gender'] ?? null;
+            $input['rips_identification_type_id'] = $input['rips_identification_type_id'] ?? null;
+            $input['rips_identification_number'] = $input['rips_identification_number'] ?? null;
             $input['password'] = Hash::make($input['password']);
             if (!empty(getSuperAdminSettingValue()['default_language']->value)) {
                 $input['language'] = getSuperAdminSettingValue()['default_language']->value;
@@ -96,11 +99,13 @@ class PatientRepository extends BaseRepository
                 'document_type' => $input['document_type'] ?? null,
             
                 // Ya existentes:
-                'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
                 'document_number' => $input['document_number'] ?? null,
                 'type_id' => $input['patient_type_id'] ?? null,
                 'birth_date' => $input['dob'] ?? null,
-                'sex_code' => Gender::from((int) $input['gender'])->sexCode(),
+                //'sex_code' => Gender::from((int) $input['gender'])->sexCode(),
+                //'gender' => $input['gender'] ?? null,
+                //'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
+                
                 'rips_country_id' => $input['rips_country_id'] ?? null,
                 'rips_department_id' => $input['rips_department_id'] ?? null,
                 'rips_municipality_id' => $input['rips_municipality_id'] ?? null,

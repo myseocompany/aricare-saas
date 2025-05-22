@@ -71,7 +71,7 @@ class Patient extends Model implements HasMedia
         'custom_field',
         'record_number',
         'affiliate_number',
-        'rips_identification_type_id',
+        'document_type',
         'type_id',
         'birth_date',
         'sex_code',
@@ -156,19 +156,19 @@ class Patient extends Model implements HasMedia
 
     public function getDocumentTypeAttribute()
     {
-        return $this->user ? $this->user->document_type : null;
+        return $this->user ? $this->user->rips_identification_type_id : null;
     }
 
-    public function getDocumentTypeNameAttribute()
+    /*public function getDocumentTypeNameAttribute()
     {
         return $this->user && $this->user->documentType
             ? $this->user->documentType->name
             : null;
-    }
+    }*/
 
     public function getDocumentNumberAttribute()
     {
-        return $this->user ? $this->user->document_number : null;
+        return $this->user ? $this->user->rips_identification_number : null;
     }
 
     public function address(): MorphOne
