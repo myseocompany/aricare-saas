@@ -303,6 +303,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
         'email_verified_at',
         'updated_at',
         'username',
+        'document_type',
+        'document_number',
         'city',
         'hospital_name',
         'tenant_id',
@@ -486,6 +488,11 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class, 'department_id');
+    }
+
+    public function documentType(): BelongsTo
+    {
+        return $this->belongsTo(DocumentType::class, 'document_type', 'abbreviation');
     }
 
     public function hospitalType(): BelongsTo
