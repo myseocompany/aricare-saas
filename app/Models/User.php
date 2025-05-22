@@ -303,8 +303,6 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
         'email_verified_at',
         'updated_at',
         'username',
-        'document_type',
-        'document_number',
         'city',
         'hospital_name',
         'tenant_id',
@@ -319,6 +317,8 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
         'origin_country_id',
         'residence_country_id',
         'municipality_id',
+        'rips_identification_number',
+        'rips_identification_type_id',
     ];
 
     /**
