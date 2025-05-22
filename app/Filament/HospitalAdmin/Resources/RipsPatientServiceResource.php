@@ -143,6 +143,57 @@ class RipsPatientServiceResource extends Resource
 
                         
 
+    Forms\Components\HasManyRepeater::make('procedures')
+    ->relationship('procedures')
+    ->label('Procedimientos')
+    ->schema([
+        Forms\Components\Select::make('cups_id')
+            ->label('Procedimiento CUPS')
+            ->options(
+                \App\Models\Cups::all()->mapWithKeys(fn ($cup) => [$cup->id => "{$cup->code} - {$cup->name}"])
+            )
+            ->searchable()
+            ->required(),
+
+        Forms\Components\Select::make('cie10_id')
+            ->label('Diagnóstico Relacionado')
+            ->options(
+                \App\Models\Cie10::all()->pluck('description', 'id')
+            )
+            ->searchable(),
+
+        Forms\Components\Select::make('surgery_cie10_id')
+            ->label('Dx Quirúrgico (opcional)')
+            ->options(
+                \App\Models\Cie10::all()->pluck('description', 'id')
+            )
+            ->searchable(),
+
+        Forms\Components\TextInput::make('mipres_id')
+            ->label('ID MIPRES')
+            ->maxLength(30),
+
+        Forms\Components\TextInput::make('authorization_number')
+            ->label('Autorización')
+            ->maxLength(30),
+
+        Forms\Components\TextInput::make('service_value')
+            ->label('Valor del Servicio')
+            ->numeric(),
+
+        Forms\Components\TextInput::make('copayment_value')
+            ->label('Valor del Copago')
+            ->numeric(),
+
+        Forms\Components\TextInput::make('copayment_receipt_number')
+            ->label('Recibo del Copago')
+            ->maxLength(30),
+    ])
+    ->defaultItems(0)
+    ->createItemButtonLabel('Agregar procedimiento')
+    ->columns(2),
+
+
 
 
         Forms\Components\Select::make('cups_id')
