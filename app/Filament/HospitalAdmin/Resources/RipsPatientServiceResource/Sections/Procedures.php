@@ -21,10 +21,10 @@ class Procedures
                         ->label('Procedimiento')
                         ->relationship()
                         ->schema([
-                            Select::make('cups_id')
+                            Select::make('rips_cups_id')
                                 ->label('CUPS')
                                 ->options(
-                                    \App\Models\Cups::all()
+                                    \App\Models\RipsCups::all()
                                         ->mapWithKeys(fn ($cups) => [
                                             $cups->id => "{$cups->code} - {$cups->name}"
                                         ])

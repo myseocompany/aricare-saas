@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Group;
 
+use App\Models\Patient;
+use App\Models\User;
+
 class GeneralInfo
 {
     public static function make(): array
@@ -20,6 +23,7 @@ class GeneralInfo
                 Select::make('patient_id')
                     ->label('Paciente')
                     ->searchable()
+                    
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
                     ->options(function (string $search = null) {
                         $tenantId = Auth::user()->tenant_id;
@@ -39,6 +43,8 @@ class GeneralInfo
                 Select::make('doctor_id')
                     ->label('Doctor')
                     ->searchable()
+                    
+    
                     ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
                     ->options(function (string $search = null) {
                         $tenantId = Auth::user()->tenant_id;
@@ -61,7 +67,8 @@ class GeneralInfo
 
                 DateTimePicker::make('service_datetime')
                     ->label('Fecha y hora de atención')
-                    ->default(now())
+                    ->default(fn () => now())
+                    ->withoutSeconds()
                     ->required(),
                 ])
                 ->columns(2),

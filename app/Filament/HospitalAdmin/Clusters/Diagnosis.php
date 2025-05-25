@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Filament\HospitalAdmin\Clusters;
 
 use Filament\Clusters\Cluster;

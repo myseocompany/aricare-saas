@@ -18,19 +18,14 @@ class RipsPatientService extends Model
 
 
     public function consultations()
-{
-    return $this->hasMany(\App\Models\RipsPatientServiceConsultation::class, 'rips_patient_service_id');
-}
+    {
+        return $this->hasMany(\App\Models\RipsPatientServiceConsultation::class, 'rips_patient_service_id');
+    }
 
-public function procedures()
-{
-    return $this->hasMany(\App\Models\RipsPatientServiceProcedure::class, 'rips_patient_service_id');
-}
-
-public function diagnoses()
-{
-    return $this->hasMany(\App\Models\RipsPatientServiceConsultationDiagnosis::class, 'rips_patient_service_id');
-}
+    public function procedures()
+    {
+        return $this->hasMany(\App\Models\RipsPatientServiceProcedure::class, 'rips_patient_service_id');
+    }
 
 
     public function patient()

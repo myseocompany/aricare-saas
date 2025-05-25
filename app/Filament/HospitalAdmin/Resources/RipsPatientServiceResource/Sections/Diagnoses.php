@@ -2,49 +2,35 @@
 
 namespace App\Filament\HospitalAdmin\Resources\RipsPatientServiceResource\Sections;
 
-use Filament\Forms\Components\Group;
-use Filament\Forms\Components\Fieldset;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Hidden;
-use Filament\Forms\Components\Placeholder;
 
 class Diagnoses
 {
-    public static function make(): Fieldset
+    public static function make(): Repeater
     {
-        return Fieldset::make('Diagnósticos')
+        return Repeater::make('diagnoses')
+            ->label('Diagnósticos')
+            ->relationship('diagnoses') // 👈 MUY IMPORTANTE
             ->schema([
-                self::diagnosisInput(0),
-                self::diagnosisInput(1),
-                self::diagnosisInput(2),
-                self::diagnosisInput(3),
-            ])
-            
-            ->columns(2)
-            ->columnSpanFull();
-    }
-
-    protected static function diagnosisInput(int $index): Group
-    {
-        $pos = $index + 1;
-
-        return Group::make()
-            ->schema([
-                Hidden::make("diagnoses.{$index}.sequence")
-                    ->default($pos),
-
-                Placeholder::make("diagnoses.{$index}.role")
-                    ->label('Rol')
-                    ->content(fn () => $index === 0
-                        ? '🟢 Diagnóstico Principal'
-                        : "🔵 Relacionado #{$pos}"),
-
-                Select::make("diagnoses.{$index}.cie10_id")
-                    ->label('Código CIE10')
+                Select::make('cie10_id')
+                    ->label('Diagnóstico CIE10')
                     ->options(\App\Models\Cie10::all()->pluck('description', 'id'))
                     ->searchable()
-                    ->nullable(), // si no lo llena, no se guarda
+                    ->placeholder('Seleccione un diagnóstico')
+                    ->required(),
+
+                Select::make('rips_diagnosis_type_id')
+                    ->label('Tipo de diagnóstico')
+                    ->options(\App\Models\RipsDiagnosisType::all()->pluck('name', 'id'))
+                    ->searchable()
+                    ->placeholder('Seleccione tipo')
+                    ->required(),
             ])
-            ->columns(2);
+            ->defaultItems(1)
+            ->minItems(1)
+            ->maxItems(4)
+            ->columns(2)
+            ->columnSpanFull();
     }
 }

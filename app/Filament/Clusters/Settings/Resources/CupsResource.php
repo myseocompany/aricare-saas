@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\Settings\Resources;
 use App\Filament\Clusters\Settings;
 use App\Filament\Clusters\Settings\Resources\CupsResource\Pages;
 use App\Filament\Clusters\Settings\Resources\CupsResource\RelationManagers;
-use App\Models\Cups;
+use App\Models\RipsCups;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;

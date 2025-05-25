@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Cups extends Model
+class RipsCups extends Model
 {
     protected $fillable = [
         'code',
@@ -20,7 +20,7 @@ class Cups extends Model
      */
     public function procedures(): HasMany
     {
-        return $this->hasMany(RipsPatientServiceProcedure::class, 'cups_id');
+        return $this->hasMany(RipsPatientServiceProcedure::class, 'rips_cups_id');
     }
 
     /**
@@ -28,6 +28,6 @@ class Cups extends Model
      */
     public function consultations(): HasMany
     {
-        return $this->hasMany(RipsPatientServiceConsultation::class, 'consultation_cups_id');
+        return $this->hasMany(RipsPatientServiceConsultation::class, 'rips_cups_id');
     }
 }

@@ -11,7 +11,7 @@ class RipsPatientServiceProcedure extends Model
         'patient_service_id',
         'mipres_id',
         'authorization_number',
-        'cups_id',
+        'rips_cups_id',
         'cie10_id',
         'surgery_cie10_id',
         'service_value',
@@ -30,9 +30,9 @@ class RipsPatientServiceProcedure extends Model
     /**
      * Relación con el código CUPS del procedimiento.
      */
-    public function cups(): BelongsTo
+    public function ripsCups(): BelongsTo
     {
-        return $this->belongsTo(Cups::class, 'cups_id');
+        return $this->belongsTo(Cups::class, 'rips_cups_id');
     }
 
     /**

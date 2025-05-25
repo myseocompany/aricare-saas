@@ -33,7 +33,7 @@ return new class extends Migration {
 
             
             
-            $table->foreignId('cups_id')->nullable()->constrained('cups');
+            $table->foreignId('rips_cups_id')->nullable()->constrained('rips_cups');
             $table->foreignId('service_group_id')->nullable()->constrained('rips_service_groups');
             $table->foreignId('service_id')->nullable()->constrained('rips_services');
 
@@ -72,7 +72,7 @@ return new class extends Migration {
             $table->foreignId('rips_patient_service_id')->constrained('rips_patient_services')->onDelete('cascade');
             $table->string('mipres_id', 30)->nullable();
             $table->string('authorization_number', 30)->nullable();
-            $table->foreignId('cups_id')->constrained('cups');
+            $table->foreignId('rips_cups_id')->constrained('rips_cups');
             $table->foreignId('cie10_id')->nullable()->constrained('cie10');
             $table->foreignId('surgery_cie10_id')->nullable()->constrained('cie10');
             $table->float('service_value')->nullable();
