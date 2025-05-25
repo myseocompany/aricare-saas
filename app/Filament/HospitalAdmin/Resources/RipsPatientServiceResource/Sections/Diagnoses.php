@@ -19,6 +19,7 @@ class Diagnoses
                 self::diagnosisInput(2),
                 self::diagnosisInput(3),
             ])
+            
             ->columns(2)
             ->columnSpanFull();
     }

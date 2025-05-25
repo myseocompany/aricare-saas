@@ -145,9 +145,9 @@ return [
     'overview' => 'Descripción general',
 
     
-    'rips_patient_service_navigation' => 'RIPS',
-    'rips_patient_service_model' => 'RIPS',
-    'rips_patient_service_plural_model' => 'RIPS',
+    'rips_patient_service_navigation' => 'Atenciones',
+    'rips_patient_service_model' => 'Atención',
+    'rips_patient_service_plural_model' => 'Atenciones',
     
     'billing_detail' => 'Detalle de facturación',
     'our_hospitals' => 'Nuestras entidades',

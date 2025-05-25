@@ -11,3 +11,6 @@ php artisan db:seed --class=RipsUserTypeSeeder
 php artisan db:seed --class=RipsCountrySeeder
 php artisan db:seed --class=RipsDepartmentMunicipalitySeeder
 echo "Migración ejecutada ./migrate_2025_05_11.sh"
+
+
+php artisan migrate --path=database/migrations/2025_05_14_223234_create_rips_gender_types_table.php
