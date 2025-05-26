@@ -60,13 +60,15 @@ use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Pages;
-use App\Models\RipsMunicipality;
-use App\Models\RipsDepartment;
-use App\Models\DepartmentCountry;
-use App\Models\RipsCountry;
+use App\Models\Rips\RipsMunicipality;
+use App\Models\Rips\RipsDepartment;
+use App\Models\Rips\DepartmentCountry;
+use App\Models\Rips\RipsCountry;
 use App\Enums\Gender;
-use App\Models\RipsGenderType;
-use App\Models\RipsTerritorialZoneType;
+use App\Models\Rips\RipsGenderType;
+use App\Models\Rips\RipsTerritorialZoneType;
+use App\Models\Rips\RipsIdentificationType;
+use App\Models\Rips\RipsUserType;
 
 
 
@@ -142,7 +144,7 @@ class PatientResource extends Resource
             ->where('tenant_id', getLoggedInUser()->tenant_id)
             ->get();
         // Obtener los tipos de género desde el modelo RipsGenderType    
-        $genderOptions = \App\Models\RipsGenderType::pluck('name', 'id')->toArray();
+        $genderOptions = RipsGenderType::pluck('name', 'id')->toArray();
         $territorialZoneOptions = RipsTerritorialZoneType::pluck('name', 'code')->toArray();
     
         $customFieldComponents = [];
@@ -170,7 +172,7 @@ class PatientResource extends Resource
             Section::make()->schema([
                 Forms\Components\Select::make('user.rips_identification_type_id')
                     ->label('Tipo de documento (RIPS)')
-                    ->options(\App\Models\RipsIdentificationType::pluck('name', 'id'))
+                    ->options(RipsIdentificationType::pluck('name', 'id'))
                     ->required()
                     ->native(false)
                     ->searchable()
@@ -197,7 +199,7 @@ class PatientResource extends Resource
                 Forms\Components\Select::make('type_id')
                     ->label(__('messages.patient.patient_type') . ':')
                     
-                    ->options(\App\Models\RipsUserType::pluck('name', 'id'))
+                    ->options(RipsUserType::pluck('name', 'id'))
                     ->required()
                     ->native(false)
                     ->searchable()

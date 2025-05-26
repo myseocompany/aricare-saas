@@ -272,13 +272,13 @@ class Patient extends Model implements HasMedia
     // Relación con país de origen (usando country_of_origin como código)
     public function originCountry()
     {
-        return $this->belongsTo(RipsCountry::class, 'country_of_origin_id', 'id');
+        return $this->belongsTo(\App\Models\Rips\RipsCountry::class, 'country_of_origin_id', 'id');
     }
 
     // Relación con país de residencia (usando country_code)
     public function residenceCountry()
     {
-        return $this->belongsTo(RipsCountry::class, 'rips_country_id', 'id');
+        return $this->belongsTo(\App\Models\Rips\RipsCountry::class, 'rips_country_id', 'id');
     }
     // Convertir zone_code a string (accesor)
     public function getZoneTextAttribute()
@@ -292,26 +292,26 @@ class Patient extends Model implements HasMedia
 
     public function ripsIdentificationType()
     {
-        return $this->belongsTo(\App\Models\RipsIdentificationType::class);
+        return $this->belongsTo(\App\Models\Rips\RipsIdentificationType::class);
     }
 
     public function ripsUserType()
     {
-        return $this->belongsTo(\App\Models\RipsUserType::class);
+        return $this->belongsTo(\App\Models\Rips\RipsUserType::class);
     }
     public function ripsDepartment()
     {
-        return $this->belongsTo(RipsDepartment::class);
+        return $this->belongsTo(\App\Models\Rips\Department::class);
     }
     
     public function ripsMunicipality()
     {
-        return $this->belongsTo(RipsMunicipality::class);
+        return $this->belongsTo(\App\Models\Rips\RipsMunicipality::class);
     }
 
     public function ripsCountry()
     {
-        return $this->belongsTo(\App\Models\RipsCountry::class, 'rips_country_id');
+        return $this->belongsTo(\App\Models\Rips\RipsCountry::class, 'rips_country_id');
     }
 
     public function getFullNameAttribute(): string
