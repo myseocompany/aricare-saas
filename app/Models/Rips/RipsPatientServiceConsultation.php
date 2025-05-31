@@ -56,4 +56,10 @@ class RipsPatientServiceConsultation extends Model
     {
         return $this->belongsTo(RipsCollectionConcept::class, 'rips_collection_concept_id');
     }
+
+    public function diagnoses()
+    {
+        return $this->hasMany(RipsPatientServiceConsultationDiagnosis::class, 'rips_patient_service_consultation_id');
+    }
+
 }

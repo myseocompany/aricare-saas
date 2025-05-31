@@ -4,50 +4,77 @@ namespace App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServ
 
 use Filament\Forms;
 use Filament\Forms\Form;
-use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 
 class FormConsultations
 {
     public static function make(Form $form): Form
     {
         return $form->schema([
-            // **Formulario de consultas (por encima de los procedimientos)**
-            Forms\Components\Repeater::make('consultations')  // Repetidor para agregar múltiples consultas
-                ->relationship() // Vincula la relación de consultas
+            Repeater::make('consultations')
+                ->label('')
+                ->relationship('consultations')
                 ->schema([
-                    Forms\Components\TextInput::make('consultation_id')
-                        ->label('ID de consulta'),
-
-                    Forms\Components\TextInput::make('consultation_description')
-                        ->label('Descripción de la consulta'),
-
-                    Forms\Components\Select::make('rips_cups_id')
-                        ->label('CUPS')
-                        ->searchable() // Habilita la búsqueda en vivo
-                        ->options(function (string $search = null) {
-                            return \App\Models\Rips\RipsCups::query()
-                                ->when($search, function ($query, $search) {
-                                    return $query->where('name', 'like', "%{$search}%");
-                                })
-                                ->limit(20) // Limita la cantidad de registros devueltos
-                                ->pluck('name', 'id'); // Devuelve solo los campos necesarios
-                        })
+                    Select::make('rips_cups_id')
+                        ->label('Procedimiento')
+                        ->options(
+                            \App\Models\Rips\RipsCups::where('description', 'CapItulo 16 CONSULTA, MONITORIZACION Y PROCEDIMIENTOS DIAGNOSTICOS')
+                                ->pluck('name', 'id')
+                        )
+                        ->searchable()
                         ->required(),
 
-                    Forms\Components\TextInput::make('service_value')
-                        ->label('Valor del servicio')
-                        ->numeric(),
+                    Select::make('rips_service_group_id')
+                        ->label('Grupo de Servicio')
+                        ->options(\App\Models\Rips\RipsServiceGroup::pluck('name', 'id'))
+                        ->searchable()
+                        ->required(),
 
-                    Forms\Components\TextInput::make('copayment_value')
-                        ->label('Valor del copago')
-                        ->numeric(),
+                    Select::make('rips_service_id')
+                        ->label('Servicio')
+                        ->options(
+                            \App\Models\Rips\RipsService::all()->mapWithKeys(fn ($s) => [
+                                $s->id => "{$s->code} - {$s->name}"
+                            ])
+                        )
+                        ->searchable()
+                        ->required(),
 
-                    Forms\Components\TextInput::make('copayment_receipt_number')
-                        ->label('Número de recibo del copago'),
+                    Select::make('rips_technology_purpose_id')
+                        ->label('Finalidad Tecnológica')
+                        ->options(\App\Models\Rips\RipsTechnologyPurpose::pluck('name', 'id'))
+                        ->searchable()
+                        ->required(),
+
+                    Select::make('rips_collection_concept_id')
+                        ->label('Concepto de Recaudo')
+                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
+                        ->searchable()
+                        ->required(),
+
+                    TextInput::make('service_value')
+                        ->label('Valor del Servicio')
+                        ->numeric()
+                        ->default(0)
+                        ->required(),
+
+                    TextInput::make('copayment_value')
+                        ->label('Valor del Copago')
+                        ->numeric()
+                        ->default(0)
+                        ->required(),
+
+                    TextInput::make('copayment_receipt_number')
+                        ->label('Número del Recibo')
+                        ->maxLength(30)
+                        ->nullable(),
+                    ...FormConsultationDiagnoses::schema(),
                 ])
-                ->columns(2) // Número de columnas para los campos de la consulta
-                ->defaultItems(fn () => 0)
-                ->createItemButtonLabel('Añadir consulta'), // Botón para agregar consulta
+                ->columns(2)
+                ->defaultItems(0)
+                ->createItemButtonLabel('Añadir consulta'),
         ]);
     }
 }
