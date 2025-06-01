@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class RipsPatientService extends Model
 {
     protected $fillable = [
-        'patient_id', 'tenant_code', 'doctor_id', 'location_code',
+        'patient_id', 'doctor_id', 'location_code',
         'has_incapacity', 'service_datetime', 'service_group_code',
-        'service_code', 'technology_purpose_code', 'collection_concept_code'
+        'service_code', 'technology_purpose_code', 'collection_concept_code',
+        'billing_document_id', 'tenant_id'
     ];
 
     public function diagnoses() {
@@ -33,5 +34,11 @@ class RipsPatientService extends Model
     {
         return $this->belongsTo(User::class, 'doctor_id');
     }
+
+    public function billingDocument()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsBillingDocument::class, 'billing_document_id');
+    }
+
 
 }

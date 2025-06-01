@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        
         Schema::create('rips_tenant_invoices', function (Blueprint $table) {
             $table->id();
 
@@ -22,7 +23,7 @@ return new class extends Migration
             $table->dateTime('issued_at');            // Fecha y hora de emisión
             $table->string('cufe', 100)->nullable();  // Código Único de Factura Electrónica DIAN
             $table->string('uuid_dian', 100)->nullable(); // UUID generado por la DIAN
-
+            // type
             $table->decimal('total_amount', 10, 2)->nullable();
             $table->decimal('copay_amount', 10, 2)->nullable();
             $table->decimal('discount_amount', 10, 2)->nullable();
