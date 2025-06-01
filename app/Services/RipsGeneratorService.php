@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Carbon\Carbon;
+use App\Models\Rips\RipsPatientServices;
 
 class RipsGeneratorService
 {
@@ -19,8 +20,7 @@ class RipsGeneratorService
         // 1. Obtener todos los servicios en el rango de fechas para el convenio dado.
         //    Se usa tabla 'rips_patient_services', filtrando por convenio y rango de fechas.
         //    También se cargan relaciones necesarias para luego obtener detalles: paciente, factura, consultas y procedimientos.
-        $services = \DB::table('rips_patient_services')
-            ->where('rips_agreement_id', $agreementId)
+        $services = RipsPatientServices::where('rips_agreement_id', $agreementId)
             ->whereBetween('service_datetime', [
                 Carbon::parse($startDate)->startOfDay(),
                 Carbon::parse($endDate)->endOfDay()
@@ -37,8 +37,10 @@ class RipsGeneratorService
 
         $ripsData = [];
 
+        $invoice = $billingDocument->first();
+
         // Recorrer cada grupo de servicios agrupados por factura
-        foreach ($services as $invoiceId => $invoiceServices) {
+        foreach ($services->billingDocument as $invoiceId => $invoiceServices) {
             // Tomar el primer servicio para acceder a la información de la factura (porque todos comparten factura)
             $firstService = $invoiceServices->first();
             $invoice = $firstService->invoice;
