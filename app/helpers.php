@@ -1114,8 +1114,47 @@ function getSuperAdminSettingKeyValue($key)
 
 function getModuleAccess($tabName)
 {
-    return Module::where('tenant_id', getLoggedInUser()->tenant_id)->where('name', '=', $tabName)->value('is_active');
+    $model = Module::where('tenant_id', getLoggedInUser()->tenant_id)->where('name', '=', $tabName)->value('is_active');
+
+    return $model;
 }
+   
+function getModuleAccess3($tabName)
+{
+    $user = getLoggedInUser();
+    $hospital = $user->hospital;
+
+    // Buscar el módulo en DB
+    $module = Module::where('tenant_id', $user->tenant_id)
+        ->where('name', $tabName)
+        ->first();
+
+    if (!$module || !$module->is_active) {
+        return false;
+    }
+
+    // Módulos siempre visibles (por ejemplo: "Patients", "Appointments", etc.)
+    $alwaysVisibleModules = [
+        'Patients',
+        'Appointments',
+        // Agrega aquí otros módulos que siempre quieres mostrar
+    ];
+
+    if (in_array($tabName, $alwaysVisibleModules)) {
+        return true;
+    }
+
+    // Validar si el plan tiene acceso al módulo
+    if (!$hospital || !$hospital->subscriptionPlan) {
+        return false;
+    }
+
+    return $hospital->subscriptionPlan
+        ->features()
+        ->where('feature_id', $module->id)
+        ->exists();
+}
+
 
 
 function getModuleAccess2($tabName)

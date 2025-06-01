@@ -37,6 +37,7 @@ class Patients extends Cluster
 
 public static function canAccessClusteredComponents(): bool
 {
+    
     if (auth()->user()->hasRole(['Patient'])) {
         return getModuleAccess('Patient Admissions');
     }
@@ -57,8 +58,8 @@ public static function canAccessClusteredComponents(): bool
         return getModuleAccess('Patients') || getModuleAccess('Cases') || getModuleAccess('Patient Admissions') || getModuleAccess('Case Handlers');
     }
 
-    return false;
-}
+        return false;
+    }
 
 
     public static function shouldRegisterNavigation(): bool

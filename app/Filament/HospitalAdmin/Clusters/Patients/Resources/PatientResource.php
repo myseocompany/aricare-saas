@@ -99,7 +99,10 @@ class PatientResource extends Resource
         } elseif (auth()->user()->hasRole(['Admin', 'Receptionist']) && getModuleAccess('Patients')) {
             return true;
         }
+        
         return false;
+
+    
         
     }
 

@@ -20,6 +20,7 @@ use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceRes
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultations;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormProcedures;
 
+use Filament\Forms\Components\Grid;
 
 
 class RipsPatientServiceResource extends Resource
@@ -38,12 +39,14 @@ class RipsPatientServiceResource extends Resource
 
     public static function form(Form $form): Form
     {
-        // Combinamos los formularios con la estructura correcta
-        return $form->schema(array_merge(
-            FormPatientDoctor::make($form)->getComponents(),
-            FormConsultations::make($form)->getComponents(),
-            FormProcedures::make($form)->getComponents()
-        ));
+        return $form->schema([
+            Grid::make(1) 
+                ->schema(array_merge(
+                    FormPatientDoctor::make($form)->getComponents(),
+                    FormConsultations::make($form)->getComponents(),
+                    FormProcedures::make($form)->getComponents()
+                )),
+        ]);
     }
 
 public static function table(Table $table): Table
@@ -128,5 +131,7 @@ public static function table(Table $table): Table
         return parent::getEloquentQuery()
             ->with('billingDocument'); // 👈 carga la relación cuando busca
     }
+
+
 
 }
