@@ -21,6 +21,7 @@ use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceRes
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormProcedures;
 
 
+
 class RipsPatientServiceResource extends Resource
 {
     protected static ?string $model = RipsPatientService::class;
@@ -120,4 +121,12 @@ public static function table(Table $table): Table
             'edit' => Pages\EditRipsPatientService::route('/{record}/edit'),
         ];
     }
+
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->with('billingDocument'); // 👈 carga la relación cuando busca
+    }
+
 }

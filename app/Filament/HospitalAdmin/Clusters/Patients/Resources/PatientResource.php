@@ -87,19 +87,22 @@ class PatientResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
+        
         if (auth()->user()->hasRole(['Case Manager'])) {
             return false;
-        } elseif (auth()->user()->hasRole(['Doctor'])  && getModuleAccess('Patients')) {
+        } elseif (auth()->user()->hasRole(['Doctor']) && getModuleAccess('Patients')) {
             return true;
-        } elseif (auth()->user()->hasRole(['Admin'])  && !getModuleAccess('Patients')) {
+        } elseif (auth()->user()->hasRole(['Admin']) && !getModuleAccess('Patients')) {
             return false;
         } elseif (!auth()->user()->hasRole(['Admin']) && !getModuleAccess('Patients')) {
             return false;
-        } elseif (auth()->user()->hasRole(['Admin', 'Receptionist'])) {
+        } elseif (auth()->user()->hasRole(['Admin', 'Receptionist']) && getModuleAccess('Patients')) {
             return true;
         }
         return false;
+        
     }
+
 
     public static function getLabel(): string
     {

@@ -65,12 +65,14 @@ class PatientAdmissionResource extends Resource
 
     public static function shouldRegisterNavigation(): bool
     {
+        
         if (auth()->user()->hasRole(['Admin'])  && !getModuleAccess('Patient Admissions')) {
             return false;
         } elseif (!auth()->user()->hasRole(['Admin']) && !getModuleAccess('Patient Admissions')) {
             return false;
         }
         return true;
+        
     }
 
     public static function getNavigationLabel(): string

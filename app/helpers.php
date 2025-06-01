@@ -1117,6 +1117,30 @@ function getModuleAccess($tabName)
     return Module::where('tenant_id', getLoggedInUser()->tenant_id)->where('name', '=', $tabName)->value('is_active');
 }
 
+
+function getModuleAccess2($tabName)
+{
+    $user = getLoggedInUser();
+    $hospital = $user->hospital;
+
+    if (!$hospital || !$hospital->subscriptionPlan) {
+        return false;
+    }
+
+    $module = Module::where('name', $tabName)->first();
+
+    if (!$module) {
+        return false;
+    }
+
+    return $hospital->subscriptionPlan
+        ->features()
+        ->where('feature_id', $module->id)
+        ->exists();
+}
+
+
+
 function getPatientsList($userOwnerId)
 {
     $patientCase = PatientCase::with('patient.patientUser')->where(

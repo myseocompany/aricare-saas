@@ -35,12 +35,17 @@ class RipsPatientService extends Model
     }
 
     public function procedures()
-{
+    {
         return $this->hasMany(RipsPatientServiceProcedure::class, 'rips_patient_service_id');
     }
 
     public function consultations()
-{
+    {
         return $this->hasMany(RipsPatientServiceConsultation::class, 'rips_patient_service_id');
     }
+    public function billingDocument()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsBillingDocument::class, 'billing_document_id');
+    }
+
 }

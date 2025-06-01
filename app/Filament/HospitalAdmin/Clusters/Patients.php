@@ -35,19 +35,35 @@ class Patients extends Cluster
         return __('messages.patients');
     }
 
-    public static function canAccessClusteredComponents(): bool
-    {
-        if (auth()->user()->hasRole(['Patient']) && !getModuleAccess('Patient Admissions')) {
-            return false;
-        } elseif (auth()->user()->hasRole(['Case Manager']) && !getModuleAccess('Cases') && !getModuleAccess('Patient Admissions')) {
-            return false;
-        } elseif (auth()->user()->hasRole(['Accountant', 'Pharmacist', 'Lab Technician', 'Nurse'])) {
-            return false;
-        } elseif (auth()->user()->hasRole(['Doctor']) && !getModuleAccess('Patients') && !getModuleAccess('Patient Admissions')) {
-            return false;
-        } elseif (auth()->user()->hasRole(['Admin', 'Receptionist']) && !getModuleAccess('Patients') && !getModuleAccess('Cases') && !getModuleAccess('Patient Admissions') && !getModuleAccess('Case Handlers')) {
-            return false;
-        }
-        return true;
+public static function canAccessClusteredComponents(): bool
+{
+    if (auth()->user()->hasRole(['Patient'])) {
+        return getModuleAccess('Patient Admissions');
     }
+
+    if (auth()->user()->hasRole(['Case Manager'])) {
+        return getModuleAccess('Cases') || getModuleAccess('Patient Admissions');
+    }
+
+    if (auth()->user()->hasRole(['Accountant', 'Pharmacist', 'Lab Technician', 'Nurse'])) {
+        return false;
+    }
+
+    if (auth()->user()->hasRole(['Doctor'])) {
+        return getModuleAccess('Patients') || getModuleAccess('Patient Admissions');
+    }
+
+    if (auth()->user()->hasRole(['Admin', 'Receptionist'])) {
+        return getModuleAccess('Patients') || getModuleAccess('Cases') || getModuleAccess('Patient Admissions') || getModuleAccess('Case Handlers');
+    }
+
+    return false;
+}
+
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return static::canAccessClusteredComponents();
+    }
+
 }

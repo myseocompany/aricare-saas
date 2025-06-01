@@ -57,28 +57,51 @@ class FormPatientDoctor
                 ->label('Número de Factura')
                 ->required()
                 ->maxLength(30)
-                ->rule(function () {
-                    return function (string $attribute, $value, $fail) {
+                ->afterStateHydrated(function ($component, $state) {
+                    $record = $component->getRecord();
+                    if ($record) {
+                        $component->state($record->billingDocument?->document_number);
+                    }
+                })
+                ->dehydrateStateUsing(function ($state) {
+                    return $state;
+                })
+                ->rule(function (Forms\Components\TextInput $component) {
+                    $record = $component->getRecord();
+
+                    return function (string $attribute, $value, $fail) use ($record) {
                         $tenantId = auth()->user()->tenant_id;
-                        $typeIdFactura = 1; // Ajusta según tu catálogo, tipo factura por ejemplo es 1.
+                        $typeIdFactura = 1;
 
-                        $exists = \App\Models\Rips\RipsBillingDocument::where('tenant_id', $tenantId)
+                        $query = \App\Models\Rips\RipsBillingDocument::where('tenant_id', $tenantId)
                             ->where('type_id', $typeIdFactura)
-                            ->where('document_number', $value)
-                            ->exists();
+                            ->where('document_number', $value);
 
-                        if ($exists) {
+                        if ($record && $record->billingDocument) {
+                            $query->where('id', '!=', $record->billingDocument->id);
+                        }
+
+                        if ($query->exists()) {
                             $fail('El número de factura ya existe para este tipo de documento.');
                         }
                     };
                 }),
 
 
-// 🔥 Nuevo campo: Select de convenio/acuerdo
             Forms\Components\Select::make('agreement_id')
                 ->label('Convenio / Contrato')
                 ->searchable()
                 ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->code . ')')
+                ->afterStateHydrated(function ($component, $state) {
+                    $record = $component->getRecord();
+                    
+                    if ($record) {
+                        $component->state($record->billingDocument?->agreement_id);
+                    }
+                })
+                ->dehydrateStateUsing(function ($state) {
+                    return $state;
+                })
                 ->options(function (string $search = null) {
                     $tenantId = Auth::user()->tenant_id;
                     return \App\Models\Rips\RipsTenantPayerAgreement::query()
@@ -93,9 +116,9 @@ class FormPatientDoctor
                         ->get()
                         ->mapWithKeys(fn ($agreement) => [$agreement->id => $agreement->name . ' (' . $agreement->code . ')']);
                 })
-
                 ->required()
                 ->helperText('Seleccione el convenio o contrato bajo el cual se factura este servicio.'),
+
 
             Forms\Components\Toggle::make('has_incapacity')
                 ->label('Has incapacity'),

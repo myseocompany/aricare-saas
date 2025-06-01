@@ -64,7 +64,12 @@ class CreateRipsPatientService extends CreateRecord
         unset($data['invoice_number']);
         unset($data['agreement_id']);
 
-        // 🚀 Crear el servicio
-        return static::getModel()::create($data);
+        $record = static::getModel()::create($data);
+
+        // Actualizar el `billing_document_id` manualmente
+        $record->billing_document_id = $billingDocument->id;
+        $record->save();
+
+        return $record;
     }
 }
