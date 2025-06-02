@@ -11,13 +11,11 @@ class RipsPatientServiceConsultationDiagnosis extends Model
     protected $fillable = [
         'rips_patient_service_consultation_id',
         'cie10_id',
+        'rips_diagnosis_type_id',
         'sequence',
     ];
 
-    public function consultation()
-    {
-        return $this->belongsTo(RipsPatientServiceConsultation::class, 'rips_patient_service_consultation_id');
-    }
+
 
     public function cie10()
     {

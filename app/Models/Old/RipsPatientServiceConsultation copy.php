@@ -30,4 +30,20 @@ class RipsPatientServiceConsultation extends Model
     {
         return $this->belongsTo(Cups::class, 'consultation_cups_id');
     }
+
+    public function diagnoses()
+    {
+        return $this->hasMany(RipsPatientServiceConsultationDiagnosis::class);
+    }
+
+    public function principalDiagnoses()
+    {
+        return $this->diagnoses()->where('sequence', 1);
+    }
+
+    public function relatedDiagnoses()
+    {
+        return $this->diagnoses()->where('sequence', '>', 1);
+    }
+
 }

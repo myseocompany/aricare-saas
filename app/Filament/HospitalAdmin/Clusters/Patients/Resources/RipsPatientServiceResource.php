@@ -129,8 +129,12 @@ public static function table(Table $table): Table
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
-            ->with('billingDocument'); // 👈 carga la relación cuando busca
+            ->with([
+                'billingDocument',
+                'consultations.diagnoses',
+            ]);
     }
+
 
 
 

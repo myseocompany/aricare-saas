@@ -59,7 +59,17 @@ class RipsPatientServiceConsultation extends Model
 
     public function diagnoses()
     {
-        return $this->hasMany(RipsPatientServiceConsultationDiagnosis::class, 'rips_patient_service_consultation_id');
+        return $this->hasMany(RipsPatientServiceConsultationDiagnosis::class);
+    }
+
+    public function principalDiagnoses()
+    {
+        return $this->diagnoses()->where('sequence', 1);
+    }
+
+    public function relatedDiagnoses()
+    {
+        return $this->diagnoses()->where('sequence', '>', 1);
     }
 
 }

@@ -5,11 +5,13 @@ namespace App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServ
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Group;
+use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationDiagnoses;
+use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationSimpleDiagnoses;
 
 class FormConsultations
 {
@@ -18,14 +20,15 @@ class FormConsultations
         return $form->schema([
             Repeater::make('consultations')
                 ->label('')
-                ->relationship('consultations')
+                ->reorderable(false)
+                ->default([])
                 ->schema([
                     Grid::make()
                         ->schema([
-                            Grid::make(3) // 3 columnas para los campos de datos
+                            Grid::make(3)
                                 ->schema([
                                     Select::make('rips_cups_id')
-                                        ->label('Procedimiento')
+                                        ->label('Tipo de consulta')
                                         ->options(
                                             \App\Models\Rips\RipsCups::where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
                                                 ->pluck('name', 'id')
@@ -65,13 +68,11 @@ class FormConsultations
                                         ->searchable()
                                         ->inlineLabel()
                                         ->required(),
-
-                                    
                                 ])
                                 ->columns(1)
-                                ->columnSpan(8), // 2/3 (8 columnas de 12)
+                                ->columnSpan(8),
 
-                            Grid::make(1) // 1 columna, valores uno debajo del otro
+                            Grid::make(1)
                                 ->schema([
                                     TextInput::make('copayment_receipt_number')
                                         ->label('Número del Recibo')
@@ -101,12 +102,37 @@ class FormConsultations
                                         }),
                                 ])
                                 ->columns(1)
-                                ->columnSpan(4), // 1/3 (4 columnas de 12)
+                                ->columnSpan(4),
                         ])
-                        ->columns(12), // Grid general en 12 columnas
+                        ->columns(12),
 
-                    // Diagnósticos
-                    ...FormConsultationDiagnoses::schema(),
+                    Group::make([
+                        Repeater::make('principal_diagnoses')
+                            ->label('Principal Diagnosis')
+                            ->reorderable(false)
+                            ->default([])
+                            ->schema(FormConsultationDiagnoses::schema(true, 1))
+                            ->minItems(1)
+                            ->maxItems(1)
+                            ->defaultItems(1)
+                            ->columns(2)
+                            ->createItemButtonLabel('Add Principal Diagnosis'),
+
+Repeater::make('related_diagnoses')
+    ->label('Related Diagnoses')
+    ->reorderable(false)
+    ->default([])
+    ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
+    ->minItems(0)
+    ->maxItems(3)
+    ->columns(2)
+    ->createItemButtonLabel('Add Related Diagnosis')
+    ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
+        $data['sequence'] = $item->getIndex() + 2;
+        return $data;
+    }),
+
+                    ]),
                 ])
                 ->columns(1)
                 ->defaultItems(0)

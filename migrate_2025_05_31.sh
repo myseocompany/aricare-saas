@@ -16,3 +16,6 @@ php artisan db:seed --class=RipsPayerTypeSeeder
 
 echo "Migración ejecutada ./migrate_2025_05_31.sh"
 # chmod +x migrate_2025_05_31.sh
+
+
+php artisan migrate --path=database/migrations/2025_06_01_231459_add_rips_diagnosis_type_id_to_rips_patient_service_consultation_diagnoses_table.php
