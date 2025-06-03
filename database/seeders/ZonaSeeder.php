@@ -1,17 +1,16 @@
 <?php
 
 namespace Database\Seeders;
-
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Zona;
+use App\Models\Rips\RipsTerritorialZoneType;
 
 
 class ZonaSeeder extends Seeder
 {
     public function run(): void
 {
-    $path = database_path('seeders/data/zonaversion2.csv');
+    $path = database_path('seeders/data/rips_territorial_zone_types.csv');
     $rows = array_map('str_getcsv', file($path));
 
     $headerSkipped = false;
@@ -24,9 +23,9 @@ class ZonaSeeder extends Seeder
 
         if (count($row) < 2) continue;
 
-        Zona::create([
-            'codigo' => $row[0],
-            'nombre' => $row[1],
+        RipsTerritorialZoneType::create([
+            'code' => $row[0],
+            'name' => $row[1],
         ]);
     }
 }

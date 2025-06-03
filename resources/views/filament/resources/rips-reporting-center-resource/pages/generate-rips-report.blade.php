@@ -1,3 +1,4 @@
+<!-- resources/views/filament/resources/rips-reporting-center-resource/pages/generate-rips-report.blade.php -->
 <x-filament::page>
     <x-filament::card>
         <div class="px-4 py-5 sm:px-6 border-b border-gray-200">
@@ -12,9 +13,9 @@
         <div class="px-4 py-5 sm:p-6">
             {{ $this->form }}
             
-            <div class="flex justify-end mt-4">
+            <!--<div class="flex justify-end mt-4">
                 {{ $this->generateAction }}
-            </div>
+            </div>-->
         </div>
         
         @if($showPreview)
@@ -34,7 +35,7 @@
                 <div class="space-y-4">
                     <div class="p-4 bg-white border rounded">
                         <h5 class="font-medium text-sm mb-2">Estructura básica:</h5>
-                        <pre class="text-xs overflow-auto max-h-40">{{ json_encode(['numFactura' => $ripsData[0]['rips']['numFactura'] ?? '', 'total_usuarios' => count($ripsData[0]['rips']['usuarios'] ?? 0), JSON_PRETTY_UNICODE) }}</pre>
+                        <pre class="text-xs overflow-auto max-h-40">{{ json_encode(['numFactura' => $ripsData[0]['rips']['numFactura'] ?? '', 'total_usuarios' => count($ripsData[0]['rips']['usuarios'] ?? 0)], JSON_PRETTY_UNICODE) }}</pre>
                     </div>
                     
                     <div class="p-4 bg-white border rounded">

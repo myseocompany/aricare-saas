@@ -47,8 +47,14 @@ class EditPatient extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
-        $data['region_code'] = !empty($data['phone']) ? getRegionCode($data['region_code'] ?? '') : null;
-        $data['phone'] = getPhoneNumber($data['phone']);
+        if (array_key_exists('phone', $data) && !empty($data['phone'])) {
+            $data['region_code'] = getRegionCode($data['region_code'] ?? '');
+            $data['phone'] = getPhoneNumber($data['phone']);
+        } else {
+            $data['region_code'] = null;
+        }
+        //$data['region_code'] = !empty($data['phone']) ? getRegionCode($data['region_code'] ?? '') : null;
+        //$data['phone'] = getPhoneNumber($data['phone']);
 
         $patient = app(PatientRepository::class)->update($record, $data);
 

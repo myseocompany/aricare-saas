@@ -2,11 +2,10 @@
 
 namespace App\Filament\Resources;
 
-// Importamos clases necesarias para construir el recurso
 use App\Filament\Resources\RipsReportingCenterResource\Pages;
-use App\Services\RipsGeneratorService;
 use Filament\Forms\Components\Card;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -19,6 +18,7 @@ class RipsReportingCenterResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
     protected static ?string $navigationLabel = 'Generador RIPS';
     protected static ?string $navigationGroup = 'Reportes';
+    protected static ?string $slug = 'rips-generator'; // Añade este slug
 
     public static function form(Form $form): Form
     {
@@ -27,9 +27,20 @@ class RipsReportingCenterResource extends Resource
                 Card::make()->schema([
                     Select::make('agreement_id')
                         ->label('Convenio')
-                        ->options(\App\Models\Agreement::pluck('name', 'id'))
-                        ->required(),
+                        ->options(\App\Models\Rips\RipsTenantPayerAgreements::where('tenant_id', auth()->user()->tenant_id)
+                            ->pluck('name', 'id'))
+                        ->required()
+                        ->searchable(),
                     
+                    Radio::make('report_type')
+                        ->label('Tipo de Reporte')
+                        ->options([
+                            'with_invoice' => 'Con Factura',
+                            'without_invoice' => 'Sin Factura'
+                        ])
+                        ->default('with_invoice')
+                        ->required(),
+                        
                     DatePicker::make('start_date')
                         ->label('Fecha inicial')
                         ->required(),
@@ -50,7 +61,12 @@ class RipsReportingCenterResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\GenerateRipsReport::route('/'),
+            'index' => Pages\GenerateRipsReport::route('/'), // 👈 cambia aquí
         ];
+    }
+    
+    public static function getRoutePrefix(): string
+    {
+        return 'rips'; // Esto afectará la URL generada
     }
 }

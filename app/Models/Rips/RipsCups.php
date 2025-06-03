@@ -30,4 +30,14 @@ class RipsCups extends Model
     {
         return $this->hasMany(RipsPatientServiceConsultation::class, 'rips_cups_id');
     }
+
+    public function cie10()
+    {
+        return $this->belongsTo(Cie10::class, 'cie10_id');
+    }
+
+    public function surgeryCie10()
+    {
+        return $this->belongsTo(Cie10::class, 'surgery_cie10_id');
+    }
 }

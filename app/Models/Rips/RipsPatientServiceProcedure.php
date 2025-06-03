@@ -22,4 +22,18 @@ class RipsPatientServiceProcedure extends Model
     {
         return $this->belongsTo(RipsPatientService::class, 'rips_patient_service_id');
     }
+    public function cups()
+    {
+        return $this->belongsTo(RipsCups::class, 'rips_cups_id');
+    }
+
+    public function cie10()
+    {
+        return $this->belongsTo(Cie10::class, 'cie10_id');
+    }
+
+    public function surgeryCie10()
+    {
+        return $this->belongsTo(Cie10::class, 'surgery_cie10_id');
+    }
 }

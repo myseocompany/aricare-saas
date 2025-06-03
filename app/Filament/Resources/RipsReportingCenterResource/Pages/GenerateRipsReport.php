@@ -7,6 +7,9 @@ use App\Services\RipsGeneratorService;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Actions;
 use Filament\Forms\Components\Actions\Action as FormAction;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
@@ -31,7 +34,33 @@ class GenerateRipsReport extends Page implements HasForms
 
     protected function getFormSchema(): array
     {
-        return RipsReportingCenterResource::form($this->getForm())->getSchema();
+        return [
+            Select::make('agreement_id')
+                ->label('Convenio')
+                ->options(function() {
+                    return \App\Models\Rips\RipsTenantPayerAgreements::where('tenant_id', auth()->user()->tenant_id)
+                        ->pluck('name', 'id');
+                })
+                ->required()
+                ->searchable(),
+                
+            Radio::make('report_type')
+                ->label('Tipo de Reporte')
+                ->options([
+                    'with_invoice' => 'Con Factura',
+                    'without_invoice' => 'Sin Factura'
+                ])
+                ->default('with_invoice')
+                ->required(),
+                
+            DatePicker::make('start_date')
+                ->label('Fecha Inicial')
+                ->required(),
+                
+            DatePicker::make('end_date')
+                ->label('Fecha Final')
+                ->required(),
+        ];
     }
 
     public function generate()
@@ -43,7 +72,8 @@ class GenerateRipsReport extends Page implements HasForms
             $this->ripsData = $service->generateByServices(
                 $data['agreement_id'],
                 $data['start_date'],
-                $data['end_date']
+                $data['end_date'],
+                $data['report_type'] === 'with_invoice'
             );
             
             // Crear archivo temporal
@@ -69,11 +99,17 @@ class GenerateRipsReport extends Page implements HasForms
 
     protected function getFormActions(): array
     {
-        return [
+        /*return [
             Action::make('generate')
                 ->label('Generar RIPS')
                 ->action('generate')
                 ->color('primary'),
+        ];*/
+        return [
+        FormAction::make('generate')
+            ->label('Generar RIPS')
+            ->action('generate')
+            ->color('primary'),
         ];
     }
 }

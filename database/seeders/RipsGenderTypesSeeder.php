@@ -3,7 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\RipsGenderType;
+use App\Models\Rips\RipsGenderType;
+
 
 class RipsGenderTypesSeeder extends Seeder
 {

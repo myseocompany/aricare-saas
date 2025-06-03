@@ -336,17 +336,3 @@ Route::get('/upgrade/database', function () {
         ]);
 });
 
-// Temporary RIPS download route
-
-Route::get('/download-temp-rips/{file}', function ($file) {
-    if (!Storage::exists($file)) {
-        abort(404);
-    }
-    
-    $headers = [
-        'Content-Type' => 'application/json',
-        'Content-Disposition' => 'attachment; filename="rips_report.json"'
-    ];
-    
-    return Storage::download($file, 'rips_report.json', $headers);
-})->name('download.temp.rips')->middleware(['auth']);

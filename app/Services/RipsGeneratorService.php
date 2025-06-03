@@ -4,204 +4,195 @@ namespace App\Services;
 
 use Carbon\Carbon;
 use App\Models\Rips\RipsPatientServices;
+use App\Models\Rips\RipsBillingDocument;
+use Illuminate\Support\Facades\Auth;
 
 class RipsGeneratorService
 {
-    /**
-     * Genera los datos RIPS agrupados por factura y paciente, a partir de servicios en un rango de fechas y un convenio.
-     *
-     * @param int $agreementId ID del convenio
-     * @param string $startDate Fecha inicio (formato string)
-     * @param string $endDate Fecha fin (formato string)
-     * @return array Datos RIPS estructurados para cada factura
-     */
-    public function generateByServices($agreementId, $startDate, $endDate)
+    public function generateByServices($agreementId, $startDate, $endDate, $withInvoice = true)
     {
-        // 1. Obtener todos los servicios en el rango de fechas para el convenio dado.
-        //    Se usa tabla 'rips_patient_services', filtrando por convenio y rango de fechas.
-        //    También se cargan relaciones necesarias para luego obtener detalles: paciente, factura, consultas y procedimientos.
-        $services = RipsPatientServices::where('rips_agreement_id', $agreementId)
-            ->whereBetween('service_datetime', [
+        $tenantId = Auth::user()->tenant_id;
+
+        $billingDocuments = RipsBillingDocument::where('tenant_id', $tenantId)
+            ->where('agreement_id', $agreementId)
+            ->whereBetween('issued_at', [
                 Carbon::parse($startDate)->startOfDay(),
                 Carbon::parse($endDate)->endOfDay()
-            ])
-            ->with([
-                'patient',
-                'invoice', // relación con tabla de facturas (rips_tenant_invoices)
-                'consultations.cups',
-                'procedures.cups'
-            ])
-            ->get()
-            // Agrupar servicios por el ID de la factura a la que pertenecen.
-            ->groupBy('rips_tenant_invoices_id');
+            ]);
+
+        if ($withInvoice) {
+            $billingDocuments->where('type_id', 1); // Con factura
+        } else {
+            $billingDocuments->where('type_id', '!=', 1); // Sin factura (notas)
+        }
+
+        $billingDocuments = $billingDocuments->with(['patientServices' => function($query) {
+            $query->with([
+                'patient.user',
+                'patient.ripsCountry',
+                'patient.ripsMunicipality',
+                'patient.originCountry',
+                'consultations' => function($q) {
+                    $q->with([
+                        'cups', 
+                        'serviceGroup', 
+                        'service', 
+                        'technologyPurpose',
+                        'diagnoses' => function($dq) {
+                            $dq->with('cie10')->orderBy('sequence');
+                        },
+                        'collectionConcept'
+                    ]);
+                },
+                'procedures' => function($q) {
+                    $q->with(['cups', 'cie10', 'surgeryCie10']);
+                },
+                'doctor'
+            ]);
+        }])->get();
 
         $ripsData = [];
 
-        $invoice = $billingDocument->first();
+        foreach ($billingDocuments as $document) {
+            // Configuración diferente para facturas vs notas
+            if ($withInvoice) {
+                $documentData = [
+                    'numDocumentoIdObligado' => $tenantId, // Usamos el tenant_id aquí
+                    'numFactura' => $document->document_number ?? null,
+                    'tipoNota' => null,
+                    'numNota' => null,
+                    'idRelacion' => $document->id ?? null
+                ];
+            } else {
+                $documentData = [
+                    'numDocumentoIdObligado' => $tenantId, // Usamos el tenant_id aquí
+                    'numFactura' => null,
+                    'tipoNota' => 'RS',
+                    'numNota' => $document->document_number ?? null,
+                    'idRelacion' => $document->id ?? null
+                ];
+            }
 
-        // Recorrer cada grupo de servicios agrupados por factura
-        foreach ($services->billingDocument as $invoiceId => $invoiceServices) {
-            // Tomar el primer servicio para acceder a la información de la factura (porque todos comparten factura)
-            $firstService = $invoiceServices->first();
-            $invoice = $firstService->invoice;
+            $ripsItem = array_merge($documentData, ['usuarios' => []]);
 
-            // Construir la estructura básica del elemento RIPS para esta factura
-            $ripsItem = [
-                'numDocumentoIdObligado' => $invoice->provider_document, // Documento del proveedor
-                'numFactura' => $invoice->invoice_number,               // Número de factura
-                'tipoNota' => $invoice->note_type,                      // Tipo de nota (si hay)
-                'numNota' => $invoice->note_number,                     // Número de nota (si hay)
-                'usuarios' => []                                        // Aquí irán los pacientes con sus servicios
-            ];
+            $servicesByPatient = $document->patientServices->groupBy('patient_id');
 
-            // Agrupar los servicios por paciente para esta factura
-            $servicesByPatient = $invoiceServices->groupBy('patient_id');
-
-            // Recorrer cada paciente y sus servicios dentro de esta factura
             foreach ($servicesByPatient as $patientId => $patientServices) {
-                // Obtener el paciente desde el primer servicio del grupo (todos son del mismo paciente)
                 $patient = $patientServices->first()->patient;
 
-                // Mapear paciente a la estructura RIPS estándar
                 $usuario = $this->mapPatientToRips($patient, $patientServices);
-
-                // Agregar un consecutivo para identificar al paciente en esta factura
                 $usuario['consecutivo'] = count($ripsItem['usuarios']) + 1;
-
-                // Procesar los servicios de este paciente y agregarlos
                 $usuario['servicios'] = $this->processServices($patientServices);
 
-                // Agregar este paciente con sus servicios al listado de usuarios de la factura
                 $ripsItem['usuarios'][] = $usuario;
             }
 
-            // Agregar este grupo de datos RIPS junto con el archivo XML codificado en base64 (si la factura es electrónica)
             $ripsData[] = [
                 'rips' => $ripsItem,
-                'xmlFevFile' => $invoice->is_electronic ? base64_encode($invoice->xml_content) : null
+                'xmlFevFile' => $withInvoice && !empty($document->xml_path) 
+                    ? base64_encode(file_get_contents($document->xml_path)) 
+                    : null
             ];
         }
 
-        // Retornar todo el conjunto de datos RIPS
         return $ripsData;
     }
 
-    /**
-     * Mapea un objeto paciente a la estructura requerida para RIPS.
-     *
-     * @param object $patient Objeto paciente
-     * @return array Datos del paciente en formato RIPS
-     */
     protected function mapPatientToRips($patient, $patientServices)
     {
         return [
             'tipoDocumentoIdentificacion' => $patient->document_type,
             'numDocumentoIdentificacion' => $patient->patient_unique_id,
-            'tipoUsuario' => '12', // Valor fijo predeterminado (por ejemplo, paciente general)
+            'tipoUsuario' => '12',
             'fechaNacimiento' => $patient->birth_date,
             'codSexo' => $patient->sex_code,
-            // Código país, municipio y zona territorial con valores por defecto si no están disponibles
             'codPaisResidencia' => $patient->ripsCountry->code ?? '170',
             'codMunicipioResidencia' => $patient->ripsMunicipality->code ?? '',
-            'codZonaTerritorialResidencia' => $patient->zone_code ?? '',
-            // Incapacidad: si alguno de los servicios tiene incapacidad, marcar "SI", sino "NO"
+            'codZonaTerritorialResidencia' => $patient->zone_code ?? '01',
             'incapacidad' => $patientServices->contains('has_incapacity', 1) ? 'SI' : 'NO',
             'codPaisOrigen' => $patient->countryOfOrigin->code ?? '170'
         ];
     }
 
-    /**
-     * Procesa los servicios de un paciente, separándolos en consultas y procedimientos.
-     *
-     * @param \Illuminate\Support\Collection $services Servicios del paciente
-     * @return array Servicios agrupados en consultas y procedimientos
-     */
     protected function processServices($services)
     {
-        $result = [
-            'consultas' => [],
-            'procedimientos' => []
+        return [
+            'consultas' => $this->mapConsultas($services),
+            'procedimientos' => $this->mapProcedimientos($services)
         ];
+    }
 
-        $consultaConsecutivo = 1;     // Contador para consultas
-        $procedimientoConsecutivo = 1; // Contador para procedimientos
+    protected function mapConsultas($services)
+    {
+        $consultas = [];
+        $consecutivo = 1;
 
         foreach ($services as $service) {
-            // Procesar la consulta (solo la primera por servicio)
-            if ($service->consultations->isNotEmpty()) {
-                $consulta = $service->consultations->first();
-                $result['consultas'][] = $this->mapConsulta($service, $consulta, $consultaConsecutivo++);
-            }
+            foreach ($service->consultations as $consulta) {
+                $diagnosticos = $consulta->diagnoses->sortBy('sequence');
+                $diagnosticoPrincipal = $diagnosticos->firstWhere('sequence', 1);
+                $diagnosticosRelacionados = $diagnosticos->where('sequence', '>', 1)->take(3);
 
-            // Procesar procedimientos (puede haber varios por servicio)
-            foreach ($service->procedures as $procedure) {
-                $result['procedimientos'][] = $this->mapProcedimiento($service, $procedure, $procedimientoConsecutivo++);
+                $consultas[] = [
+                    'codPrestador' => $service->location_code,
+                    'fechaInicioAtencion' => $service->service_datetime,
+                    'codConsulta' => $consulta->cups->code ?? '',
+                    'modalidadGrupoServicioTecSal' => '01',
+                    'grupoServicios' => $consulta->serviceGroup->code ?? '01',
+                    'codServicio' => $consulta->service->code ?? 334,
+                    'finalidadTecnologiaSalud' => $consulta->technologyPurpose->code ?? '12',
+                    'causaMotivoAtencion' => '35',
+                    'codDiagnosticoPrincipal' => $diagnosticoPrincipal->cie10->code ?? 'Z012',
+                    'codDiagnosticoRelacionado1' => $diagnosticosRelacionados->get(0)->cie10->code ?? null,
+                    'codDiagnosticoRelacionado2' => $diagnosticosRelacionados->get(1)->cie10->code ?? null,
+                    'codDiagnosticoRelacionado3' => $diagnosticosRelacionados->get(2)->cie10->code ?? null,
+                    'tipoDiagnosticoPrincipal' => '3',
+                    'tipoDocumentoIdentificacion' => $service->patient->document_type,
+                    'numDocumentoIdentificacion' => $service->patient->patient_unique_id,
+                    'vrServicio' => $consulta->service_value ?? 0,
+                    'conceptoRecaudo' => $consulta->collectionConcept->code ?? '05',
+                    'valorPagoModerador' => $consulta->copayment_value ?? 0,
+                    'numFEVPagoModerador' => $consulta->copayment_receipt_number ?? '',
+                    'consecutivo' => $consecutivo++
+                ];
             }
         }
 
-        return $result;
+        return $consultas;
     }
 
-    /**
-     * Mapea una consulta a la estructura RIPS con los campos necesarios.
-     *
-     * @param object $service Servicio asociado
-     * @param object $consulta Consulta médica
-     * @param int $consecutivo Número consecutivo de consulta
-     * @return array Datos de la consulta en formato RIPS
-     */
-    protected function mapConsulta($service, $consulta, $consecutivo)
+    protected function mapProcedimientos($services)
     {
-        return [
-            'codPrestador' => $service->location_code,
-            'fechaInicioAtencion' => $service->service_datetime,
-            'codConsulta' => $consulta->cups->code,
-            'modalidadGrupoServicioTecSal' => '01',
-            'grupoServicios' => $consulta->serviceGroup->code ?? '01',
-            'codServicio' => $consulta->service->code ?? '',
-            'finalidadTecnologiaSalud' => $consulta->technologyPurpose->code ?? '12',
-            'causaMotivoAtencion' => '35',
-            'codDiagnosticoPrincipal' => $consulta->cie10->code ?? '',
-            'tipoDiagnosticoPrincipal' => '02',
-            'tipoDocumentoIdentificacion' => $service->patient->document_type,
-            'numDocumentoIdentificacion' => $service->patient->patient_unique_id,
-            'vrServicio' => $consulta->service_value ?? 0,
-            'conceptoRecaudo' => $consulta->collectionConcept->code ?? '05',
-            'valorPagoModerador' => $consulta->copayment_value ?? 0,
-            'numFEVPagoModerador' => $consulta->copayment_receipt_number ?? '',
-            'consecutivo' => $consecutivo
-        ];
-    }
+        $procedimientos = [];
+        $consecutivo = 1;
 
-    /**
-     * Mapea un procedimiento a la estructura RIPS con los campos necesarios.
-     *
-     * @param object $service Servicio asociado
-     * @param object $procedure Procedimiento médico
-     * @param int $consecutivo Número consecutivo de procedimiento
-     * @return array Datos del procedimiento en formato RIPS
-     */
-    protected function mapProcedimiento($service, $procedure, $consecutivo)
-    {
-        return [
-            'codPrestador' => $service->location_code,
-            'fechaInicioAtencion' => $service->service_datetime,
-            'idMIPRES' => $procedure->mipres_id ?? '',
-            'numAutorizacion' => $procedure->authorization_number ?? '',
-            'codProcedimiento' => $procedure->cups->code,
-            'viaIngresoServicioSalud' => '01',
-            'modalidadGrupoServicioTecSal' => '09',
-            'grupoServicios' => '01',
-            'finalidadTecnologiaSalud' => '12',
-            'tipoDocumentoIdentificacion' => $service->patient->document_type,
-            'numDocumentoIdentificacion' => $service->patient->patient_unique_id,
-            'codDiagnosticoPrincipal' => $procedure->cie10->code ?? '',
-            'codDiagnosticoRelacionado' => $procedure->surgeryCie10->code ?? null,
-            'vrServicio' => $procedure->service_value ?? 0,
-            'conceptoRecaudo' => '05',
-            'valorPagoModerador' => $procedure->copayment_value ?? 0,
-            'numFEVPagoModerador' => $procedure->copayment_receipt_number ?? '',
-            'consecutivo' => $consecutivo
-        ];
+        foreach ($services as $service) {
+            foreach ($service->procedures as $procedure) {
+                $procedimientos[] = [
+                    'codPrestador' => $service->location_code,
+                    'fechaInicioAtencion' => $service->service_datetime,
+                    'idMIPRES' => $procedure->mipres_id ?? '',
+                    'numAutorizacion' => $procedure->authorization_number ?? '',
+                    'codProcedimiento' => $procedure->cups->code ?? '',
+                    'viaIngresoServicioSalud' => '01',
+                    'modalidadGrupoServicioTecSal' => '09',
+                    'grupoServicios' => '01',
+                    'codServicio' => 334,
+                    'finalidadTecnologiaSalud' => '12',
+                    'tipoDocumentoIdentificacion' => $service->patient->document_type,
+                    'numDocumentoIdentificacion' => $service->patient->patient_unique_id,
+                    'codDiagnosticoPrincipal' => $procedure->cie10->code ?? 'Z012',
+                    'codDiagnosticoRelacionado' => $procedure->surgeryCie10->code ?? null,
+                    'codComplicacion' => null,
+                    'vrServicio' => $procedure->service_value ?? 0,
+                    'conceptoRecaudo' => '05',
+                    'valorPagoModerador' => $procedure->copayment_value ?? 0,
+                    'numFEVPagoModerador' => $procedure->copayment_receipt_number ?? '',
+                    'consecutivo' => $consecutivo++
+                ];
+            }
+        }
+
+        return $procedimientos;
     }
 }

@@ -10,14 +10,7 @@ class Kernel extends ConsoleKernel
 {
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-            $files = Storage::files();
-            foreach ($files as $file) {
-                if (str_starts_with($file, 'rips_temp_')) {
-                    Storage::delete($file);
-                }
-            }
-        })->daily();
+        
     }
 
     protected function commands()
