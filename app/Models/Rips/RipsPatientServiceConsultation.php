@@ -72,4 +72,20 @@ class RipsPatientServiceConsultation extends Model
         return $this->diagnoses()->where('sequence', '>', 1);
     }
 
+
+    public function serviceGroupMode()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsServiceGroupMode::class, 'rips_service_group_mode_id');
+    }
+
+    public function serviceReason()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsServiceReason::class, 'rips_service_reason_id');
+    }
+
+    public function consultationCups()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsCups::class, 'rips_consultation_cups_id');
+    }
+
 }

@@ -76,4 +76,37 @@ class EditRipsPatientService extends EditRecord
 
         return $record;
     }
+
+    // 🚨 Mutar antes de guardar - igual que en Create
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        foreach ($data['consultations'] as &$consultation) {
+            $diagnoses = [];
+
+            if (!empty($consultation['principal_diagnoses'])) {
+                foreach ($consultation['principal_diagnoses'] as $diagnosis) {
+                    $diagnosis['sequence'] = 1;
+                    $diagnoses[] = $diagnosis;
+                }
+            }
+
+            if (!empty($consultation['related_diagnoses'])) {
+                foreach ($consultation['related_diagnoses'] as $index => $cie10Id) {
+                    $diagnoses[] = [
+                        'cie10_id' => $cie10Id,
+                        'rips_diagnosis_type_id' => null,
+                        'sequence' => $index + 2,
+                    ];
+                }
+            }
+
+            $consultation['diagnoses'] = $diagnoses;
+
+            // Eliminamos estos campos temporales
+            unset($consultation['principal_diagnoses']);
+            unset($consultation['related_diagnoses']);
+        }
+
+        return $data;
+    }
 }

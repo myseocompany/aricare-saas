@@ -4,74 +4,159 @@ namespace App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServ
 
 use Filament\Forms;
 use Filament\Forms\Form;
-use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Placeholder;
 
 class FormProcedures
 {
     public static function make(Form $form): Form
     {
         return $form->schema([
-            // **Formulario de procedimientos (debajo de las consultas)**
-            Forms\Components\Repeater::make('procedures')  // Usamos Repeater para agregar múltiples procedimientos
-                ->relationship() // Vincula la relación de procedimientos
+            Repeater::make('procedures')
+                ->label('')
+                ->reorderable(false)
+                ->default([])
                 ->schema([
-                    Forms\Components\TextInput::make('mipres_id')
-                        ->label('Mipres ID'),
+                    Grid::make()
+                        ->schema([
+                            // 🟦 Izquierda - Detalles del procedimiento
+                            Grid::make(3)
+                                ->schema([
+                                    Select::make('rips_admission_route_id')
+                                        ->label('Vía de Ingreso')
+                                        ->options(\App\Models\Rips\RipsAdmissionRoute::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->inlineLabel()
+                                        ->required(),
 
-                    Forms\Components\TextInput::make('authorization_number')
-                        ->label('Número de autorización'),
+                                    Select::make('rips_service_group_mode_id')
+                                        ->label('Modo del Grupo de Servicio')
+                                        ->options(\App\Models\Rips\RipsServiceGroupMode::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->inlineLabel()
+                                        ->required(),
 
-                    Forms\Components\Select::make('rips_cups_id')
-                        ->label('CUPS')
-                        ->searchable() // Habilita la búsqueda en vivo
-                        ->options(function (string $search = null) {
-                            return \App\Models\Rips\RipsCups::query()
-                                ->when($search, function ($query, $search) {
-                                    return $query->where('name', 'like', "%{$search}%");
-                                })
-                                ->limit(20)
-                                ->pluck('name', 'id'); // Devuelve solo los campos necesarios
-                        })
-                        ->required(),
+                                    Select::make('rips_service_group_id')
+                                        ->label('Grupo de Servicio')
+                                        ->options(\App\Models\Rips\RipsServiceGroup::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->inlineLabel()
+                                        ->required(),
 
-                    Forms\Components\Select::make('cie10_id')
-                        ->label('CIE10')
-                        ->searchable()
-                        ->options(function (string $search = null) {
-                            return \App\Models\Rips\Cie10::query()
-                                ->when($search, function ($query, $search) {
-                                    return $query->where('description', 'like', "%{$search}%");
-                                })
-                                ->limit(20)
-                                ->pluck('description', 'id');
-                        }),
+                                    Select::make('rips_collection_concept_id')
+                                        ->label('Concepto de Recaudo')
+                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->inlineLabel()
+                                        ->required(),
 
-                    Forms\Components\Select::make('surgery_cie10_id')
-                        ->label('CIE10 Cirugía')
-                        ->searchable()
-                        ->options(function (string $search = null) {
-                            return \App\Models\Rips\Cie10::query()
-                                ->when($search, function ($query, $search) {
-                                    return $query->where('description', 'like', "%{$search}%");
-                                })
-                                ->limit(20)
-                                ->pluck('description', 'id');
-                        }),
+                                    TextInput::make('mipres_id')
+                                        ->label('Mipres ID')
+                                        ->maxLength(30)
+                                        ->inlineLabel(),
 
-                    Forms\Components\TextInput::make('service_value')
-                        ->label('Valor del servicio')
-                        ->numeric(),
+                                    TextInput::make('authorization_number')
+                                        ->label('Número de autorización')
+                                        ->maxLength(30)
+                                        ->inlineLabel(),
 
-                    Forms\Components\TextInput::make('copayment_value')
-                        ->label('Valor del copago')
-                        ->numeric(),
+                                    Select::make('rips_cups_id')
+                                        ->label('CUPS')
+                                        ->searchable()
+                                        ->options(function (string $search = null) {
+                                            return \App\Models\Rips\RipsCups::query()
+                                                ->when($search, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
+                                                ->limit(20)
+                                                ->pluck('name', 'id');
+                                        })
+                                        ->required()
+                                        ->inlineLabel(),
 
-                    Forms\Components\TextInput::make('copayment_receipt_number')
-                        ->label('Número de recibo del copago'),
+                                    Select::make('cie10_id')
+                                        ->label('Diagnóstico')
+                                        ->searchable()
+                                        ->options(function (string $search = null) {
+                                            return \App\Models\Rips\Cie10::query()
+                                                ->when($search, fn($query, $search) => $query->where('description', 'like', "%{$search}%")
+                                                    ->orWhere('code', 'like', "%{$search}%"))
+                                                ->limit(20)
+                                                ->pluck('description', 'id');
+                                        })
+                                        ->inlineLabel(),
+
+                                    Select::make('surgery_cie10_id')
+                                        ->label('CIE10 Cirugía')
+                                        ->searchable()
+                                        ->options(function (string $search = null) {
+                                            return \App\Models\Rips\Cie10::query()
+                                                ->when($search, fn($query, $search) => $query->where('description', 'like', "%{$search}%"))
+                                                ->limit(20)
+                                                ->pluck('description', 'id');
+                                        })
+                                        ->inlineLabel(),
+
+                                    Select::make('rips_complication_cie10_id')
+                                        ->label('Diagnóstico de Complicación (CIE10)')
+                                        ->searchable()
+                                        ->options(function (string $search = null) {
+                                            return \App\Models\Rips\Cie10::query()
+                                                ->when($search, fn($query, $search) => $query->where('description', 'like', "%{$search}%")
+                                                    ->orWhere('code', 'like', "%{$search}%"))
+                                                ->limit(20)
+                                                ->pluck('description', 'id');
+                                        })
+                                        ->inlineLabel(),
+
+                                ])
+                                ->columns(1)
+                                ->columnSpan(8),
+
+                            // 🟥 Derecha - Valores económicos
+                            Grid::make(1)
+                                ->schema([
+                                    TextInput::make('copayment_receipt_number')
+                                        ->label('Número del Recibo')
+                                        ->maxLength(30)
+                                        ->nullable()
+                                        ->inlineLabel(),
+
+                                    TextInput::make('service_value')
+                                        ->label('Valor del Servicio')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->default(0)
+                                        ->required()
+                                        ->inlineLabel(),
+
+                                    TextInput::make('copayment_value')
+                                        ->label('Valor del Copago')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->default(0)
+                                        ->required()
+                                        ->inlineLabel(),
+
+                                    Placeholder::make('total')
+                                        ->label('Total')
+                                        ->content(function ($get) {
+                                            $serviceValue = (float) $get('service_value') ?? 0;
+                                            $copaymentValue = (float) $get('copayment_value') ?? 0;
+                                            $total = $serviceValue - $copaymentValue;
+                                            return '$' . number_format($total, 0, ',', '.');
+                                        }),
+                                ])
+                                ->columns(1)
+                                ->columnSpan(4),
+                        ])
+                        ->columns(12),
                 ])
-                ->columns(2) // Número de columnas para los campos del procedimiento
-                ->defaultItems(fn () => 0)
-                ->createItemButtonLabel('Añadir procedimiento'), // Botón para agregar procedimiento
+                ->columns(1)
+                ->defaultItems(0)
+                ->minItems(0)
+                ->createItemButtonLabel('Añadir Procedimiento'),
         ]);
     }
 }

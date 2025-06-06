@@ -128,7 +128,7 @@ class FormPatientDoctor
                     Forms\Components\Toggle::make('has_incapacity')
                         ->inlineLabel()
                         ->label('Has incapacity'),
-
+                    
                     Forms\Components\Hidden::make('tenant_id')
                         ->default(Auth::user()->tenant_id)
                         ->required(),
