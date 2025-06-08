@@ -3,6 +3,8 @@
 namespace App\Models\Rips;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RipsPatientServiceConsultation extends Model
 {
@@ -13,6 +15,9 @@ class RipsPatientServiceConsultation extends Model
         'rips_patient_service_id',
         'rips_cups_id',
         'rips_service_group_id',
+        'rips_service_group_mode_id',
+        'rips_service_reason_id',
+        'rips_consultation_cups_id',
         'rips_service_id',
         'rips_technology_purpose_id',
         'service_value',
@@ -21,71 +26,65 @@ class RipsPatientServiceConsultation extends Model
         'copayment_receipt_number',
     ];
 
-    // Relación con RipsPatientService
-    public function patientService()
+    // Relaciones
+    public function patientService(): BelongsTo
     {
         return $this->belongsTo(RipsPatientService::class, 'rips_patient_service_id');
     }
 
-    // Relación con RipsCups
-    public function cups()
+    public function cups(): BelongsTo
     {
         return $this->belongsTo(RipsCups::class, 'rips_cups_id');
     }
 
-    // Relación con RipsServiceGroup
-    public function serviceGroup()
+    public function serviceGroup(): BelongsTo
     {
         return $this->belongsTo(RipsServiceGroup::class, 'rips_service_group_id');
     }
 
-    // Relación con RipsService
-    public function service()
+    public function serviceGroupMode(): BelongsTo
+    {
+        return $this->belongsTo(RipsServiceGroupMode::class, 'rips_service_group_mode_id');
+    }
+
+    public function serviceReason(): BelongsTo
+    {
+        return $this->belongsTo(RipsServiceReason::class, 'rips_service_reason_id');
+    }
+
+    public function consultationCups(): BelongsTo
+    {
+        return $this->belongsTo(RipsCups::class, 'rips_consultation_cups_id');
+    }
+
+    public function service(): BelongsTo
     {
         return $this->belongsTo(RipsService::class, 'rips_service_id');
     }
 
-    // Relación con RipsTechnologyPurpose
-    public function technologyPurpose()
+    public function technologyPurpose(): BelongsTo
     {
         return $this->belongsTo(RipsTechnologyPurpose::class, 'rips_technology_purpose_id');
     }
 
-    // Relación con RipsCollectionConcept
-    public function collectionConcept()
+    public function collectionConcept(): BelongsTo
     {
         return $this->belongsTo(RipsCollectionConcept::class, 'rips_collection_concept_id');
     }
 
-    public function diagnoses()
+    // Diagnósticos
+    public function diagnoses(): HasMany
     {
         return $this->hasMany(RipsPatientServiceConsultationDiagnosis::class);
     }
 
-    public function principalDiagnoses()
+    public function principalDiagnoses(): HasMany
     {
         return $this->diagnoses()->where('sequence', 1);
     }
 
-    public function relatedDiagnoses()
+    public function relatedDiagnoses(): HasMany
     {
         return $this->diagnoses()->where('sequence', '>', 1);
     }
-
-
-    public function serviceGroupMode()
-    {
-        return $this->belongsTo(\App\Models\Rips\RipsServiceGroupMode::class, 'rips_service_group_mode_id');
-    }
-
-    public function serviceReason()
-    {
-        return $this->belongsTo(\App\Models\Rips\RipsServiceReason::class, 'rips_service_reason_id');
-    }
-
-    public function consultationCups()
-    {
-        return $this->belongsTo(\App\Models\Rips\RipsCups::class, 'rips_consultation_cups_id');
-    }
-
 }
