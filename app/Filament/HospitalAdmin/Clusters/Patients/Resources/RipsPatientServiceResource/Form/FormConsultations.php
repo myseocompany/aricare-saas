@@ -36,6 +36,12 @@ class FormConsultations
                                         ->searchable()
                                         ->inlineLabel()
                                         ->required(),
+                                    Select::make('rips_service_group_mode_id')
+                                        ->label('Modo del Grupo de Servicio')
+                                        ->options(\App\Models\Rips\RipsServiceGroupMode::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->inlineLabel()
+                                        ->required(),
 
                                     Select::make('rips_service_group_id')
                                         ->label('Grupo de Servicio')
@@ -68,12 +74,7 @@ class FormConsultations
                                         ->searchable()
                                         ->inlineLabel()
                                         ->required(),
-                                    Select::make('rips_service_group_mode_id')
-                                        ->label('Modo del Grupo de Servicio')
-                                        ->options(\App\Models\Rips\RipsServiceGroupMode::pluck('name', 'id'))
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->required(),
+                                    
 
                                     Select::make('rips_service_reason_id')
                                         ->label('Motivo de Servicio')

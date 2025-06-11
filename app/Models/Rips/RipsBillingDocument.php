@@ -44,4 +44,9 @@ class RipsBillingDocument extends Model
         return $this->belongsTo(RipsTenantPayerAgreement::class, 'agreement_id');
     }
 
+    public function tenant()
+    {
+        return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
+
 }

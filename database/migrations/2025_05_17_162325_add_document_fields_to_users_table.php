@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-           $table->string('document_type', 3)->nullable()->after('username');
-            $table->string('document_number', 15)->nullable()->after('document_type');
+           $table->string('rips_identification_type_id', 3)->nullable()->after('username');
+            $table->string('rips_identification_number', 15)->nullable()->after('rips_identification_type_id');
         });
     }
 
@@ -23,7 +23,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['document_type', 'document_number']);
+            $table->dropColumn(['rips_document_type', 'rips_document_number']);
         });
     }
 };

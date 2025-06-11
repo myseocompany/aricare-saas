@@ -80,6 +80,8 @@ class Patient extends Model implements HasMedia
         'rips_municipality_id',
         'zone_code',
         'country_of_origin_id',
+        'rips_identification_type_id',
+        'document_number'
     ];
     
     const STATUS_ALL = 2;
@@ -267,6 +269,8 @@ class Patient extends Model implements HasMedia
         return $this->belongsTo(PatientType::class);
     }
 
+    
+
     // Nuevvas relaciones agregadas por Julian
     
     // Relación con país de origen (usando country_of_origin como código)
@@ -295,10 +299,15 @@ class Patient extends Model implements HasMedia
         return $this->belongsTo(\App\Models\Rips\RipsIdentificationType::class);
     }
 
-    public function ripsUserType()
+    /*public function ripsUserType()
     {
         return $this->belongsTo(\App\Models\Rips\RipsUserType::class);
+    }*/
+    public function ripsUserType()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsUserType::class, 'type_id');
     }
+
     public function ripsDepartment()
     {
         return $this->belongsTo(\App\Models\Rips\Department::class);

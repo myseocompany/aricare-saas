@@ -140,6 +140,11 @@ class Doctor extends Model implements HasMedia
     {
         return $this->user ? $this->user->document_type : null;
     }
+    
+    public function ripsIdentificationType()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsIdentificationType::class);
+    }
 
     public function getDocumentNumberAttribute()
     {

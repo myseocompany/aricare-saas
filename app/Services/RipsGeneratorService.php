@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\Rips\RipsPatientServices;
 use App\Models\Rips\RipsBillingDocument;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 
 class RipsGeneratorService
 {
@@ -50,26 +52,31 @@ class RipsGeneratorService
                 'doctor'
             ]);
         }])->get();
-
+        
         $ripsData = [];
 
         foreach ($billingDocuments as $document) {
+            // Obtener el número de documento del tenant SIN usar modelo
+            $tenantDocumentNumber = DB::table('tenants')
+                ->where('id', $document->tenant_id)
+                ->value('document_number');
+
             // Configuración diferente para facturas vs notas
             if ($withInvoice) {
                 $documentData = [
-                    'numDocumentoIdObligado' => $tenantId, // Usamos el tenant_id aquí
+                    'numDocumentoIdObligado'=> $tenantDocumentNumber, // Usamos el tenant_id aquí
                     'numFactura' => $document->document_number ?? null,
                     'tipoNota' => null,
                     'numNota' => null,
-                    'idRelacion' => $document->id ?? null
+                    //'idRelacion' => $document->id ?? null
                 ];
             } else {
                 $documentData = [
-                    'numDocumentoIdObligado' => $tenantId, // Usamos el tenant_id aquí
+                    'numDocumentoIdObligado' => $tenantDocumentNumber, // Usamos el tenant_id aquí
                     'numFactura' => null,
                     'tipoNota' => 'RS',
                     'numNota' => $document->document_number ?? null,
-                    'idRelacion' => $document->id ?? null
+                    //'idRelacion' => $document->id ?? null
                 ];
             }
 
@@ -94,32 +101,48 @@ class RipsGeneratorService
                     : null
             ];
         }
-
         return $ripsData;
     }
 
     protected function mapPatientToRips($patient, $patientServices)
     {
         return [
-            'tipoDocumentoIdentificacion' => $patient->document_type,
-            'numDocumentoIdentificacion' => $patient->patient_unique_id,
-            'tipoUsuario' => '12',
+            'tipoDocumentoIdentificacion' => $patient-> ripsIdentificationType->code ?? '',
+            'numDocumentoIdentificacion' => $patient->document_number,
+            'tipoUsuario' => $patient-> ripsUserType->name ?? '',
             'fechaNacimiento' => $patient->birth_date,
             'codSexo' => $patient->sex_code,
-            'codPaisResidencia' => $patient->ripsCountry->code ?? '170',
+            'codPaisResidencia' => $patient->residenceCountry->code ?? '',
             'codMunicipioResidencia' => $patient->ripsMunicipality->code ?? '',
-            'codZonaTerritorialResidencia' => $patient->zone_code ?? '01',
+            'codZonaTerritorialResidencia' => $patient->zone_code ?? '',
             'incapacidad' => $patientServices->contains('has_incapacity', 1) ? 'SI' : 'NO',
-            'codPaisOrigen' => $patient->countryOfOrigin->code ?? '170'
+            'codPaisOrigen' => $patient->originCountry->code ?? '',
         ];
     }
 
-    protected function processServices($services)
+    /*protected function processServices($services)
     {
         return [
             'consultas' => $this->mapConsultas($services),
             'procedimientos' => $this->mapProcedimientos($services)
         ];
+    }*/
+    //para evitar que salga la palabra consultas y procedimientos en el rips si estan vacios
+    protected function processServices($services)
+    {
+        $result = [];
+        
+        $consultas = $this->mapConsultas($services);
+        if (!empty($consultas)) {
+            $result['consultas'] = $consultas;
+        }
+
+        $procedimientos = $this->mapProcedimientos($services);
+        if (!empty($procedimientos)) {
+            $result['procedimientos'] = $procedimientos;
+        }
+        return $result;
+        
     }
 
     protected function mapConsultas($services)
@@ -134,12 +157,12 @@ class RipsGeneratorService
                 $diagnosticosRelacionados = $diagnosticos->where('sequence', '>', 1)->take(3);
 
                 $consultas[] = [
-                    'codPrestador' => $service->location_code,
+                    'codPrestador' => $service->doctor->rips_codigo_prestador,
                     'fechaInicioAtencion' => $service->service_datetime,
                     'codConsulta' => $consulta->cups->code ?? '',
-                    'modalidadGrupoServicioTecSal' => '01',
-                    'grupoServicios' => $consulta->serviceGroup->code ?? '01',
-                    'codServicio' => $consulta->service->code ?? 334,
+                    'modalidadGrupoServicioTecSal' => $consulta->serviceGroupMode->code ?? '',
+                    'grupoServicios' => $consulta->serviceGroup->code ?? '',
+                    'codServicio' => $consulta->service->code ?? '',
                     'finalidadTecnologiaSalud' => $consulta->technologyPurpose->code ?? '12',
                     'causaMotivoAtencion' => '35',
                     'codDiagnosticoPrincipal' => $diagnosticoPrincipal->cie10->code ?? 'Z012',
@@ -147,8 +170,8 @@ class RipsGeneratorService
                     'codDiagnosticoRelacionado2' => $diagnosticosRelacionados->get(1)->cie10->code ?? null,
                     'codDiagnosticoRelacionado3' => $diagnosticosRelacionados->get(2)->cie10->code ?? null,
                     'tipoDiagnosticoPrincipal' => '3',
-                    'tipoDocumentoIdentificacion' => $service->patient->document_type,
-                    'numDocumentoIdentificacion' => $service->patient->patient_unique_id,
+                    'tipoDocumentoIdentificacion' => $service->doctor->ripsIdentificationType->code ?? '',
+                    'numDocumentoIdentificacion' => $service->doctor->rips_identification_number,
                     'vrServicio' => $consulta->service_value ?? 0,
                     'conceptoRecaudo' => $consulta->collectionConcept->code ?? '05',
                     'valorPagoModerador' => $consulta->copayment_value ?? 0,
@@ -169,18 +192,18 @@ class RipsGeneratorService
         foreach ($services as $service) {
             foreach ($service->procedures as $procedure) {
                 $procedimientos[] = [
-                    'codPrestador' => $service->location_code,
+                    'codPrestador' => $service->doctor->rips_codigo_prestador ?? '',
                     'fechaInicioAtencion' => $service->service_datetime,
                     'idMIPRES' => $procedure->mipres_id ?? '',
                     'numAutorizacion' => $procedure->authorization_number ?? '',
                     'codProcedimiento' => $procedure->cups->code ?? '',
-                    'viaIngresoServicioSalud' => '01',
-                    'modalidadGrupoServicioTecSal' => '09',
-                    'grupoServicios' => '01',
+                    'viaIngresoServicioSalud' =>  $procedure->admissionRoute->code ?? 'Z012',
+                    'modalidadGrupoServicioTecSal' =>  $procedure->serviceGroupMode->code ?? '',
+                    'grupoServicios' => $procedure->serviceGroup->code ?? '',
                     'codServicio' => 334,
                     'finalidadTecnologiaSalud' => '12',
-                    'tipoDocumentoIdentificacion' => $service->patient->document_type,
-                    'numDocumentoIdentificacion' => $service->patient->patient_unique_id,
+                    'tipoDocumentoIdentificacion' => $service->doctor->ripsIdentificationType->code ?? '',
+                    'numDocumentoIdentificacion' => $service->doctor->rips_identification_number,
                     'codDiagnosticoPrincipal' => $procedure->cie10->code ?? 'Z012',
                     'codDiagnosticoRelacionado' => $procedure->surgeryCie10->code ?? null,
                     'codComplicacion' => null,
