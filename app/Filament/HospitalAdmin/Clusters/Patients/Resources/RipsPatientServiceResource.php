@@ -14,7 +14,6 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
-use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\RipsPatientServiceForm;
 
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormPatientDoctor;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultations;
@@ -132,6 +131,7 @@ public static function table(Table $table): Table
             ->with([
                 'billingDocument',
                 'consultations.diagnoses',
+                'procedures',
             ]);
     }
 
