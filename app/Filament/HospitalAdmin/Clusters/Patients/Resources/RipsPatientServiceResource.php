@@ -131,6 +131,7 @@ public static function table(Table $table): Table
             ->with([
                 'billingDocument',
                 'consultations.diagnoses',
+                'procedures',
             ]);
     }
 
