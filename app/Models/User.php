@@ -494,6 +494,12 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
     {
         return $this->belongsTo(DocumentType::class, 'document_type', 'abbreviation');
     }
+    
+    public function ripsIdentificationType()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsIdentificationType::class, 'rips_identification_type_id');
+    }
+
 
     public function hospitalType(): BelongsTo
     {
