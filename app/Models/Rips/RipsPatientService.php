@@ -47,7 +47,7 @@ class RipsPatientService extends Model
     {
         return $this->belongsTo(\App\Models\Rips\RipsBillingDocument::class, 'billing_document_id');
     }
-
+    
     
 
 

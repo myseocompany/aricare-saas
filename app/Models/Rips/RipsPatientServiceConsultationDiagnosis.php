@@ -21,4 +21,9 @@ class RipsPatientServiceConsultationDiagnosis extends Model
     {
         return $this->belongsTo(Cie10::class, 'cie10_id');
     }
+
+    public function diagnosisType()
+    {
+        return $this->belongsTo(RipsDiagnosisType::class, 'rips_diagnosis_type_id');
+    }
 }
