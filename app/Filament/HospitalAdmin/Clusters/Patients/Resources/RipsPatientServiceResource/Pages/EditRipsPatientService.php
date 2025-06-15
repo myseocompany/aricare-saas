@@ -72,6 +72,8 @@ class EditRipsPatientService extends EditRecord
                 'rips_service_group_mode_id' => $procedureData['rips_service_group_mode_id'] ?? null,
                 'rips_service_group_id' => $procedureData['rips_service_group_id'] ?? null,
                 'rips_collection_concept_id' => $procedureData['rips_collection_concept_id'] ?? null,
+                'rips_technology_purpose_id' => $procedureData['rips_technology_purpose_id'] ?? null,
+
                 'mipres_id' => $procedureData['mipres_id'] ?? null,
                 'authorization_number' => $procedureData['authorization_number'] ?? null,
                 'rips_cups_id' => $procedureData['rips_cups_id'] ?? null,

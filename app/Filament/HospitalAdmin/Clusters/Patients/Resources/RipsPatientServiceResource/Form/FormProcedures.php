@@ -53,6 +53,13 @@ class FormProcedures
                                         ->inlineLabel()
                                         ->required(),
 
+                                    Select::make('rips_technology_purpose_id')
+                                        ->label('Finalidad Tecnológica')
+                                        ->options(\App\Models\Rips\RipsTechnologyPurpose::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->inlineLabel(),
+
+
                                     TextInput::make('mipres_id')
                                         ->label('Mipres ID')
                                         ->maxLength(30)
