@@ -156,6 +156,7 @@ class EditRipsPatientService extends EditRecord
                 'rips_admission_route_id' => $procedure->rips_admission_route_id,
                 'rips_service_group_mode_id' => $procedure->rips_service_group_mode_id,
                 'rips_service_group_id' => $procedure->rips_service_group_id,
+                'rips_technology_purpose_id' => $procedure->rips_technology_purpose_id,
                 'rips_collection_concept_id' => $procedure->rips_collection_concept_id,
                 'mipres_id' => $procedure->mipres_id,
                 'authorization_number' => $procedure->authorization_number,
