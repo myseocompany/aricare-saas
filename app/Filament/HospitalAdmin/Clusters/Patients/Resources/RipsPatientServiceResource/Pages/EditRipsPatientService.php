@@ -21,21 +21,27 @@ class EditRipsPatientService extends EditRecord
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
         // 🚨 Actualizar primero la factura asociada
-        $billingDocument = $record->billingDocument;
-
-        if ($billingDocument) {
-            $billingDocument->update([
-                'document_number' => $data['invoice_number'],
-                'agreement_id'    => $data['agreement_id'],
-                'issued_at'       => $data['service_datetime'],
-            ]);
+        $billingDocument = null;
+        if (!empty($data['billing_document_id'])) {
+            $billingDocument = \App\Models\Rips\RipsBillingDocument::where('tenant_id', auth()->user()->tenant_id)
+                ->find($data['billing_document_id']);
+            if ($billingDocument) {
+                $billingDocument->update([
+                    'issued_at' => $data['service_datetime'],
+                ]);
+            }
         }
-
-        unset($data['invoice_number']);
-        unset($data['agreement_id']);
 
         // 🚨 Actualizar el registro principal
         $record->update($data);
+
+        if ($billingDocument) {
+            $record->billing_document_id = $billingDocument->id;
+            $record->save();
+        } else {
+            $record->billing_document_id = null;
+            $record->save();
+        }
 
         // 🚨 Limpiar consultas y diagnósticos existentes
         $record->consultations()->each(function ($consultation) {
@@ -127,8 +133,7 @@ class EditRipsPatientService extends EditRecord
         $record = $this->record->load(['consultations.diagnoses', 'procedures', 'billingDocument']);
 
         if ($record->billingDocument) {
-            $data['invoice_number'] = $record->billingDocument->document_number;
-            $data['agreement_id'] = $record->billingDocument->agreement_id;
+            $data['billing_document_id'] = $record->billing_document_id;
         }
 
         $data['consultations'] = $record->consultations->map(function ($consultation) {
