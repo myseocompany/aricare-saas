@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
 
-use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormPatientDoctor;
+use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormService;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultations;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormProcedures;
 
@@ -41,7 +41,7 @@ class RipsPatientServiceResource extends Resource
         return $form->schema([
             Grid::make(1) 
                 ->schema(array_merge(
-                    FormPatientDoctor::make($form)->getComponents(),
+                    FormService::make($form)->getComponents(),
                     FormConsultations::make($form)->getComponents(),
                     FormProcedures::make($form)->getComponents()
                 )),
@@ -75,12 +75,7 @@ public static function table(Table $table): Table
                 ->dateTime('d/m/Y H:i:s')
                 ->sortable(),
 
-            // Otros campos
-            Tables\Columns\TextColumn::make('collection_concept_id')
-                ->searchable()
-                ->label('Concepto de Colección'),
 
-            // Fechas de creación y actualización
             Tables\Columns\TextColumn::make('created_at')
                 ->dateTime()
                 ->sortable()

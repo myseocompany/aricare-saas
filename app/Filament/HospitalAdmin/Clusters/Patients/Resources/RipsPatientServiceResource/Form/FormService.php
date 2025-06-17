@@ -6,7 +6,7 @@ use Filament\Forms;
 use Filament\Forms\Form;
 use Illuminate\Support\Facades\Auth;
 
-class FormPatientDoctor
+class FormService
 {
     public static function make(Form $form): Form
     {
@@ -59,43 +59,39 @@ class FormPatientDoctor
                         ->inlineLabel()
                         ->required(),
                         
-                    Forms\Components\TextInput::make('invoice_number')
-                        ->label('Número de Factura')
-                        ->required()
-                        ->inlineLabel()
-                        ->maxLength(30)
-                        ->afterStateHydrated(function ($component, $state) {
-                            $record = $component->getRecord();
-                            if ($record) {
-                                $component->state($record->billingDocument?->document_number);
-                            }
-                        })
-                        ->dehydrateStateUsing(function ($state) {
-                            return $state;
-                        })
-                        ->rule(function (Forms\Components\TextInput $component) {
-                            $record = $component->getRecord();
-                            return function (string $attribute, $value, $fail) use ($record) {
-                                $tenantId = auth()->user()->tenant_id;
-                                $typeIdFactura = 1;
+                    Forms\Components\Select::make('billing_document_id')
+    ->label('Factura')
+    ->searchable()
+    ->inlineLabel()
+    ->nullable()
+    ->options(\App\Models\Rips\RipsBillingDocument::pluck('document_number', 'id'))
+    ->createOptionForm([
+        Forms\Components\TextInput::make('document_number')
+            ->label('Número de Factura')
+            ->maxLength(30)
+            ->required(),
 
-                                $query = \App\Models\Rips\RipsBillingDocument::where('tenant_id', $tenantId)
-                                    ->where('type_id', $typeIdFactura)
-                                    ->where('document_number', $value);
+        Forms\Components\Select::make('agreement_id')
+            ->label('Convenio')
+            ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
+            ->searchable()
+            ->required(),
+    ])
+    ->createOptionUsing(function (array $data) {
+        return \App\Models\Rips\RipsBillingDocument::create([
+            'tenant_id' => auth()->user()->tenant_id,
+            'type_id' => 1, // Tipo factura
+            'document_number' => $data['document_number'],
+            'agreement_id' => $data['agreement_id'],
+            'issued_at' => now(),
+        ])->id;
+    }),
 
-                                if ($record && $record->billingDocument) {
-                                    $query->where('id', '!=', $record->billingDocument->id);
-                                }
-
-                                if ($query->exists()) {
-                                    $fail('El número de factura ya existe para este tipo de documento.');
-                                }
-                            };
-                        }),
                     Forms\Components\Select::make('agreement_id')
                         ->label('Convenio / Contrato')
                         ->searchable()
                         ->inlineLabel()
+                        ->nullable()
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->code . ')')
                         ->afterStateHydrated(function ($component, $state) {
                             $record = $component->getRecord();
@@ -120,7 +116,7 @@ class FormPatientDoctor
                                 ->get()
                                 ->mapWithKeys(fn ($agreement) => [$agreement->id => $agreement->name . ' (' . $agreement->code . ')']);
                         })
-                        ->required()
+                        
                         ,
 
 

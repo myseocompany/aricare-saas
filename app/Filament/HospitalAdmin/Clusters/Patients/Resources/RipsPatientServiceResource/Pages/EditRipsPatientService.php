@@ -26,7 +26,8 @@ class EditRipsPatientService extends EditRecord
         if ($billingDocument) {
             $billingDocument->update([
                 'document_number' => $data['invoice_number'],
-                'agreement_id' => $data['agreement_id'],
+                'agreement_id'    => $data['agreement_id'],
+                'issued_at'       => $data['service_datetime'],
             ]);
         }
 
