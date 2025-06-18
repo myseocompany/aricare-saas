@@ -8,6 +8,10 @@ use App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments\Resources\Rips\Rips
 use App\Models\Rips\RipsBillingDocument;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
+use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -27,11 +31,14 @@ class RipsBillingDocumentResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('tenant_id')
-                    ->required()
-                    ->maxLength(36),
-                Forms\Components\TextInput::make('agreement_id')
-                    ->numeric(),
+                Hidden::make('tenant_id')
+                    ->default(fn() => Auth::user()->tenant_id)
+                    ->required(),
+                Select::make('agreement_id')
+                    ->label('Convenio')
+                    ->relationship('agreement', 'name')
+                    ->searchable()
+                    ->required(),
                 Forms\Components\TextInput::make('type_id')
                     ->required()
                     ->numeric(),
@@ -52,20 +59,39 @@ class RipsBillingDocumentResource extends Resource
                     ->numeric(),
                 Forms\Components\TextInput::make('net_amount')
                     ->numeric(),
-                Forms\Components\TextInput::make('xml_path')
-                    ->maxLength(255),
+                FileUpload::make('xml_path')
+                    ->label('Archivo XML')
+                    ->disk('public')
+                    ->directory(fn ($get, $record) =>
+                        Auth::user()->tenant_id.'/'.($get('agreement_id') ?? $record?->agreement_id).'/'.($record?->patientServices()->first()?->patient_id ?? '0')
+                    )
+                    ->visibility('public')
+                    ->preserveFilenames()
+                    ->acceptedFileTypes(['text/xml','application/xml'])
+                    ->downloadable(),
             ]);
     }
 
     public static function table(Table $table): Table
     {
+        $table = $table->modifyQueryUsing(function (Builder $query) {
+            return $query->with(['agreement', 'patientServices.patient']);
+        });
+
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tenant_id')
+                Tables\Columns\TextColumn::make('agreement.name')
+                    ->label('Convenio')
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('agreement_id')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('patientServices')
+                    ->label('Pacientes')
+                    ->formatStateUsing(function ($state, $record) {
+                        return $record->patientServices
+                            ->map(fn($ps) => $ps->patient->full_name)
+                            ->implode(', ');
+                    })
+                    ->limit(30),
                 Tables\Columns\TextColumn::make('type_id')
                     ->numeric()
                     ->sortable(),
