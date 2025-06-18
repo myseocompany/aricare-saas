@@ -148,6 +148,10 @@ return [
     'rips_patient_service_navigation' => 'Atenciones',
     'rips_patient_service_model' => 'Atención',
     'rips_patient_service_plural_model' => 'Atenciones',
+
+    'rips_billing_document_navigation' => 'Documentos de facturación',
+    'rips_billing_document_model' => 'Documento de facturación',
+    'rips_billing_document_plural_model' => 'Documentos de facturación',
     
     'billing_detail' => 'Detalle de facturación',
     'our_hospitals' => 'Nuestras entidades',
@@ -3138,6 +3142,14 @@ return [
             'service_code' => 'Código del Servicio',
             'technology_purpose_code' => 'Código de Finalidad Tecnológica',
             'collection_concept_code' => 'Código Concepto de Recaudo',
+        ],
+        'billingdocument' => [
+            'agreement' => 'Convenio',
+            'patient' => 'Pacientes',
+            'type' => 'Tipo',
+            'document_number' => 'Número',
+            'issued_at' => 'Fecha de emisión',
+            'total_amount' => 'Total',
         ],
     ],
 
