@@ -83,6 +83,13 @@ class FormService
             ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
             ->searchable()
             ->required(),
+        Forms\Components\FileUpload::make('xml_file')
+            ->label('XML Factura Electrónica')
+            ->disk('public')
+            ->directory('fe_tmp')
+            ->acceptedFileTypes(['application/xml', 'text/xml'])
+            ->maxSize(2048)
+            ->preserveFilenames(),
     ])
     ->createOptionUsing(function (array $data) {
         return \App\Models\Rips\RipsBillingDocument::create([
@@ -91,6 +98,7 @@ class FormService
             'document_number' => $data['document_number'],
             'agreement_id' => $data['agreement_id'],
             'issued_at' => now(),
+            'xml_path' => $data['xml_file'] ?? null,
         ])->id;
     }),
 
@@ -100,10 +108,18 @@ class FormService
                         ->inlineLabel()
                         ->disabled()
                         ->dehydrated(false)
+                        ->mapWithKeys(fn ($agreement) => [$agreement->id => $agreement->name . ' (' . $agreement->code . ')']);
+                    })
 
-                        ->visible(fn ($get) => filled($get('billing_document_id')))
+                    ,
 
-                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->code . ')')
+                    Forms\Components\FileUpload::make('xml_file')
+                        ->label('XML Factura Electrónica')
+                        ->disk('public')
+                        ->directory('fe_tmp')
+                        ->acceptedFileTypes(['application/xml', 'text/xml'])
+                        ->maxSize(2048)
+                        ->preserveFilenames(),
                         ->afterStateHydrated(function ($component, $state) {
                             $record = $component->getRecord();
                             if ($record) {

@@ -6,6 +6,9 @@ use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceRes
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use App\Models\Rips\RipsTenantPayerAgreement;
+use App\Models\Patient;
 
 class EditRipsPatientService extends EditRecord
 {
@@ -20,6 +23,9 @@ class EditRipsPatientService extends EditRecord
 
     protected function handleRecordUpdate(Model $record, array $data): Model
     {
+        $xmlTempPath = $data['xml_file'] ?? null;
+        unset($data['xml_file']);
+
         // 🚨 Actualizar primero la factura asociada
         $billingDocument = null;
         if (!empty($data['billing_document_id'])) {
@@ -38,6 +44,18 @@ class EditRipsPatientService extends EditRecord
         if ($billingDocument) {
             $record->billing_document_id = $billingDocument->id;
             $record->save();
+
+            if ($xmlTempPath) {
+                $agreement = RipsTenantPayerAgreement::find($billingDocument->agreement_id);
+                $patientUserId = $record->patient_id ? Patient::find($record->patient_id)?->user_id : null;
+                $directory = auth()->user()->tenant_id . '/' . ($agreement->code ?? 'no-agreement') . '/' . $patientUserId;
+                $filename = basename($xmlTempPath);
+                Storage::disk('public')->makeDirectory($directory);
+                Storage::disk('public')->move($xmlTempPath, $directory . '/' . $filename);
+                $billingDocument->update([
+                    'xml_path' => Storage::disk('public')->path($directory . '/' . $filename),
+                ]);
+            }
         } else {
             $record->billing_document_id = null;
             $record->save();

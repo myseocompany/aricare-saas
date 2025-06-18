@@ -5,8 +5,11 @@ namespace App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServ
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource;
 use Filament\Resources\Pages\CreateRecord;
 use App\Models\Rips\RipsBillingDocument;
+use App\Models\Rips\RipsTenantPayerAgreement;
+use App\Models\Patient;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class CreateRipsPatientService extends CreateRecord
 {
@@ -16,6 +19,9 @@ class CreateRipsPatientService extends CreateRecord
     {
         Log::info("CreateRipsPatientService=>", $data);
         $tenantId = auth()->user()->tenant_id;
+
+        $xmlTempPath = $data['xml_file'] ?? null;
+        unset($data['xml_file']);
 
         $billingDocument = null;
         if (!empty($data['billing_document_id'])) {
@@ -33,6 +39,18 @@ class CreateRipsPatientService extends CreateRecord
         if ($billingDocument) {
             $record->billing_document_id = $billingDocument->id;
             $record->save();
+
+            if ($xmlTempPath) {
+                $agreement = RipsTenantPayerAgreement::find($billingDocument->agreement_id);
+                $patientUserId = Patient::find($data['patient_id'])?->user_id;
+                $directory = $tenantId . '/' . ($agreement->code ?? 'no-agreement') . '/' . $patientUserId;
+                $filename = basename($xmlTempPath);
+                Storage::disk('public')->makeDirectory($directory);
+                Storage::disk('public')->move($xmlTempPath, $directory . '/' . $filename);
+                $billingDocument->update([
+                    'xml_path' => Storage::disk('public')->path($directory . '/' . $filename),
+                ]);
+            }
         }
         
         // 🚨 Capturar las consultas
