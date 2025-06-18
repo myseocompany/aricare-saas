@@ -65,6 +65,13 @@ class FormService
     ->inlineLabel()
     ->nullable()
     ->options(\App\Models\Rips\RipsBillingDocument::pluck('document_number', 'id'))
+    ->afterStateUpdated(function ($state, callable $set) {
+        $agreement = null;
+        if ($state) {
+            $agreement = \App\Models\Rips\RipsBillingDocument::find($state)?->agreement_id;
+        }
+        $set('agreement_id', $agreement);
+    })
     ->createOptionForm([
         Forms\Components\TextInput::make('document_number')
             ->label('Número de Factura')
@@ -91,16 +98,14 @@ class FormService
                         ->label('Convenio / Contrato')
                         ->searchable()
                         ->inlineLabel()
-                        ->nullable()
+                        ->disabled()
+                        ->dehydrated(false)
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->code . ')')
                         ->afterStateHydrated(function ($component, $state) {
                             $record = $component->getRecord();
                             if ($record) {
                                 $component->state($record->billingDocument?->agreement_id);
                             }
-                        })
-                        ->dehydrateStateUsing(function ($state) {
-                            return $state;
                         })
                         ->options(function (string $search = null) {
                             $tenantId = Auth::user()->tenant_id;
@@ -116,7 +121,7 @@ class FormService
                                 ->get()
                                 ->mapWithKeys(fn ($agreement) => [$agreement->id => $agreement->name . ' (' . $agreement->code . ')']);
                         })
-                        
+
                         ,
 
 
