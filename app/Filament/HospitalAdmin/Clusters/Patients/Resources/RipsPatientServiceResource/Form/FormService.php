@@ -100,6 +100,9 @@ class FormService
                         ->inlineLabel()
                         ->disabled()
                         ->dehydrated(false)
+
+                        ->visible(fn ($get) => filled($get('billing_document_id')))
+
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->code . ')')
                         ->afterStateHydrated(function ($component, $state) {
                             $record = $component->getRecord();
