@@ -3078,4 +3078,21 @@ return [
         'min_char' => 'The password must be at least 8 characters.',
         'confirm' => 'The confirm Password confirmation does not match.',
     ],
+
+    'rips' => [
+        'patientservice' => [
+            'patient' => 'Patient',
+            'tenant_id' => 'Hospital or IPS Code',
+            'doctor' => 'Attending Physician',
+            'location_code' => 'Care Location Code',
+            'has_incapacity' => 'Has Disability?',
+            'service_datetime' => 'Service Date and Time',
+            'service_group_code' => 'Service Group Code',
+            'service_code' => 'Service Code',
+            'technology_purpose_code' => 'Technology Purpose Code',
+            'collection_concept_code' => 'Collection Concept Code',
+            'rips_cups_id' => 'Type of Consultation',
+        ],
+],
+
 ];

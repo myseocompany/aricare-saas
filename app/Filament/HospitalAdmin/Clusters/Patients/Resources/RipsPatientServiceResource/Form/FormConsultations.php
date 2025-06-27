@@ -28,7 +28,7 @@ class FormConsultations
                             Grid::make(3)
                                 ->schema([
                                     Select::make('rips_cups_id')
-                                        ->label('Tipo de consulta')
+                                        ->label(__('messages.rips.patientservice.rips_cups_id'))
                                         ->options(
                                             \App\Models\Rips\RipsCups::where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
                                                 ->pluck('name', 'id')
@@ -87,10 +87,22 @@ class FormConsultations
 
                                     Select::make('rips_consultation_cups_id')
                                         ->label('Código de Consulta (CUPS)')
-                                        ->options(\App\Models\Rips\RipsCups::pluck('code', 'id'))
                                         ->searchable()
                                         ->inlineLabel()
+                                        ->getSearchResultsUsing(function (string $search) {
+                                            return \App\Models\Rips\RipsCups::query()
+                                                ->where('code', 'like', "%{$search}%")
+                                                ->orWhere('name', 'like', "%{$search}%")
+                                                ->limit(20)
+                                                ->get()
+                                                ->mapWithKeys(fn ($cups) => [$cups->id => "{$cups->code} - {$cups->name}"]);
+                                        })
+                                        ->getOptionLabelUsing(function ($value): ?string {
+                                            $cups = \App\Models\Rips\RipsCups::find($value);
+                                            return $cups ? "{$cups->code} - {$cups->name}" : null;
+                                        })
                                         ->required(),
+
 
                                 ])
                                 ->columns(1)
@@ -99,31 +111,21 @@ class FormConsultations
                             Grid::make(1)
                                 ->schema([
                                     TextInput::make('copayment_receipt_number')
-                                        ->label('Número del Recibo')
+                                        ->label('Numero FEV pago moderador')
                                         ->maxLength(30)
                                         ->nullable(),
-                                    TextInput::make('service_value')
-                                        ->label('Valor del Servicio')
-                                        ->numeric()
-                                        ->prefix('$')
-                                        ->default(0)
-                                        ->required(),
 
                                     TextInput::make('copayment_value')
                                         ->label('Valor del Copago')
                                         ->numeric()
                                         ->prefix('$')
-                                        ->default(0)
-                                        ->required(),
+                                        ->default(0),
 
-                                    Placeholder::make('total')
-                                        ->label('Total')
-                                        ->content(function ($get) {
-                                            $serviceValue = (float) $get('service_value') ?? 0;
-                                            $copaymentValue = (float) $get('copayment_value') ?? 0;
-                                            $total = $serviceValue - $copaymentValue;
-                                            return '$' . number_format($total, 0, ',', '.');
-                                        }),
+                                    TextInput::make('service_value')
+                                        ->label('Valor del Servicio')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->default(0),
                                 ])
                                 ->columns(1)
                                 ->columnSpan(4),

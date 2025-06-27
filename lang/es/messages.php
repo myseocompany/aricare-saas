@@ -3138,6 +3138,8 @@ return [
             'service_code' => 'Código del Servicio',
             'technology_purpose_code' => 'Código de Finalidad Tecnológica',
             'collection_concept_code' => 'Código Concepto de Recaudo',
+            'rips_cups_id' => 'Tipo de Consulta',
+            
         ],
     ],
 
