@@ -20,14 +20,21 @@ class FormConsultationDiagnoses{
         Select::make('cie10_id')
             ->label('Diagnóstico')
             ->searchable()
-            ->options(fn (string $search = null) =>
-                \App\Models\Rips\Cie10::query()
-                    ->when($search, fn ($q) => $q->where('description', 'like', "%{$search}%"))
-                    ->limit(20)
-                    ->pluck('description', 'id')
-            )
+            ->getSearchResultsUsing(function (string $search) {
+                return \App\Models\Rips\Cie10::query()
+                    ->where('description', 'like', "%{$search}%")
+                    ->orWhere('code', 'like', "%{$search}%")
+                    ->limit(50)
+                    ->get()
+                    ->mapWithKeys(fn ($d) => [$d->id => "{$d->code} - {$d->description}"]);
+            })
+            ->getOptionLabelUsing(function ($value): ?string {
+                $d = \App\Models\Rips\Cie10::find($value);
+                return $d ? "{$d->code} - {$d->description}" : null;
+            })
             ->required()
             ->columnSpan(1),
+
         
         Select::make('rips_diagnosis_type_id')
             ->label('Tipo de Diagnóstico')

@@ -55,6 +55,7 @@ class FormService
                         ->required(),
 
                     Forms\Components\DateTimePicker::make('service_datetime')
+                        ->label(__('messages.rips.patientservice.service_datetime'))
                         ->default(now())
                         ->inlineLabel()
                         ->required(),
