@@ -153,7 +153,7 @@ class FormProcedures
                             Grid::make(1)
                                 ->schema([
                                     TextInput::make('copayment_receipt_number')
-                                        ->label('Numero FEV pago moderador')
+                                        ->label('Número FEV pago moderador')
                                         ->maxLength(30)
                                         ->nullable(),
 
