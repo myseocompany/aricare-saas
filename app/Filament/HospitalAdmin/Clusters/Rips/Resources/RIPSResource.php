@@ -95,28 +95,31 @@ public static function table(Table $table): Table
         ->filters([
             DateRangeFilter::make('service_datetime')
                 ->label('Fecha de Servicio'),
+
             SelectFilter::make('agreement_id')
                 ->label('Convenio')
                 ->options(RipsTenantPayerAgreement::pluck('name', 'id'))
-                ->query(function (Builder $query, $state) {
-                    $value = is_array($state) ? ($state['value'] ?? null) : $state;
-                    $query->whereHas('billingDocument', function (Builder $subQuery) use ($value) {
-                        $subQuery->where('agreement_id', $value);
-
-                    });
+                ->query(function (Builder $query, array $state) {
+                    if (!empty($state['value'])) {
+                        $query->whereHas('billingDocument', function (Builder $subQuery) use ($state) {
+                            $subQuery->where('agreement_id', $state['value']);
+                        });
+                    }
                 }),
+
             Filter::make('document_number')
                 ->form([
                     TextInput::make('document_number')
                         ->label('Número de Factura'),
                 ])
                 ->query(function (Builder $query, array $data) {
-                    $query->when($data['document_number'], function (Builder $query, $value) {
-                        $query->whereHas('billingDocument', function (Builder $subQuery) use ($value) {
-                            $subQuery->where('document_number', 'like', "%{$value}%");
+                    if (!empty($data['document_number'])) {
+                        $query->whereHas('billingDocument', function (Builder $subQuery) use ($data) {
+                            $subQuery->where('document_number', 'like', '%' . $data['document_number'] . '%');
                         });
-                    });
+                    }
                 }),
+
             Filter::make('patient_id')
                 ->form([
                     Select::make('patient_id')
@@ -125,11 +128,12 @@ public static function table(Table $table): Table
                         ->options(Patient::getActivePatientNames()->toArray()),
                 ])
                 ->query(function (Builder $query, array $data) {
-                    $query->when($data['patient_id'], function (Builder $query, $value) {
-                        $query->where('patient_id', $value);
-                    });
+                    if (!empty($data['patient_id'])) {
+                        $query->where('patient_id', $data['patient_id']);
+                    }
                 }),
         ])
+
         ->actions([
             Tables\Actions\ViewAction::make(),
             Tables\Actions\EditAction::make(),
