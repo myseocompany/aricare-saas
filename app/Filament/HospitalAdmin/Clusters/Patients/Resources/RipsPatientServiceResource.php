@@ -101,9 +101,9 @@ public static function table(Table $table): Table
             SelectFilter::make('agreement_id')
                 ->label('Convenio')
                 ->options(RipsTenantPayerAgreement::pluck('name', 'id'))
-                ->query(function (Builder $query, $value) {
-                    $query->whereHas('billingDocument', function (Builder $subQuery) use ($value) {
-                        $subQuery->where('agreement_id', $value);
+                ->query(function (Builder $query, $state) {
+                    $query->whereHas('billingDocument', function (Builder $subQuery) use ($state) {
+                        $subQuery->where('agreement_id', $state['value']);
                     });
                 }),
             Filter::make('document_number')
