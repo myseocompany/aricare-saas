@@ -1,0 +1,181 @@
+<?php
+
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Page;
+
+use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource;
+use Filament\Actions;
+use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
+
+class EditRipsPatientService extends EditRecord
+{
+    protected static string $resource = RipsPatientServiceResource::class;
+
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\DeleteAction::make(),
+        ];
+    }
+
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        // 🚨 Actualizar primero la factura asociada
+        $billingDocument = null;
+        if (!empty($data['billing_document_id'])) {
+            $billingDocument = \App\Models\Rips\RipsBillingDocument::where('tenant_id', auth()->user()->tenant_id)
+                ->find($data['billing_document_id']);
+            if ($billingDocument) {
+                $billingDocument->update([
+                    'issued_at' => $data['service_datetime'],
+                ]);
+            }
+        }
+
+        // 🚨 Actualizar el registro principal
+        $record->update($data);
+
+        if ($billingDocument) {
+            $record->billing_document_id = $billingDocument->id;
+            $record->save();
+        } else {
+            $record->billing_document_id = null;
+            $record->save();
+        }
+
+        // 🚨 Limpiar consultas y diagnósticos existentes
+        $record->consultations()->each(function ($consultation) {
+            $consultation->diagnoses()->delete();
+            $consultation->delete();
+        });
+        $record->procedures()->delete();
+
+        // 🚀 Volver a crear las consultas y diagnósticos
+        $consultations = $data['consultations'] ?? [];
+
+        foreach ($consultations as $consultationData) {
+            $consultation = $record->consultations()->create([
+                'rips_cups_id' => $consultationData['rips_cups_id'],
+                'rips_service_group_id' => $consultationData['rips_service_group_id'],
+                'rips_service_group_mode_id' => $consultationData['rips_service_group_mode_id'] ?? null,
+                'rips_service_reason_id' => $consultationData['rips_service_reason_id'] ?? null,
+                'rips_consultation_cups_id' => $consultationData['rips_consultation_cups_id'] ?? null,
+                'rips_service_id' => $consultationData['rips_service_id'],
+                'rips_technology_purpose_id' => $consultationData['rips_technology_purpose_id'],
+                'rips_collection_concept_id' => $consultationData['rips_collection_concept_id'],
+                'copayment_receipt_number' => $consultationData['copayment_receipt_number'],
+                'service_value' => $consultationData['service_value'],
+                'copayment_value' => $consultationData['copayment_value'],
+            ]);
+
+            foreach ($consultationData['diagnoses'] ?? [] as $diagnosis) {
+                $consultation->diagnoses()->create($diagnosis);
+            }
+        }
+
+        foreach ($data['procedures'] ?? [] as $procedureData) {
+            $record->procedures()->create([
+                'rips_admission_route_id' => $procedureData['rips_admission_route_id'] ?? null,
+                'rips_service_group_mode_id' => $procedureData['rips_service_group_mode_id'] ?? null,
+                'rips_service_group_id' => $procedureData['rips_service_group_id'] ?? null,
+                'rips_collection_concept_id' => $procedureData['rips_collection_concept_id'] ?? null,
+                'rips_technology_purpose_id' => $procedureData['rips_technology_purpose_id'] ?? null,
+
+                'mipres_id' => $procedureData['mipres_id'] ?? null,
+                'authorization_number' => $procedureData['authorization_number'] ?? null,
+                'rips_cups_id' => $procedureData['rips_cups_id'] ?? null,
+                'cie10_id' => $procedureData['cie10_id'] ?? null,
+                'surgery_cie10_id' => $procedureData['surgery_cie10_id'] ?? null,
+                'rips_complication_cie10_id' => $procedureData['rips_complication_cie10_id'] ?? null,
+                'service_value' => $procedureData['service_value'] ?? null,
+                'copayment_value' => $procedureData['copayment_value'] ?? null,
+                'copayment_receipt_number' => $procedureData['copayment_receipt_number'] ?? null,
+            ]);
+        }
+        return $record;
+    }
+
+    // 🚨 Mutar antes de guardar - igual que en Create
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        foreach ($data['consultations'] as &$consultation) {
+            $diagnoses = [];
+
+            if (!empty($consultation['principal_diagnoses'])) {
+                foreach ($consultation['principal_diagnoses'] as $diagnosis) {
+                    $diagnosis['sequence'] = 1;
+                    $diagnoses[] = $diagnosis;
+                }
+            }
+
+            if (!empty($consultation['related_diagnoses'])) {
+                foreach ($consultation['related_diagnoses'] as $index => $cie10Id) {
+                    $diagnoses[] = [
+                        'cie10_id' => $cie10Id,
+                        'rips_diagnosis_type_id' => null,
+                        'sequence' => $index + 2,
+                    ];
+                }
+            }
+
+            $consultation['diagnoses'] = $diagnoses;
+
+            // Eliminamos estos campos temporales
+            unset($consultation['principal_diagnoses']);
+            unset($consultation['related_diagnoses']);
+        }
+
+        return $data;
+    }
+
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        $record = $this->record->load(['consultations.diagnoses', 'procedures', 'billingDocument']);
+
+        if ($record->billingDocument) {
+            $data['billing_document_id'] = $record->billing_document_id;
+        }
+
+        $data['consultations'] = $record->consultations->map(function ($consultation) {
+            return [
+                'rips_cups_id' => $consultation->rips_cups_id,
+                'rips_service_group_id' => $consultation->rips_service_group_id,
+                'rips_service_group_mode_id' => $consultation->rips_service_group_mode_id,
+                'rips_service_reason_id' => $consultation->rips_service_reason_id,
+                'rips_consultation_cups_id' => $consultation->rips_consultation_cups_id,
+                'rips_service_id' => $consultation->rips_service_id,
+                'rips_technology_purpose_id' => $consultation->rips_technology_purpose_id,
+                'rips_collection_concept_id' => $consultation->rips_collection_concept_id,
+                'copayment_receipt_number' => $consultation->copayment_receipt_number,
+                'service_value' => $consultation->service_value,
+                'copayment_value' => $consultation->copayment_value,
+                'principal_diagnoses' => $consultation->principalDiagnoses->map(fn ($d) => [
+                    'cie10_id' => $d->cie10_id,
+                    'rips_diagnosis_type_id' => $d->rips_diagnosis_type_id,
+                ])->toArray(),
+                'related_diagnoses' => $consultation->relatedDiagnoses->sortBy('sequence')->pluck('cie10_id')->toArray(),
+            ];
+        })->toArray();
+
+        $data['procedures'] = $record->procedures->map(function ($procedure) {
+            return [
+                'rips_admission_route_id' => $procedure->rips_admission_route_id,
+                'rips_service_group_mode_id' => $procedure->rips_service_group_mode_id,
+                'rips_service_group_id' => $procedure->rips_service_group_id,
+                'rips_technology_purpose_id' => $procedure->rips_technology_purpose_id,
+                'rips_collection_concept_id' => $procedure->rips_collection_concept_id,
+                'mipres_id' => $procedure->mipres_id,
+                'authorization_number' => $procedure->authorization_number,
+                'rips_cups_id' => $procedure->rips_cups_id,
+                'cie10_id' => $procedure->cie10_id,
+                'surgery_cie10_id' => $procedure->surgery_cie10_id,
+                'rips_complication_cie10_id' => $procedure->rips_complication_cie10_id,
+                'copayment_receipt_number' => $procedure->copayment_receipt_number,
+                'service_value' => $procedure->service_value,
+                'copayment_value' => $procedure->copayment_value,
+            ];
+        })->toArray();
+
+        return $data;
+    }
+}
