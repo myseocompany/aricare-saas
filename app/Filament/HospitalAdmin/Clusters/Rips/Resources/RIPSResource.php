@@ -3,6 +3,7 @@
 namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources;
 use Illuminate\Support\Facades\Log;
 
+
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\RelationManagers;
@@ -94,7 +95,18 @@ public static function table(Table $table): Table
                 ->label('Fecha de Actualización'),
         ])
     ->filters([
-    DateRangeFilter::make('service_datetime')
+SelectFilter::make('convenio')
+    ->label('Convenio')
+    ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
+    ->query(function (Builder $query, $state) {
+        if (!empty($data['state'])) {
+        $query->whereHas('billingDocument', fn ($q) => $q->where('agreement_id', $state));
+        }
+    })
+,
+
+
+        DateRangeFilter::make('service_datetime')
         ->label('Fecha de Servicio')
         ->indicator(function ($state): ?string {
             if (!empty($state['start']) && !empty($state['end'])) {
@@ -103,26 +115,7 @@ public static function table(Table $table): Table
             return null;
         }),
 
-    SelectFilter::make('agreement_id')
-        ->label('Convenio')
-        ->options(RipsTenantPayerAgreement::pluck('name', 'id'))
-            ->query(function (Builder $q, $state) {
-                $value = is_array($state) ? $state['value'] ?? null : $state;
-                if ($value !== null && $value !== '') {
-                    $q->whereHas('billingDocument', function ($billingDocumentQuery) use ($value) {
-                        $billingDocumentQuery->where('agreement_id', $value);
-                    });
-                }
-            })
-
-        ->indicator(function ($state): ?string {
-            $value = is_array($state) ? $state['value'] ?? null : $state;
-            if (!$value) return null;
-
-            $agreement = RipsTenantPayerAgreement::find($value);
-            return $agreement?->name ? 'Convenio: ' . $agreement->name : null;
-        }),
-
+    
 
 
 
@@ -189,7 +182,6 @@ public static function table(Table $table): Table
         ];
     }
 
-
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()
@@ -200,6 +192,12 @@ public static function table(Table $table): Table
             ]);
     }
 
+    public static function getWidgets(): array
+    {
+        return [
+            StatusOverview::class,  // Registramos el widget StatusOverview
+        ];
+    }
 
 
 }
