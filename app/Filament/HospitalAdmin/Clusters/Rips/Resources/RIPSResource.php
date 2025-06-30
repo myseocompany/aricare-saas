@@ -102,6 +102,7 @@ public static function table(Table $table): Table
                     $value = is_array($state) ? ($state['value'] ?? null) : $state;
                     $query->whereHas('billingDocument', function (Builder $subQuery) use ($value) {
                         $subQuery->where('agreement_id', $value);
+
                     });
                 }),
             Filter::make('document_number')

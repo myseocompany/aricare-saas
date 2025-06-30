@@ -102,9 +102,11 @@ public static function table(Table $table): Table
                 ->label('Convenio')
                 ->options(RipsTenantPayerAgreement::pluck('name', 'id'))
                 ->query(function (Builder $query, $state) {
-                    $value = is_array($state) ? ($state['value'] ?? null) : $state;
+
+                 $value = is_array($state) ? ($state['value'] ?? null) : $state;
                     $query->whereHas('billingDocument', function (Builder $subQuery) use ($value) {
                         $subQuery->where('agreement_id', $value);
+
                     });
                 }),
             Filter::make('document_number')
