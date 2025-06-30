@@ -6,11 +6,16 @@ use App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments;
 use App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments\Resources\Rips\RipsBillingDocumentResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments\Resources\Rips\RipsBillingDocumentResource\RelationManagers;
 use App\Models\Rips\RipsBillingDocument;
+use App\Models\Patient;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use Illuminate\Support\Facades\Auth;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -128,7 +133,35 @@ class RipsBillingDocumentResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                DateRangeFilter::make('issued_at')
+                    ->label('Fecha de Emisión'),
+                SelectFilter::make('agreement_id')
+                    ->label('Convenio')
+                    ->relationship('agreement', 'name'),
+                Filter::make('document_number')
+                    ->form([
+                        TextInput::make('document_number')
+                            ->label('Número de Factura'),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $query->when($data['document_number'], function (Builder $query, $value) {
+                            $query->where('document_number', 'like', "%{$value}%");
+                        });
+                    }),
+                Filter::make('patient_id')
+                    ->form([
+                        Select::make('patient_id')
+                            ->label('Paciente')
+                            ->searchable()
+                            ->options(Patient::getActivePatientNames()->toArray()),
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        $query->when($data['patient_id'], function (Builder $query, $value) {
+                            $query->whereHas('patientServices', function (Builder $subQuery) use ($value) {
+                                $subQuery->where('patient_id', $value);
+                            });
+                        });
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
