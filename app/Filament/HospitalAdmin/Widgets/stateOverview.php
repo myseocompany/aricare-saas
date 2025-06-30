@@ -14,6 +14,10 @@ use Filament\Support\Enums\IconPosition;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 
+
+use App\Models\Rips\RipsPatientService;
+
+
 class stateOverview extends BaseWidget
 {
     // protected static ?string $heading = 'Test Chart';
@@ -61,6 +65,8 @@ class stateOverview extends BaseWidget
         $nurses = Nurse::whereTenantId(getLoggedInUser()->tenant_id)->count();
         $availableBeds = Bed::Where('tenant_id', getLoggedInUser()->tenant_id)->whereIsAvailable(1)->count();
 
+        $totalProvidedServices = RipsPatientService::where('tenant_id', getLoggedInUser()->tenant_id)->count();
+
 
         return [
             'invoiceAmount' => (formatCurrency($invoiceAmount)),
@@ -71,6 +77,8 @@ class stateOverview extends BaseWidget
             'patients' => $patients,
             'nurses' => $nurses,
             'availableBeds' =>  $availableBeds,
+            'totalProvidedServices' => $totalProvidedServices,
+
         ];
     }
 }

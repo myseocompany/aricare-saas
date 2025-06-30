@@ -1,5 +1,31 @@
 <x-filament-widgets::widget>
     <div class="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <!-- getModuleAccess('RIPS') -->
+        @if (true) 
+            <a href="{{ url('hospital/rips/rips') }}">
+                <div
+                    class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
+                    <div
+                        class="flex items-center justify-center w-11 h-11 rounded-lg p-1 ring-2 ring-inset ring-gray-200 hover:ring-gray-300 dark:ring-gray-500 hover:dark:ring-gray-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-10 dark:text-gray-200"
+                             viewBox="0 0 384 512">
+                            <path fill="currentColor"
+                                  d="M224 136c0-4.4 3.6-8 8-8l88 0-96-96 0 88c0 4.4 3.6 8 8 8zm-32-136l0 128c0 8.8 7.2 16 16 16l128 0 0 288c0 17.7-14.3 32-32 32l-256 0c-17.7 0-32-14.3-32-32L48 32C48 14.3 62.3 0 80 0l112 0zM96 384c0 8.8 7.2 16 16 16l160 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-160 0c-8.8 0-16 7.2-16 16zm0-64c0 8.8 7.2 16 16 16l160 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-160 0c-8.8 0-16 7.2-16 16zM96 256c0 8.8 7.2 16 16 16l160 0c8.8 0 16-7.2 16-16s-7.2-16-16-16l-160 0c-8.8 0-16 7.2-16 16z"/>
+                        </svg>
+                    </div>
+                    <div class="grid gap-y-2">
+                        <div class="flex items-center gap-x-2">
+                            <span class="fi-wi-stats-overview-stat-label text-sm font-bold text-gray-500 dark:text-gray-400">
+                                RIPS
+                            </span>
+                        </div>
+                        <div class="text-right text-2xl font-semibold tracking-tight text-gray-950 dark:text-white">
+                            {{ $totalProvidedServices }}
+                        </div>
+                    </div>
+                </div>
+            </a>
+        @endif
         @if (getModuleAccess('Invoices'))
             <a href="{{ route('filament.hospitalAdmin.billings.resources.invoices.index') }}">
                 <div
