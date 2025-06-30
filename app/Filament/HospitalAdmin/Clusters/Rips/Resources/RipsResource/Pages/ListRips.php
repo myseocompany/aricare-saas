@@ -16,4 +16,11 @@ class ListRips extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+       public static function getWidgets(): array
+    {
+        return [
+            StatusOverview::class,  // Registramos el widget StatusOverview
+        ];
+    }
+
 }

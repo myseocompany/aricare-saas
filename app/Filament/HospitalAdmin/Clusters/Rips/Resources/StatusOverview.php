@@ -11,7 +11,8 @@ use Filament\Support\Enums\IconPosition;
 class StatusOverview extends BaseWidget
 {
     // Definimos la vista asociada al widget
-    protected static string $view = 'filament.hospital-admin.widgets.dashboard-status';
+    protected static string $view = 'filament.hospital-admin.Clusters.Rips.Resources.RipsResource.Widgets.dashboard-status';
+   
 
     public static function canView(): bool
     {
@@ -51,6 +52,7 @@ class StatusOverview extends BaseWidget
         // Recupera los estados de RIPS
         $states = RipsStatus::all();
         $stats = [];
+        dd( $states);
 
         // Crea un objeto Stat para cada estado con su conteo
         foreach ($states as $state) {

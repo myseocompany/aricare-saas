@@ -192,12 +192,6 @@ SelectFilter::make('convenio')
             ]);
     }
 
-    public static function getWidgets(): array
-    {
-        return [
-            StatusOverview::class,  // Registramos el widget StatusOverview
-        ];
-    }
-
+ 
 
 }
