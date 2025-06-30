@@ -47,6 +47,9 @@ use App\Http\Controllers\SubscriptionPricingPlanController;
 use App\Http\Controllers\Web\AppointmentController as WebAppointmentController;
 use Illuminate\Support\Facades\Artisan;
 
+use Illuminate\Support\Facades\Storage;
+
+
 Route::middleware('xss', 'languageChangeName')->group(function () {
     Route::get('/', [Landing\LandingScreenController::class, 'index'])->name('landing-home');
     Route::get('/about-us', [Landing\LandingScreenController::class, 'aboutUs'])->name('landing.about.us');
@@ -336,3 +339,13 @@ Route::get('/upgrade/database', function () {
         ]);
 });
 
+Route::get('download/temp/rips/{file}', function ($file) {
+    $filePath = storage_path('app/' . $file);
+    
+    // Verifica si el archivo existe antes de intentar descargarlo
+    if (file_exists($filePath)) {
+        return response()->download($filePath);
+    } else {
+        return back()->with('error', 'El archivo no existe.');
+    }
+})->name('download.temp.rips');
