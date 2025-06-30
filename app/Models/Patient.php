@@ -325,7 +325,10 @@ class Patient extends Model implements HasMedia
 
     public function getFullNameAttribute(): string
     {
-        return "{$this->first_name} {$this->last_name}";
+        return $this->user
+            ? "{$this->user->first_name} {$this->user->last_name}"
+            : '';
     }
+
 
 }
