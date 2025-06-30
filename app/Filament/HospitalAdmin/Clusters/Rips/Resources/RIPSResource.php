@@ -93,46 +93,68 @@ public static function table(Table $table): Table
                 ->label('Fecha de Actualización'),
         ])
         ->filters([
-            DateRangeFilter::make('service_datetime')
-                ->label('Fecha de Servicio'),
+    DateRangeFilter::make('service_datetime')
+        ->label('Fecha de Servicio')
+        ->indicator(function (array $state): ?string {
+            if (!empty($state['start']) && !empty($state['end'])) {
+                return 'Fecha: ' . $state['start']->format('d/m/Y') . ' - ' . $state['end']->format('d/m/Y');
+            }
+            return null;
+        }),
 
-            SelectFilter::make('agreement_id')
-                ->label('Convenio')
-                ->options(RipsTenantPayerAgreement::pluck('name', 'id'))
-                ->query(function (Builder $query, array $state) {
-                    if (!empty($state['value'])) {
-                        $query->whereHas('billingDocument', function (Builder $subQuery) use ($state) {
-                            $subQuery->where('agreement_id', $state['value']);
-                        });
-                    }
-                }),
+    SelectFilter::make('agreement_id')
+        ->label('Convenio')
+        ->options(RipsTenantPayerAgreement::pluck('name', 'id'))
+        ->query(function (Builder $query, array $state) {
+            if (!empty($state['value'])) {
+                $query->whereHas('billingDocument', function (Builder $subQuery) use ($state) {
+                    $subQuery->where('agreement_id', $state['value']);
+                });
+            }
+        })
+        ->indicator(fn (array $state): ?string =>
+            !empty($state['value']) && RipsTenantPayerAgreement::find($state['value'])
+                ? 'Convenio: ' . RipsTenantPayerAgreement::find($state['value'])->name
+                : null
+        ),
 
-            Filter::make('document_number')
-                ->form([
-                    TextInput::make('document_number')
-                        ->label('Número de Factura'),
-                ])
-                ->query(function (Builder $query, array $data) {
-                    if (!empty($data['document_number'])) {
-                        $query->whereHas('billingDocument', function (Builder $subQuery) use ($data) {
-                            $subQuery->where('document_number', 'like', '%' . $data['document_number'] . '%');
-                        });
-                    }
-                }),
-
-            Filter::make('patient_id')
-                ->form([
-                    Select::make('patient_id')
-                        ->label('Paciente')
-                        ->searchable()
-                        ->options(Patient::getActivePatientNames()->toArray()),
-                ])
-                ->query(function (Builder $query, array $data) {
-                    if (!empty($data['patient_id'])) {
-                        $query->where('patient_id', $data['patient_id']);
-                    }
-                }),
+    Filter::make('document_number')
+        ->form([
+            TextInput::make('document_number')
+                ->label('Número de Factura'),
         ])
+        ->query(function (Builder $query, array $data) {
+            if (!empty($data['document_number'])) {
+                $query->whereHas('billingDocument', function (Builder $subQuery) use ($data) {
+                    $subQuery->where('document_number', 'like', '%' . $data['document_number'] . '%');
+                });
+            }
+        })
+        ->indicator(fn (array $data): ?string =>
+            !empty($data['document_number']) ? 'Factura: ' . $data['document_number'] : null
+        ),
+
+    Filter::make('patient_id')
+        ->form([
+            Select::make('patient_id')
+                ->label('Paciente')
+                ->searchable()
+                ->options(Patient::getActivePatientNames()->toArray()),
+        ])
+        ->query(function (Builder $query, array $data) {
+            if (!empty($data['patient_id'])) {
+                $query->where('patient_id', $data['patient_id']);
+            }
+        })
+        ->indicator(function (array $data): ?string {
+            if (!empty($data['patient_id'])) {
+                $name = Patient::find($data['patient_id'])?->user?->full_name;
+                return $name ? 'Paciente: ' . $name : null;
+            }
+            return null;
+        }),
+])
+
 
         ->actions([
             Tables\Actions\ViewAction::make(),
