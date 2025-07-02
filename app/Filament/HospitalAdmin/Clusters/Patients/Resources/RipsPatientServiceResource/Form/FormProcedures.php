@@ -64,7 +64,7 @@ class FormProcedures
                                         ->inlineLabel(),
 
                                     Select::make('rips_cups_id')
-                                        ->label('CUPS')
+                                        ->label('Procedimientos')
                                         ->searchable()
                                         ->getSearchResultsUsing(function (string $search) {
                                             return \App\Models\Rips\RipsCups::query()
