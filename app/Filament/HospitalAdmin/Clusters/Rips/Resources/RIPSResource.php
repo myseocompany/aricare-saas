@@ -35,6 +35,7 @@ use App\Services\RipsGeneratorService;
 use Illuminate\Support\Facades\Storage;
 
 
+
 class RipsResource extends Resource
 {
     protected static ?string $model = RipsPatientService::class;
@@ -169,46 +170,12 @@ SelectFilter::make('convenio')
                 Tables\Actions\BulkAction::make('generateRips')
                         ->label('Generar RIPS')
                         ->action(function ($records) {
-                            Log::info('Generando RIPS para los registros seleccionados: ' . count($records));
-
                             $service = app(RipsGeneratorService::class);
-                            $ripsData = [];
-
-                            // Generar el archivo RIPS para cada registro seleccionado
-                            foreach ($records as $record) {
-                                try {
-                                    $data = $service->generateByServices(
-                                        $record->agreement_id,
-                                        $record->start_date,
-                                        $record->end_date,
-                                        $record->report_type === 'with_invoice'
-                                    );
-                                    
-                                    // Guarda el archivo temporal
-                                    $tempFilename = 'rips_temp_' . now()->timestamp . '.json';
-                                    
-                                    Storage::put($tempFilename, json_encode($data, JSON_PRETTY_PRINT));
-
-
-                                    Log::info('Archivo RIPS generado para el registro: ' . $tempFilename);
-                                    $ripsData[] = $tempFilename;
-                                } catch (\Exception $e) {
-                                    Log::error('Error al generar RIPS para el registro: ' . $record->id . ' Error: ' . $e->getMessage());
-                                }
-                            }
-
-                            // Verifica si se generaron archivos correctamente
-                            if (empty($ripsData)) {
-                                Log::error('No se generaron archivos RIPS.');
-                                return back()->with('error', 'No se generaron archivos RIPS.');
-                            }
-
-                            // Redirige para permitir la descarga del archivo generado
-                            Log::info('Redirigiendo para descargar el archivo: ' . $ripsData[0]);
-                            return redirect()->route('download.temp.rips', ['file' => $ripsData[0]]);
+                            return $service->generateByPatientServices($records);
                         }),
             ]),
-        ]);
+        ])
+        ;
 }
 
 
@@ -238,6 +205,6 @@ SelectFilter::make('convenio')
             ]);
     }
 
- 
+
 
 }
