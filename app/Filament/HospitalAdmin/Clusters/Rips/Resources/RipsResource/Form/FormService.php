@@ -61,39 +61,48 @@ class FormService
                         ->required(),
                         
                     Forms\Components\Select::make('billing_document_id')
-    ->label('Factura')
-    ->searchable()
-    ->inlineLabel()
-    ->nullable()
-    ->options(\App\Models\Rips\RipsBillingDocument::pluck('document_number', 'id'))
-    ->afterStateUpdated(function ($state, callable $set) {
-        $agreement = null;
-        if ($state) {
-            $agreement = \App\Models\Rips\RipsBillingDocument::find($state)?->agreement_id;
-        }
-        $set('agreement_id', $agreement);
-    })
-    ->createOptionForm([
-        Forms\Components\TextInput::make('document_number')
-            ->label('Número de Factura')
-            ->maxLength(30)
-            ->required(),
+                        ->label('Factura')
+                        ->searchable()
+                        ->inlineLabel()
+                        ->nullable()
+                        ->options(function () {
+                            $tenantId = auth()->user()->tenant_id;
 
-        Forms\Components\Select::make('agreement_id')
-            ->label('Convenio')
-            ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
-            ->searchable()
-            ->required(),
-    ])
-    ->createOptionUsing(function (array $data) {
-        return \App\Models\Rips\RipsBillingDocument::create([
-            'tenant_id' => auth()->user()->tenant_id,
-            'type_id' => 1, // Tipo factura
-            'document_number' => $data['document_number'],
-            'agreement_id' => $data['agreement_id'],
-            'issued_at' => now(),
-        ])->id;
-    }),
+                            return \App\Models\Rips\RipsBillingDocument::query()
+                                ->where('tenant_id', $tenantId)
+                                ->orderByDesc('created_at') // Opcional: prioriza recientes
+                                ->limit(100) // o más si deseas
+                                ->get()
+                                ->mapWithKeys(fn ($doc) => [$doc->id => $doc->document_number]);
+                        })
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            $agreement = null;
+                            if ($state) {
+                                $agreement = \App\Models\Rips\RipsBillingDocument::find($state)?->agreement_id;
+                            }
+                            $set('agreement_id', $agreement);
+                        })
+                        ->createOptionForm([
+                            Forms\Components\TextInput::make('document_number')
+                                ->label('Número de Factura')
+                                ->maxLength(30)
+                                ->required(),
+
+                            Forms\Components\Select::make('agreement_id')
+                                ->label('Convenio')
+                                ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
+                                ->searchable()
+                                ->required(),
+                        ])
+                        ->createOptionUsing(function (array $data) {
+                            return \App\Models\Rips\RipsBillingDocument::create([
+                                'tenant_id' => auth()->user()->tenant_id,
+                                'type_id' => 1, // Tipo factura
+                                'document_number' => $data['document_number'],
+                                'agreement_id' => $data['agreement_id'],
+                                'issued_at' => now(),
+                            ])->id;
+                        }),
 
                     Forms\Components\Select::make('agreement_id')
                         ->label('Convenio / Contrato')

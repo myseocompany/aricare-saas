@@ -2,7 +2,7 @@
 
 namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources;
 use Illuminate\Support\Facades\Log;
-
+use App\Helpers\RipsFormatter;
 
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Pages;
@@ -27,6 +27,7 @@ use Filament\Pages\SubNavigationPosition;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form\FormService;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form\FormConsultations;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form\FormProcedures;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Table\FormTable;
 
 use Filament\Forms\Components\Grid;
 
@@ -59,124 +60,10 @@ public static function form(Form $form): Form
         ]);
     }
 
-public static function table(Table $table): Table
-{
-    return $table
-        ->columns([
-            // Muestra el nombre completo del paciente
-            Tables\Columns\TextColumn::make('patient.user.full_name')
-                ->label('Paciente')
-                ->sortable()
-                ->searchable(),
-
-            // Muestra el nombre completo del doctor
-            Tables\Columns\TextColumn::make('doctor.user.full_name')
-                ->label('Doctor')
-                ->sortable()
-                ->searchable(),
-
-            // Estado de incapacidad (booleano)
-            Tables\Columns\IconColumn::make('has_incapacity')
-                ->boolean()
-                ->label('Tiene incapacidad'),
-
-            // Fecha del servicio, más clara
-            Tables\Columns\TextColumn::make('service_datetime')
-                ->label('Fecha de Servicio')
-                ->dateTime('d/m/Y H:i:s')
-                ->sortable(),
-
-
-            Tables\Columns\TextColumn::make('created_at')
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->label('Fecha de Creación'),
-
-            Tables\Columns\TextColumn::make('updated_at')
-                ->dateTime()
-                ->sortable()
-                ->toggleable(isToggledHiddenByDefault: true)
-                ->label('Fecha de Actualización'),
-        ])
-    ->filters([
-SelectFilter::make('convenio')
-    ->label('Convenio')
-    ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
-    ->query(function (Builder $query, $state) {
-        if (!empty($data['state'])) {
-        $query->whereHas('billingDocument', fn ($q) => $q->where('agreement_id', $state));
-        }
-    })
-,
-
-
-        DateRangeFilter::make('service_datetime')
-        ->label('Fecha de Servicio')
-        ->indicator(function ($state): ?string {
-            if (!empty($state['start']) && !empty($state['end'])) {
-                return 'Fecha: ' . $state['start']->format('d/m/Y') . ' - ' . $state['end']->format('d/m/Y');
-            }
-            return null;
-        }),
-
-    
-
-
-
-    Filter::make('document_number')
-        ->form([
-            TextInput::make('document_number')->label('Número de Factura'),
-        ])
-        ->query(function (Builder $q, array $data) {
-            if (!empty($data['document_number'])) {
-                $q->whereNotNull('billing_document_id') // Añadir esto
-                ->whereHas('billingDocument', fn ($sq) => $sq->where('document_number', 'like', '%' . $data['document_number'] . '%'));
-            }
-        })
-        ->indicator(function (array $data): ?string {
-            return !empty($data['document_number']) ? 'Factura: ' . $data['document_number'] : null;
-        }),
-
-    SelectFilter::make('patient_id')
-        ->label('Paciente')
-        ->options(Patient::getActivePatientNames()->toArray())
-        ->query(function (Builder $q, $state) {
-            $value = is_array($state) ? $state['value'] ?? null : $state;
-            if (!empty($value)) {
-                $q->where('patient_id', $value);
-            }
-        })
-        ->indicator(function ($state): ?string {
-            $value = is_array($state) ? $state['value'] ?? null : $state;
-            $patient = $value ? \App\Models\Patient::with('user')->find($value) : null;
-            return $patient && $patient->user
-                ? 'Paciente: ' . $patient->user->first_name . ' ' . $patient->user->last_name
-                : null;
-        }),
-])
-
-
-
-
-        ->actions([
-            Tables\Actions\ViewAction::make(),
-            Tables\Actions\EditAction::make(),
-            
-        ])
-        ->bulkActions([
-            Tables\Actions\BulkActionGroup::make([
-                Tables\Actions\DeleteBulkAction::make(),
-                Tables\Actions\BulkAction::make('generateRips')
-                        ->label('Generar RIPS')
-                        ->action(function ($records) {
-                            $service = app(RipsGeneratorService::class);
-                            return $service->generateByPatientServices($records);
-                        }),
-            ]),
-        ])
-        ;
-}
+    public static function table(Table $table): Table
+    {
+        return FormTable::make($table);
+    }
 
 
     public static function getRelations(): array
@@ -202,9 +89,14 @@ SelectFilter::make('convenio')
                 'billingDocument',
                 'consultations.diagnoses',
                 'procedures',
-            ]);
+            ])
+            ->orderByDesc('service_datetime')
+            ->withCount(['consultations', 'procedures']);
     }
 
-
+protected function mutateFormDataBeforeFill(array $data): array
+{
+    return RipsFormatter::formatForForm($this->record);
+}
 
 }
