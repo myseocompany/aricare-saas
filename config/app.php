@@ -149,6 +149,9 @@ return [
     'providers' => ServiceProvider::defaultProviders()->merge([
         Mariuzzo\LaravelJsLocalization\LaravelJsLocalizationServiceProvider::class,
         Unicodeveloper\Paystack\PaystackServiceProvider::class,
+
+        // Registro manual del Panel de Filament para que me funcione Julian
+        App\Providers\Filament\HospitalAdminPanelProvider::class,
     ])->toArray(),
 
 ];
