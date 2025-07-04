@@ -71,7 +71,7 @@ class FormProcedures
                                         ->inlineLabel(),
 
                                     Select::make('rips_cups_id')
-                                        ->label('CUPS')
+                                        ->label('Procedimientos')
                                         ->searchable()
                                         ->getSearchResultsUsing(function (string $search) {
                                             return \App\Models\Rips\RipsCups::query()
@@ -122,8 +122,8 @@ class FormProcedures
                                             $cie = \App\Models\Rips\Cie10::find($value);
                                             return $cie ? "{$cie->code} - {$cie->description}" : null;
                                         })
-                                        ->inlineLabel()
-                                        ->required(),
+                                        ->inlineLabel(),
+                                        
 
 
                                     Select::make('rips_complication_cie10_id')
@@ -141,8 +141,8 @@ class FormProcedures
                                             $cie = \App\Models\Rips\Cie10::find($value);
                                             return $cie ? "{$cie->code} - {$cie->description}" : null;
                                         })
-                                        ->inlineLabel()
-                                        ->required(),
+                                        ->inlineLabel(),
+                                        
 
 
                                 ])

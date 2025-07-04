@@ -126,4 +126,8 @@ class CreateRips extends CreateRecord
 
     return $data;
 }
+protected function getRedirectUrl(): string
+{
+    return static::$resource::getUrl('index');
+}
 }
