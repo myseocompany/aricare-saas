@@ -14,7 +14,7 @@ class FormService
             Forms\Components\Grid::make(3) // <-- DOS columnas
                 ->schema([
                     Forms\Components\Select::make('patient_id')
-                        ->label('Paciente')
+                        ->label(__('messages.ipd_patient.patient_id'))
                         ->searchable()
                         ->inlineLabel()
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
@@ -34,7 +34,7 @@ class FormService
                         ->required(),
 
                     Forms\Components\Select::make('doctor_id')
-                        ->label('Doctor')
+                        ->label(__('messages.ipd_patient.doctor_id'))
                         ->searchable()
                         ->inlineLabel()
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->user?->first_name . ' ' . $record->user?->last_name)
@@ -132,7 +132,7 @@ class FormService
 
                     Forms\Components\Toggle::make('has_incapacity')
                         ->inlineLabel()
-                        ->label('Has incapacity'),
+                        ->label(__('messages.rips.patientservice.has_incapacity')),
                     
                     Forms\Components\Hidden::make('tenant_id')
                         ->default(Auth::user()->tenant_id)

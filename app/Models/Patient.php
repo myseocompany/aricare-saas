@@ -129,7 +129,7 @@ class Patient extends Model implements HasMedia
         'image' => 'mimes:jpeg,png,jpg,gif,webp',
     ];
 
-    public static function getActivePatientNames()
+    public static function getActivePatientNamesOld()
     {
         $patients = DB::table('users')
             ->where('status', User::ACTIVE)
@@ -144,7 +144,23 @@ class Patient extends Model implements HasMedia
         }
 
         return $patientsNames;
+
+        
     }
+
+
+    public static function getActivePatientNames()
+{
+return self::with('user')
+    ->whereHas('user', fn ($q) => $q->where('status', User::ACTIVE))
+    ->where('tenant_id', getLoggedInUser()->tenant_id)
+    ->get()
+    ->mapWithKeys(function ($patient) {
+        return [$patient->id => $patient->user->full_name];
+    });
+
+}
+
 
     public function patientUser(): BelongsTo
     {
@@ -325,7 +341,10 @@ class Patient extends Model implements HasMedia
 
     public function getFullNameAttribute(): string
     {
-        return "{$this->first_name} {$this->last_name}";
+        return $this->user
+            ? "{$this->user->first_name} {$this->user->last_name}"
+            : '';
     }
+
 
 }

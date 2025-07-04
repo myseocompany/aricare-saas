@@ -14,3 +14,6 @@ php artisan db:seed --class=RipsCountrySeeder
 php artisan db:seed --class=RipsUserTypeSeeder
 php artisan db:seed --class=RipsDepartmentMunicipalitySeeder
 echo "Migración ejecutada"
+
+
+php artisan db:seed --class=RipsGenderTypesSeeder

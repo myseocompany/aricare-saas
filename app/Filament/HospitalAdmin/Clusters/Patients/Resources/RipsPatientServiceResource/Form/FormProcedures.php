@@ -46,13 +46,6 @@ class FormProcedures
                                         ->inlineLabel()
                                         ->required(),
 
-                                    Select::make('rips_collection_concept_id')
-                                        ->label('Concepto de Recaudo')
-                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->required(),
-
                                     Select::make('rips_technology_purpose_id')
                                         ->label('Finalidad Tecnológica')
                                         ->options(\App\Models\Rips\RipsTechnologyPurpose::pluck('name', 'id'))
@@ -71,13 +64,19 @@ class FormProcedures
                                         ->inlineLabel(),
 
                                     Select::make('rips_cups_id')
-                                        ->label('CUPS')
+                                        ->label('Procedimientos')
                                         ->searchable()
-                                        ->options(function (string $search = null) {
+                                        ->getSearchResultsUsing(function (string $search) {
                                             return \App\Models\Rips\RipsCups::query()
-                                                ->when($search, fn($query, $search) => $query->where('name', 'like', "%{$search}%"))
-                                                ->limit(20)
-                                                ->pluck('name', 'id');
+                                                ->where('name', 'like', "%{$search}%")
+                                                ->orWhere('code', 'like', "%{$search}%")
+                                                ->limit(30)
+                                                ->get()
+                                                ->mapWithKeys(fn ($cups) => [$cups->id => "{$cups->code} - {$cups->name}"]);
+                                        })
+                                        ->getOptionLabelUsing(function ($value): ?string {
+                                            $cups = \App\Models\Rips\RipsCups::find($value);
+                                            return $cups ? "{$cups->code} - {$cups->name}" : null;
                                         })
                                         ->required()
                                         ->inlineLabel(),
@@ -85,37 +84,57 @@ class FormProcedures
                                     Select::make('cie10_id')
                                         ->label('Diagnóstico')
                                         ->searchable()
-                                        ->options(function (string $search = null) {
+                                        ->getSearchResultsUsing(function (string $search) {
                                             return \App\Models\Rips\Cie10::query()
-                                                ->when($search, fn($query, $search) => $query->where('description', 'like', "%{$search}%")
-                                                    ->orWhere('code', 'like', "%{$search}%"))
-                                                ->limit(20)
-                                                ->pluck('description', 'id');
+                                                ->where('description', 'like', "%{$search}%")
+                                                ->orWhere('code', 'like', "%{$search}%")
+                                                ->limit(50)
+                                                ->get()
+                                                ->mapWithKeys(fn ($cie) => [$cie->id => "{$cie->code} - {$cie->description}"]);
                                         })
-                                        ->inlineLabel(),
+                                        ->getOptionLabelUsing(function ($value): ?string {
+                                            $cie = \App\Models\Rips\Cie10::find($value);
+                                            return $cie ? "{$cie->code} - {$cie->description}" : null;
+                                        })
+                                        ->inlineLabel()
+                                        ->required(),                               
+
 
                                     Select::make('surgery_cie10_id')
                                         ->label('CIE10 Cirugía')
                                         ->searchable()
-                                        ->options(function (string $search = null) {
+                                        ->getSearchResultsUsing(function (string $search) {
                                             return \App\Models\Rips\Cie10::query()
-                                                ->when($search, fn($query, $search) => $query->where('description', 'like', "%{$search}%"))
-                                                ->limit(20)
-                                                ->pluck('description', 'id');
+                                                ->where('description', 'like', "%{$search}%")
+                                                ->orWhere('code', 'like', "%{$search}%")
+                                                ->limit(50)
+                                                ->get()
+                                                ->mapWithKeys(fn ($cie) => [$cie->id => "{$cie->code} - {$cie->description}"]);
+                                        })
+                                        ->getOptionLabelUsing(function ($value): ?string {
+                                            $cie = \App\Models\Rips\Cie10::find($value);
+                                            return $cie ? "{$cie->code} - {$cie->description}" : null;
                                         })
                                         ->inlineLabel(),
+
 
                                     Select::make('rips_complication_cie10_id')
                                         ->label('Diagnóstico de Complicación (CIE10)')
                                         ->searchable()
-                                        ->options(function (string $search = null) {
+                                        ->getSearchResultsUsing(function (string $search) {
                                             return \App\Models\Rips\Cie10::query()
-                                                ->when($search, fn($query, $search) => $query->where('description', 'like', "%{$search}%")
-                                                    ->orWhere('code', 'like', "%{$search}%"))
-                                                ->limit(20)
-                                                ->pluck('description', 'id');
+                                                ->where('description', 'like', "%{$search}%")
+                                                ->orWhere('code', 'like', "%{$search}%")
+                                                ->limit(50)
+                                                ->get()
+                                                ->mapWithKeys(fn ($cie) => [$cie->id => "{$cie->code} - {$cie->description}"]);
+                                        })
+                                        ->getOptionLabelUsing(function ($value): ?string {
+                                            $cie = \App\Models\Rips\Cie10::find($value);
+                                            return $cie ? "{$cie->code} - {$cie->description}" : null;
                                         })
                                         ->inlineLabel(),
+
 
                                 ])
                                 ->columns(1)
@@ -124,36 +143,29 @@ class FormProcedures
                             // 🟥 Derecha - Valores económicos
                             Grid::make(1)
                                 ->schema([
-                                    TextInput::make('copayment_receipt_number')
-                                        ->label('Número del Recibo')
-                                        ->maxLength(30)
-                                        ->nullable()
-                                        ->inlineLabel(),
+                                    Select::make('rips_collection_concept_id')
+                                        ->label('Concepto de Recaudo')
+                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->required(),
 
-                                    TextInput::make('service_value')
-                                        ->label('Valor del Servicio')
-                                        ->numeric()
-                                        ->prefix('$')
-                                        ->default(0)
-                                        ->required()
-                                        ->inlineLabel(),
+                                    TextInput::make('copayment_receipt_number')
+                                        ->label('Número FEV Pago Moderador')
+                                        ->maxLength(30)
+                                        ->nullable(),
 
                                     TextInput::make('copayment_value')
                                         ->label('Valor del Copago')
                                         ->numeric()
                                         ->prefix('$')
-                                        ->default(0)
-                                        ->required()
-                                        ->inlineLabel(),
+                                        ->default(0),
 
-                                    Placeholder::make('total')
-                                        ->label('Total')
-                                        ->content(function ($get) {
-                                            $serviceValue = (float) $get('service_value') ?? 0;
-                                            $copaymentValue = (float) $get('copayment_value') ?? 0;
-                                            $total = $serviceValue - $copaymentValue;
-                                            return '$' . number_format($total, 0, ',', '.');
-                                        }),
+                                    TextInput::make('service_value')
+                                        ->label('Valor del Servicio')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->default(0),
+
                                 ])
                                 ->columns(1)
                                 ->columnSpan(4),

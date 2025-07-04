@@ -6,8 +6,15 @@ use App\Filament\HospitalAdmin\Clusters\Patients;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\RelationManagers;
 use App\Models\Rips\RipsPatientService;
+use App\Models\Patient;
+use App\Models\Rips\RipsTenantPayerAgreement;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Malzariey\FilamentDaterangepickerFilter\Filters\DateRangeFilter;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -89,7 +96,7 @@ public static function table(Table $table): Table
                 ->label('Fecha de Actualización'),
         ])
         ->filters([
-            // Agregar filtros si es necesario
+            
         ])
         ->actions([
             Tables\Actions\ViewAction::make(),

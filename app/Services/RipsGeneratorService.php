@@ -8,6 +8,14 @@ use App\Models\Rips\RipsBillingDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Filament\Notifications\Notification;
+
+
+
+
 
 class RipsGeneratorService
 {
@@ -219,5 +227,91 @@ class RipsGeneratorService
         }
 
         return $procedimientos;
+    }
+
+
+    // Función que genera los RIPS
+    public function generateByPatientServices(Collection $patientServices)
+    {
+        Log::info('Generando RIPS agrupados por convenio.', [
+            'total_servicios' => $patientServices->count()
+        ]);
+
+        $groupedByAgreement = $patientServices->groupBy(fn ($item) => optional($item->billingDocument)->agreement_id);
+
+        $generatedFiles = [];
+
+        foreach ($groupedByAgreement as $agreementId => $group) {
+            if (!$agreementId) {
+                Log::warning('Registro sin convenio asociado, se omite este grupo.');
+                continue;
+            }
+
+            $start = $group->pluck('service_datetime')->filter()->min();
+            $end = $group->pluck('service_datetime')->filter()->max();
+
+            $startDate = $start ? Carbon::parse($start)->format('Y-m-d') : null;
+            $endDate = $end ? Carbon::parse($end)->format('Y-m-d') : null;
+
+            if (!$startDate || !$endDate) {
+                Log::warning("Fechas no válidas para convenio $agreementId, se omite.");
+                continue;
+            }
+
+            Log::info("Generando RIPS para convenio $agreementId desde $startDate hasta $endDate");
+
+            $ripsData = $this->generateByServices($agreementId, $startDate, $endDate);
+
+            if (empty($ripsData)) {
+                Log::warning("No se generó información para convenio $agreementId.");
+                continue;
+            }
+
+            $filename = "rips_agreement_{$agreementId}_" . now()->timestamp . ".json";
+            Storage::put($filename, json_encode($ripsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+            $generatedFiles[] = $filename;
+        }
+
+        if (empty($generatedFiles)) {
+            Notification::make()
+                ->title('Sin resultados')
+                ->body('No se generaron archivos RIPS para los registros seleccionados.')
+                ->danger()
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
+        if (count($generatedFiles) === 1) {
+            $url = asset('uploads/' . $generatedFiles[0]);
+
+            Notification::make()
+                ->title('Archivo RIPS generado')
+                ->body("Haz clic para [descargar el archivo]($url).")
+                ->success()
+                ->persistent()
+                ->send();
+
+            return;
+        }
+
+        // Si hay múltiples archivos, mostramos los enlaces con Filament Notification
+        $downloadLinks = collect($generatedFiles)->map(fn($file) => asset('uploads/' . $file))->all();
+
+        // Creamos una lista HTML de los enlaces para mejorar la presentación
+        $body = collect($generatedFiles)->map(function ($file) {
+            $url = asset('uploads/' . $file);
+            return "<a href='{$url}' target='_blank'>Descargar {$file}</a>";
+        })->implode("<br>"); // Usamos <br> para saltos de línea en lugar de solo texto
+
+        Notification::make()
+            ->title('Archivos RIPS generados')
+            ->body($body) // Ahora usamos el cuerpo HTML
+            ->success()
+            ->persistent()
+            ->send();
+
     }
 }

@@ -28,14 +28,23 @@ class FormConsultations
                             Grid::make(3)
                                 ->schema([
                                     Select::make('rips_cups_id')
-                                        ->label('Tipo de consulta')
-                                        ->options(
-                                            \App\Models\Rips\RipsCups::where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
-                                                ->pluck('name', 'id')
-                                        )
+                                        ->label(__('messages.rips.patientservice.rips_cups_id'))
                                         ->searchable()
                                         ->inlineLabel()
-                                        ->required(),
+                                        ->required()
+                                        ->getSearchResultsUsing(function (string $search) {
+                                            return \App\Models\Rips\RipsCups::query()
+                                                ->where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
+                                                ->where('name', 'like', "%{$search}%")
+                                                ->orderBy('name')
+                                                ->limit(20)
+                                                ->pluck('name', 'id')
+                                                ->toArray();
+                                        })
+                                        ->getOptionLabelUsing(fn ($value) =>
+                                            optional(\App\Models\Rips\RipsCups::find($value))->name
+                                        ),
+
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
                                         ->options(\App\Models\Rips\RipsServiceGroupMode::pluck('name', 'id'))
@@ -66,15 +75,7 @@ class FormConsultations
                                         ->options(\App\Models\Rips\RipsTechnologyPurpose::pluck('name', 'id'))
                                         ->searchable()
                                         ->inlineLabel()
-                                        ->required(),
-
-                                    Select::make('rips_collection_concept_id')
-                                        ->label('Concepto de Recaudo')
-                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->required(),
-                                    
+                                        ->required(),                                    
 
                                     Select::make('rips_service_reason_id')
                                         ->label('Motivo de Servicio')
@@ -85,57 +86,34 @@ class FormConsultations
                                         ->inlineLabel()
                                         ->required(),
 
-                                    Select::make('rips_consultation_cups_id')
-                                        ->label('Código de Consulta (CUPS)')
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->getSearchResultsUsing(function (string $search) {
-                                            return \App\Models\Rips\RipsCups::query()
-                                                ->where('code', 'like', "%{$search}%")
-                                                ->orWhere('name', 'like', "%{$search}%")
-                                                ->limit(20)
-                                                ->get()
-                                                ->mapWithKeys(fn ($cups) => [$cups->id => "{$cups->code} - {$cups->name}"]);
-                                        })
-                                        ->getOptionLabelUsing(function ($value): ?string {
-                                            $cups = \App\Models\Rips\RipsCups::find($value);
-                                            return $cups ? "{$cups->code} - {$cups->name}" : null;
-                                        })
-                                        ->required(),
-
-
                                 ])
                                 ->columns(1)
                                 ->columnSpan(8),
 
                             Grid::make(1)
                                 ->schema([
+                                    Select::make('rips_collection_concept_id')
+                                        ->label('Concepto de Recaudo')
+                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->required(),
+
                                     TextInput::make('copayment_receipt_number')
-                                        ->label('Número del Recibo')
+                                        ->label('Número FEV Pago Moderador')
                                         ->maxLength(30)
                                         ->nullable(),
-                                    TextInput::make('service_value')
-                                        ->label('Valor del Servicio')
-                                        ->numeric()
-                                        ->prefix('$')
-                                        ->default(0)
-                                        ->required(),
 
                                     TextInput::make('copayment_value')
                                         ->label('Valor del Copago')
                                         ->numeric()
                                         ->prefix('$')
-                                        ->default(0)
-                                        ->required(),
+                                        ->default(0),
 
-                                    Placeholder::make('total')
-                                        ->label('Total')
-                                        ->content(function ($get) {
-                                            $serviceValue = (float) $get('service_value') ?? 0;
-                                            $copaymentValue = (float) $get('copayment_value') ?? 0;
-                                            $total = $serviceValue - $copaymentValue;
-                                            return '$' . number_format($total, 0, ',', '.');
-                                        }),
+                                    TextInput::make('service_value')
+                                        ->label('Valor del Servicio')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->default(0),
                                 ])
                                 ->columns(1)
                                 ->columnSpan(4),
@@ -144,7 +122,7 @@ class FormConsultations
 
                     Group::make([
                         Repeater::make('principal_diagnoses')
-                            ->label('Principal Diagnosis')
+                            ->label(__('messages.rips.patientservice.principal_diagnoses'))
                             ->reorderable(false)
                             ->default([])
                             ->schema(FormConsultationDiagnoses::schema(true, 1))
@@ -154,19 +132,19 @@ class FormConsultations
                             ->columns(2)
                             ->createItemButtonLabel('Add Principal Diagnosis'),
 
-Repeater::make('related_diagnoses')
-    ->label('Related Diagnoses')
-    ->reorderable(false)
-    ->default([])
-    ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
-    ->minItems(0)
-    ->maxItems(3)
-    ->columns(2)
-    ->createItemButtonLabel('Add Related Diagnosis')
-    ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
-        $data['sequence'] = $item->getIndex() + 2;
-        return $data;
-    }),
+                        Repeater::make('related_diagnoses')
+                            ->label(__('messages.rips.patientservice.related_diagnoses'))
+                            ->reorderable(false)
+                            ->default([])
+                            ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
+                            ->minItems(0)
+                            ->maxItems(3)
+                            ->columns(2)
+                            ->createItemButtonLabel(__('messages.rips.patientservice.add_related_diagnosis'))
+                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
+                                $data['sequence'] = $item->getIndex() + 2;
+                                return $data;
+                            }),
 
                     ]),
                 ])
