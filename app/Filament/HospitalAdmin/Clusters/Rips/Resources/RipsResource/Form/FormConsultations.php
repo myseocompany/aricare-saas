@@ -68,12 +68,7 @@ class FormConsultations
                                         ->inlineLabel()
                                         ->required(),
 
-                                    Select::make('rips_collection_concept_id')
-                                        ->label('Concepto de Recaudo')
-                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->required(),
+
                                     
 
                                     Select::make('rips_service_reason_id')
@@ -134,7 +129,7 @@ class FormConsultations
 
                     Group::make([
                         Repeater::make('principal_diagnoses')
-                            ->label('Principal Diagnosis')
+                            ->label(__('messages.rips.patientservice.principal_diagnoses'))
                             ->reorderable(false)
                             ->default([])
                             ->schema(FormConsultationDiagnoses::schema(true, 1))
@@ -145,14 +140,14 @@ class FormConsultations
                             ->createItemButtonLabel('Add Principal Diagnosis'),
 
 Repeater::make('related_diagnoses')
-    ->label('Related Diagnoses')
+    ->label(__('messages.rips.patientservice.related_diagnoses'))
     ->reorderable(false)
     ->default([])
     ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
     ->minItems(0)
     ->maxItems(3)
     ->columns(2)
-    ->createItemButtonLabel('Add Related Diagnosis')
+    ->createItemButtonLabel(__('messages.rips.patientservice.add_related_diagnosis'))
     ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
         $data['sequence'] = $item->getIndex() + 2;
         return $data;
