@@ -29,12 +29,22 @@ class FormConsultations
                                 ->schema([
                                     Select::make('rips_cups_id')
                                         ->label(__('messages.rips.patientservice.rips_cups_id'))
-                                        ->options(
-                                            \App\Models\Rips\RipsCups::where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
-                                                ->pluck('name', 'id')
-                                        )
                                         ->searchable()
                                         ->inlineLabel()
+                                        ->getSearchResultsUsing(function (string $search) {
+                                            return \App\Models\Rips\RipsCups::query()
+                                                ->where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
+                                                ->where('name', 'like', "%{$search}%")
+                                                ->orderBy('name')
+                                                ->limit(20)
+                                                ->pluck('name', 'id')
+                                                ->toArray();
+                                        })
+                                        ->getOptionLabelUsing(fn ($value) =>
+                                            optional(\App\Models\Rips\RipsCups::find($value))->name
+                                        ),
+
+                                    
                                         ->required(),
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
