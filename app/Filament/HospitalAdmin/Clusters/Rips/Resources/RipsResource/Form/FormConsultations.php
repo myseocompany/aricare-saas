@@ -90,35 +90,18 @@ class FormConsultations
                                         ->inlineLabel()
                                         ->required(),
 
-                                    Select::make('rips_consultation_cups_id')
-                                        ->label('Código de Consulta (CUPS)')
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->getSearchResultsUsing(function (string $search) {
-                                            return \App\Models\Rips\RipsCups::query()
-                                                ->where('code', 'like', "%{$search}%")
-                                                ->orWhere('name', 'like', "%{$search}%")
-                                                ->limit(20)
-                                                ->get()
-                                                ->mapWithKeys(fn ($cups) => [$cups->id => "{$cups->code} - {$cups->name}"]);
-                                        })
-                                        ->getOptionLabelUsing(function ($value): ?string {
-                                            $cups = \App\Models\Rips\RipsCups::find($value);
-                                            return $cups ? "{$cups->code} - {$cups->name}" : null;
-                                        })
-                                        ->required(),
-
-
                                 ])
                                 ->columns(1)
                                 ->columnSpan(8),
 
                             Grid::make(1)
                                 ->schema([
-                                    TextInput::make('copayment_receipt_number')
-                                        ->label('Número FEV Pago Moderador')
-                                        ->maxLength(30)
-                                        ->nullable(),
+                                    Select::make('rips_collection_concept_id')
+                                        ->label('Concepto de Recaudo')
+                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->required(),
+
 
                                     TextInput::make('copayment_value')
                                         ->label('Valor del Copago')
