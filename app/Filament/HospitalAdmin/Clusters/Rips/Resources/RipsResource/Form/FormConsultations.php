@@ -53,10 +53,18 @@ class FormConsultations
 
                                     Select::make('rips_service_group_id')
                                         ->label('Grupo de Servicio')
-                                        ->options(\App\Models\Rips\RipsServiceGroup::pluck('name', 'id'))
+                                        ->options(
+                                            \App\Models\Rips\RipsServiceGroup::all()
+                                                ->mapWithKeys(function ($item) {
+                                                    return [$item->id => "{$item->code} - {$item->name}"];
+                                                })
+                                                ->toArray()
+                                        )
                                         ->searchable()
                                         ->inlineLabel()
                                         ->required(),
+
+
 
                                     Select::make('rips_service_id')
                                         ->label('Servicio')
@@ -71,10 +79,33 @@ class FormConsultations
 
                                     Select::make('rips_technology_purpose_id')
                                         ->label('Finalidad Tecnológica')
-                                        ->options(\App\Models\Rips\RipsTechnologyPurpose::pluck('name', 'id'))
                                         ->searchable()
                                         ->inlineLabel()
-                                        ->required(),
+                                        ->required()
+                                        ->getSearchResultsUsing(function (string $search) {
+                                            return \App\Models\Rips\RipsTechnologyPurpose::query()
+                                                ->where(function ($query) use ($search) {
+                                                    $query->where('name', 'like', "{$search}%")
+                                                        ->orWhere('code', 'like', "{$search}%");
+                                                })
+                                                ->orderBy('name')
+                                                ->limit(20)
+                                                ->get()
+                                                ->mapWithKeys(function ($item) {
+                                                    $formattedName = ucfirst(strtolower($item->name));
+                                                    return [
+                                                        $item->id => "{$item->code} - {$formattedName}",
+                                                    ];
+                                                })
+                                                ->toArray();
+                                        })
+                                        ->getOptionLabelUsing(function ($value) {
+                                            $item = \App\Models\Rips\RipsTechnologyPurpose::find($value);
+                                            if (!$item) return null;
+                                            $formattedName = ucfirst(strtolower($item->name));
+                                            return "{$item->code} - {$formattedName}";
+                                        }),
+
 
                                     Select::make('rips_collection_concept_id')
                                         ->label('Concepto de Recaudo')
