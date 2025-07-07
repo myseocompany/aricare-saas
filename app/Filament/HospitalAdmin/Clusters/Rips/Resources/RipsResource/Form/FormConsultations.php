@@ -46,7 +46,14 @@ class FormConsultations
                                         ),
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
-                                        ->options(\App\Models\Rips\RipsServiceGroupMode::pluck('name', 'id'))
+                                        ->options(
+                                            \App\Models\Rips\RipsServiceGroupMode::all()
+                                                ->mapWithKeys(function ($item) {
+                                                    $formatted = ucfirst(strtolower($item->name));
+                                                    return [$item->id => "{$item->code} - {$formatted}"];
+                                                })
+                                                ->toArray()
+                                        )
                                         ->searchable()
                                         ->inlineLabel()
                                         ->required(),
