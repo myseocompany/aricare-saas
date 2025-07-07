@@ -145,7 +145,7 @@ class FormConsultations
 
 
                                     TextInput::make('copayment_value')
-                                        ->label('Valor del Copago')
+                                        ->label('NumFEV')
                                         ->numeric()
                                         ->prefix('$')
                                         ->default(0),
