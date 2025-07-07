@@ -44,8 +44,6 @@ class FormConsultations
                                             optional(\App\Models\Rips\RipsCups::find($value))->name
                                         ),
 
-                                    
-                                        ->required(),
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
                                         ->options(\App\Models\Rips\RipsServiceGroupMode::pluck('name', 'id'))
