@@ -314,4 +314,19 @@ class RipsGeneratorService
             ->send();
 
     }
+
+    /**
+     * Permite obtener los datos RIPS agrupados por factura sin enviarlos.
+     * Este método sirve para previsualizar antes de hacer el envío real.
+     *
+     * @param int $agreementId ID del convenio (EPS).
+     * @param string $startDate Fecha inicial del rango (formato Y-m-d).
+     * @param string $endDate Fecha final del rango (formato Y-m-d).
+     * @param bool $conFactura True = facturas normales, False = notas.
+     * @return array Arreglo de facturas RIPS.
+     */
+    public function previsualizarRipsPorFactura(int $agreementId, string $startDate, string $endDate, bool $conFactura = true): array
+    {
+        return $this->generateByServices($agreementId, $startDate, $endDate, $conFactura);
+    }
 }

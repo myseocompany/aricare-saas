@@ -46,19 +46,11 @@ class FormProcedures
                                         ->inlineLabel()
                                         ->required(),
 
-                                    Select::make('rips_collection_concept_id')
-                                        ->label('Concepto de Recaudo')
-                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->required(),
-
                                     Select::make('rips_technology_purpose_id')
                                         ->label('Finalidad Tecnológica')
                                         ->options(\App\Models\Rips\RipsTechnologyPurpose::pluck('name', 'id'))
                                         ->searchable()
                                         ->inlineLabel(),
-
 
                                     TextInput::make('mipres_id')
                                         ->label('Mipres ID')
@@ -152,6 +144,12 @@ class FormProcedures
                             // 🟥 Derecha - Valores económicos
                             Grid::make(1)
                                 ->schema([
+                                    Select::make('rips_collection_concept_id')
+                                        ->label('Concepto de Recaudo')
+                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->required(),
+                                        
                                     TextInput::make('copayment_receipt_number')
                                         ->label('Número FEV Pago Moderador')
                                         ->maxLength(30)

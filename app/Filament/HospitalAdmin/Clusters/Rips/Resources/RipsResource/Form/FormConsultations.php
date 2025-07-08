@@ -31,7 +31,6 @@ class FormConsultations
                                         ->label(__('messages.rips.patientservice.rips_cups_id'))
                                         ->searchable()
                                         ->inlineLabel()
-                                        ->required()
                                         ->getSearchResultsUsing(function (string $search) {
                                             return \App\Models\Rips\RipsCups::query()
                                                 ->where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
@@ -44,6 +43,7 @@ class FormConsultations
                                         ->getOptionLabelUsing(fn ($value) =>
                                             optional(\App\Models\Rips\RipsCups::find($value))->name
                                         ),
+
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
                                         ->options(
@@ -114,12 +114,7 @@ class FormConsultations
                                         }),
 
 
-                                    Select::make('rips_collection_concept_id')
-                                        ->label('Concepto de Recaudo')
-                                        ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
-                                        ->searchable()
-                                        ->inlineLabel()
-                                        ->required(),
+
                                     
 
                                     Select::make('rips_service_reason_id')
@@ -163,7 +158,8 @@ class FormConsultations
 
                     Group::make([
                         Repeater::make('principal_diagnoses')
-                            ->label('Diagnosticos Principales')
+
+                            ->label(__('messages.rips.patientservice.principal_diagnoses'))
                             ->reorderable(false)
                             ->default([])
                             ->schema(FormConsultationDiagnoses::schema(true, 1))
@@ -173,19 +169,19 @@ class FormConsultations
                             ->columns(2)
                             ->createItemButtonLabel('Añadir un diagnostico principal'),
 
-                        Repeater::make('related_diagnoses')
-                            ->label(__('messages.rips.patientservice.related_diagnoses'))
-                            ->reorderable(false)
-                            ->default([])
-                            ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
-                            ->minItems(0)
-                            ->maxItems(3)
-                            ->columns(2)
-                            ->createItemButtonLabel(__('messages.rips.patientservice.add_related_diagnosis'))
-                            ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
-                                $data['sequence'] = $item->getIndex() + 2;
-                                return $data;
-                            }),
+Repeater::make('related_diagnoses')
+    ->label(__('messages.rips.patientservice.related_diagnoses'))
+    ->reorderable(false)
+    ->default([])
+    ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
+    ->minItems(0)
+    ->maxItems(3)
+    ->columns(2)
+    ->createItemButtonLabel(__('messages.rips.patientservice.add_related_diagnosis'))
+    ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
+        $data['sequence'] = $item->getIndex() + 2;
+        return $data;
+    }),
 
                     ]),
                 ])

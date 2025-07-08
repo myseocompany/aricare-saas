@@ -41,4 +41,7 @@ return [
         ],
     ],
 
+    'rips_api' => [
+        'url' => env('RIPS_API_URL'),
+    ],
 ];

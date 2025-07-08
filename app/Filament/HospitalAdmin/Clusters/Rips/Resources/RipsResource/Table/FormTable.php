@@ -226,15 +226,60 @@ Tables\Columns\TextColumn::make('service_datetime')
 ])
 
         ->bulkActions([
+            // Agrupación de acciones por lotes
             Tables\Actions\BulkActionGroup::make([
+                // Acción para eliminar registros seleccionados
                 Tables\Actions\DeleteBulkAction::make(),
+
+                // Acción para generar RIPS desde los servicios seleccionados
                 Tables\Actions\BulkAction::make('generateRips')
-                        ->label('Generar RIPS')
-                        ->action(function ($records) {
-                            $service = app(RipsGeneratorService::class);
-                            return $service->generateByPatientServices($records);
-                        }),
-            ]),
+                    ->label('Generar RIPS')
+                    ->action(function ($records) {
+                        $service = app(RipsGeneratorService::class);
+                        return $service->generateByPatientServices($records);
+                    })
+                    ->icon('heroicon-o-document-text')
+                    ->color('primary'),
+
+                // Acción para generar y enviar RIPS a la API externa
+                Tables\Actions\BulkAction::make('generarYEnviarRips')
+                    ->label('Generar y Enviar RIPS')
+                    ->action(function ($records) {
+                        $service = app(\App\Services\RipsCoordinatorService::class);
+
+                        // ID del tenant actual autenticado
+                        $tenantId = auth()->user()->tenant_id;
+
+                        // Agrupar los registros por convenio (agreement_id)
+                        $grouped = $records->groupBy(fn($r) => optional($r->billingDocument)->agreement_id);
+
+                        foreach ($grouped as $agreementId => $items) {
+                            if (!$agreementId) continue;
+
+                            // Rango de fechas del servicio por grupo
+                            $start = $items->pluck('service_datetime')->filter()->min();
+                            $end = $items->pluck('service_datetime')->filter()->max();
+
+                            if (!$start || !$end) continue;
+
+                            // Procesar y enviar cada grupo de facturas por convenio
+                            $service->procesarYEnviarRips(
+                                tenantId: $tenantId,
+                                agreementId: $agreementId,
+                                startDate: \Carbon\Carbon::parse($start)->format('Y-m-d'),
+                                endDate: \Carbon\Carbon::parse($end)->format('Y-m-d')
+                            );
+                        }
+                    })
+                    ->requiresConfirmation() // Confirmación antes de ejecutar
+                    ->color('success')
+                    ->icon('heroicon-o-paper-airplane'),
+                ]),
         ]);
+
     }
 }
+
+
+
+
