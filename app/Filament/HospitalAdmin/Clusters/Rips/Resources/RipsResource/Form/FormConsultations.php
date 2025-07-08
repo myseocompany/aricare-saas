@@ -140,7 +140,7 @@ class FormConsultations
 
 
                                     TextInput::make('copayment_value')
-                                        ->label('NumFEV')
+                                        ->label('Número FEV Pago Moderador')
                                         ->numeric()
                                         ->prefix('$')
                                         ->default(0),
