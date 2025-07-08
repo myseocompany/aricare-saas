@@ -136,7 +136,18 @@ class FormConsultations
                             ->label(__('messages.rips.patientservice.related_diagnoses'))
                             ->reorderable(false)
                             ->default([])
-                            ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
+                            ->schema([
+                                Select::make('cie10_id')
+                                    ->label('Diagnóstico relacionado')
+                                    ->options(function () {
+                                        return \App\Models\Cie10::all()->mapWithKeys(function ($item) {
+                                            return [$item->id => "{$item->code} - {$item->name}"];
+                                        });
+                                    })
+                                    ->searchable()
+                                    ->preload()
+                                    ->required(),
+                            ])
                             ->minItems(0)
                             ->maxItems(3)
                             ->columns(2)
