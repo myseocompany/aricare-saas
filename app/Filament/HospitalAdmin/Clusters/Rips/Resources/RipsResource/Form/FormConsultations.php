@@ -163,7 +163,7 @@ class FormConsultations
 
                     Group::make([
                         Repeater::make('principal_diagnoses')
-                            ->label('Principal Diagnosis')
+                            ->label('Diagnosticos Principales')
                             ->reorderable(false)
                             ->default([])
                             ->schema(FormConsultationDiagnoses::schema(true, 1))
@@ -171,7 +171,7 @@ class FormConsultations
                             ->maxItems(1)
                             ->defaultItems(1)
                             ->columns(2)
-                            ->createItemButtonLabel('Add Principal Diagnosis'),
+                            ->createItemButtonLabel('Añadir un diagnostico principal'),
 
                         Repeater::make('related_diagnoses')
                             ->label(__('messages.rips.patientservice.related_diagnoses'))
