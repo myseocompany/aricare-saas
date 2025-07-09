@@ -32,8 +32,8 @@ class RipsTokenService
             empty($tenant->rips_passispro)
         ) {
             Log::error("Campos incompletos para autenticación RIPS en tenant ID: {$tenantId}", [
-                'document_type' => $tenant->document_type,
-                'rips_idsispro' => $tenant->rips_idsispro,
+                'document_type' => $tenant->document_type, 
+                'rips_idsispro' => $tenant->rips_idsispro, 
                 'document_number' => $tenant->document_number,
                 'rips_passispro' => $tenant->rips_passispro,
             ]);
