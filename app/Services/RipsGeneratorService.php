@@ -19,7 +19,8 @@ use Filament\Notifications\Notification;
 
 class RipsGeneratorService
 {
-    public function generateByServices($agreementId, $startDate, $endDate, $withInvoice = true)
+    //public function generateByServices($agreementId, $startDate, $endDate, $withInvoice = true)
+    public function generateByServices($agreementId, $startDate, $endDate)
     {
         $tenantId = Auth::user()->tenant_id;
         $tenant = DB::table('tenants')->where('id', $tenantId)->first();
@@ -31,11 +32,12 @@ class RipsGeneratorService
                 Carbon::parse($endDate)->endOfDay()
             ]);
 
-        if ($withInvoice) {
+        /*if ($withInvoice) {
             $billingDocuments->where('type_id', 1); // Con factura
         } else {
             $billingDocuments->where('type_id', '!=', 1); // Sin factura (notas)
-        }
+        }*/
+        
 
         $billingDocuments = $billingDocuments->with(['patientServices' => function($query) {
             $query->with([
@@ -71,7 +73,7 @@ class RipsGeneratorService
                 ->value('document_number');
 
             // Configuración diferente para facturas vs notas
-            if ($withInvoice) {
+            /*if ($withInvoice) {
                 $documentData = [
                     'numDocumentoIdObligado'=> $tenantDocumentNumber, // Usamos el tenant_id aquí
                     'numFactura' => $document->document_number ?? null,
@@ -87,7 +89,23 @@ class RipsGeneratorService
                     'numNota' => $document->document_number ?? null,
                     //'idRelacion' => $document->id ?? null
                 ];
+            }*/
+            if ($document->type_id === 1) {
+                $documentData = [
+                    'numDocumentoIdObligado'=> $tenantDocumentNumber,
+                    'numFactura' => $document->document_number ?? null,
+                    'tipoNota' => null,
+                    'numNota' => null,
+                ];
+            } else {
+                $documentData = [
+                    'numDocumentoIdObligado' => $tenantDocumentNumber,
+                    'numFactura' => null,
+                    'tipoNota' => 'RS',
+                    'numNota' => $document->document_number ?? null,
+                ];
             }
+
 
             $ripsItem = array_merge($documentData, ['usuarios' => []]);
 
@@ -106,8 +124,8 @@ class RipsGeneratorService
 
             $ripsData[] = [
                 'rips' => $ripsItem,
-                'xmlFevFile' => $withInvoice && !empty($document->xml_path) 
-                    ? base64_encode(file_get_contents($document->xml_path)) 
+                'xmlFevFile' => $document->type_id === 1 && !empty($document->xml_path)
+                    ? base64_encode(file_get_contents($document->xml_path))
                     : null
             ];
         }

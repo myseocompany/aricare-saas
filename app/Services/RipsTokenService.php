@@ -18,6 +18,7 @@ class RipsTokenService
     {
         // Buscar los datos necesarios en la tabla tenants
         $tenant = Tenant::find($tenantId);
+        Log::info("Tenant encontrado:", ['tenant_id' => $tenantId, 'tenant' => $tenant]);
 
         if (!$tenant) {
             Log::error("No se encontró el tenant con ID: {$tenantId}");
@@ -53,10 +54,19 @@ class RipsTokenService
         ];
 
         try {
+            Log::info('Enviando solicitud de token a SISPRO', [
+                'url' => config('services.rips_api.url') . '/auth/LoginSISPRO',
+                'payload' => $payload
+            ]);
             $response = Http::withoutVerifying() // Para ignorar errores de SSL locales
                 ->timeout(30)
                 ->acceptJson()
                 ->post(config('services.rips_api.url') . '/auth/LoginSISPRO', $payload);
+
+            Log::info('Respuesta cruda del servidor SISPRO', [
+                'status' => $response->status(),
+                'body' => $response->body()
+            ]);
 
             if (!$response->successful()) {
                 Log::error('Error al obtener token RIPS', [
