@@ -14,7 +14,7 @@ return new class extends Migration
          // En users: agregar campos y foreign key
         Schema::table('users', function (Blueprint $table) {
             //$table->string('rips_identification_number', 15)->nullable(); // Cambia 'some_column' por columna existente donde quieres agregar
-            $table->unsignedBigInteger('rips_identification_type_id')->nullable();
+            //$table->unsignedBigInteger('rips_identification_type_id')->nullable();
             $table->foreign('rips_identification_type_id')
                 ->references('id')
                 ->on('rips_identification_types')
