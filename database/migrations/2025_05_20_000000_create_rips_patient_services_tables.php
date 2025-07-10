@@ -9,7 +9,10 @@ return new class extends Migration {
         Schema::create('rips_patient_services', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
+            $table->unsignedInteger('patient_id');
+            $table->foreign('patient_id')->references('id')->on('patients')->onDelete('cascade');
+
+            //$table->foreignId('patient_id')->constrained('patients')->onDelete('cascade');
 
 
             $table->string('tenant_id', 255);
