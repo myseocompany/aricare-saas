@@ -6,6 +6,11 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        Schema::dropIfExists('rips_patient_service_consultations');
+        Schema::dropIfExists('rips_patient_service_procedures');
+        Schema::dropIfExists('rips_patient_service_consultation_diagnoses');
+        Schema::dropIfExists('rips_patient_services');
+
         Schema::create('rips_patient_services', function (Blueprint $table) {
             $table->id();
 
