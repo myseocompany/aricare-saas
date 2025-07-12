@@ -29,7 +29,9 @@ class FormTable
     public static function make(Table $table): Table
     {
         return $table
-            ->query(fn () => RipsPatientService::with(['billingDocument', 'patient.user', 'doctor.user']))
+            ->query(fn () => RipsPatientService::with(['billingDocument', 'patient.user', 'doctor.user'])
+                ->orderByDesc('service_datetime'))
+
             ->columns([
             TextColumn::make('billingDocument.document_number')
                     ->label('Factura')
@@ -132,7 +134,7 @@ TextColumn::make('services_count')
 
 Tables\Columns\TextColumn::make('service_datetime')
     ->label('Fecha de Servicio')
-    ->view('tables.columns.date_time')
+    ->view('tables.columns.rips_date_time')
     ->sortable(),
 
 

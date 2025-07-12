@@ -57,7 +57,7 @@ class CreateRips extends CreateRecord
                 'rips_service_id' => $consultationData['rips_service_id'],
                 'rips_technology_purpose_id' => $consultationData['rips_technology_purpose_id'],
                 'rips_collection_concept_id' => $consultationData['rips_collection_concept_id'],
-                'copayment_receipt_number' => $consultationData['copayment_receipt_number'],
+                'copayment_receipt_number' => $consultationData['copayment_receipt_number'] ?? null,
                 'service_value' => $consultationData['service_value'],
                 'copayment_value' => $consultationData['copayment_value'],
             ]);

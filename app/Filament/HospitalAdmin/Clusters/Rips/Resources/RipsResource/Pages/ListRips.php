@@ -2,13 +2,14 @@
 
 namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Pages;
 
-use App\Helpers\RipsFormatter;
-use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Tables\Actions\ViewAction;
+use Illuminate\Database\Eloquent\Builder;
 
 use App\Models\Rips\RipsPatientService;
-use Filament\Tables\Actions\ViewAction;
+use App\Helpers\RipsFormatter;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource;
 
 class ListRips extends ListRecords
 {
@@ -61,6 +62,9 @@ protected function getTableActions(): array
             }),
     ];
 }
-
+    protected function getTableQuery(): Builder
+    {
+        return parent::getTableQuery()->orderByDesc('id');
+    }
 
 }

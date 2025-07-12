@@ -10,8 +10,10 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Group;
-use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationDiagnoses;
-use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationSimpleDiagnoses;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form\FormConsultationDiagnoses;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form\FormConsultationSimpleDiagnoses;
+//use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationDiagnoses;
+//use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationSimpleDiagnoses;
 
 class FormConsultations
 {
@@ -139,7 +141,7 @@ class FormConsultations
                                         ->required(),
 
 
-                                    TextInput::make('copayment_value')
+                                    TextInput::make('copayment_receipt_number')
                                         ->label('Número FEV Pago Moderador')
                                         ->numeric()
                                         ->prefix('$')
@@ -147,6 +149,12 @@ class FormConsultations
 
                                     TextInput::make('service_value')
                                         ->label('Valor del Servicio')
+                                        ->numeric()
+                                        ->prefix('$')
+                                        ->default(0),
+
+                                    TextInput::make('copayment_value')
+                                        ->label('Valor del Copago')
                                         ->numeric()
                                         ->prefix('$')
                                         ->default(0),

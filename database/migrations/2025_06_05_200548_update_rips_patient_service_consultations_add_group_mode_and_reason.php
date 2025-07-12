@@ -9,9 +9,10 @@ class UpdateRipsPatientServiceConsultationsAddGroupModeAndReason extends Migrati
     public function up()
     {
         Schema::table('rips_patient_service_consultations', function (Blueprint $table) {
-            $table->foreignId('rips_service_group_mode_id')->nullable()->after('rips_service_group_id');
-            $table->foreignId('rips_service_reason_id')->nullable()->after('rips_service_group_mode_id');
-            $table->foreignId('rips_consultation_cups_id')->nullable()->after('rips_service_reason_id');
+            $$table->foreignId('rips_service_group_mode_id')->nullable();
+            $table->foreignId('rips_service_reason_id')->nullable();
+            $table->foreignId('rips_consultation_cups_id')->nullable();
+
 
             // Definir llaves foráneas con nombres cortos
             $table->foreign('rips_service_group_mode_id', 'fk_rps_group_mode')
