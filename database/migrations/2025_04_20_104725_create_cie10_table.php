@@ -7,12 +7,14 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('cie10', function (Blueprint $table) {
-            $table->id(); // bigint unsigned AUTO_INCREMENT
-            $table->string('code', 10)->unique();
-            $table->string('description', 255);
-            $table->timestamps(); // created_at y updated_at
-        });
+        if (!Schema::hasTable('cie10')) {
+            Schema::create('cie10', function (Blueprint $table) {
+                $table->id();
+                $table->string('code', 10)->unique();
+                $table->string('description', 255);
+                $table->timestamps();
+            });
+        }
     }
 
     public function down(): void
