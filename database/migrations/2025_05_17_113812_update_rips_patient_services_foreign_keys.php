@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up(): void {
         Schema::table('rips_patient_services', function (Blueprint $table) {
             // Eliminar los campos antiguos
-            $table->dropColumn(['service_group_code', 'service_code', 'technology_purpose_code', 'collection_concept_code']);
+            //$table->dropColumn(['service_group_code', 'service_code', 'technology_purpose_code', 'collection_concept_code']);
 
             // Agregar nuevas claves foráneas
             $table->foreignId('rips_service_group_id')->nullable()->constrained('rips_service_groups');
