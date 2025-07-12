@@ -12,7 +12,7 @@ return new class extends Migration
        public function up(): void
        {
            Schema::table('patients', function (Blueprint $table) {
-               $table->string('invoice_number', 50)->nullable()->after('country_of_origin');
+               $table->string('invoice_number', 50)->nullable()->after('country_of_origin_id');
                $table->enum('note_type', ['credit', 'debit'])->nullable()->after('invoice_number');
                $table->string('note_number', 50)->nullable()->after('note_type');
            });
