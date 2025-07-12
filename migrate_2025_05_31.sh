@@ -12,6 +12,9 @@ php artisan migrate --path=database/migrations/2025_05_31_101315_create_rips_bil
 php artisan migrate --path=database/migrations/2025_05_31_104112_add_xml_path_to_rips_billing_documents_table.php
 php artisan migrate --path=database/migrations/2025_05_31_225752_add_billing_document_id_to_rips_patient_services_table.php
 
+
+php artisan migrate --path=database/migrations/2025_05_19_050234_change_id_column_type_in_patients_table.php
+
 php artisan db:seed --class=RipsPayerTypeSeeder
 
 echo "Migración ejecutada ./migrate_2025_05_31.sh"

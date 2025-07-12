@@ -8,6 +8,11 @@ class UpdateRipsPatientServiceConsultationsAddGroupModeAndReason extends Migrati
 {
     public function up()
     {
+        if (!Schema::hasColumn('rips_patient_service_consultations', 'rips_service_group_id')) {
+            Schema::table('rips_patient_service_consultations', function (Blueprint $table) {
+                $table->foreignId('rips_service_group_id')->nullable()->after('id');
+            });
+        }
         Schema::table('rips_patient_service_consultations', function (Blueprint $table) {
             $$table->foreignId('rips_service_group_mode_id')->nullable();
             $table->foreignId('rips_service_reason_id')->nullable();

@@ -19,9 +19,11 @@ use Filament\Notifications\Notification;
 
 class RipsGeneratorService
 {
-    public function generateByServices($agreementId, $startDate, $endDate, $withInvoice = true)
+    //public function generateByServices($agreementId, $startDate, $endDate, $withInvoice = true)
+    public function generateByServices($agreementId, $startDate, $endDate)
     {
         $tenantId = Auth::user()->tenant_id;
+        $tenant = DB::table('tenants')->where('id', $tenantId)->first();
 
         $billingDocuments = RipsBillingDocument::where('tenant_id', $tenantId)
             ->where('agreement_id', $agreementId)
@@ -30,11 +32,12 @@ class RipsGeneratorService
                 Carbon::parse($endDate)->endOfDay()
             ]);
 
-        if ($withInvoice) {
+        /*if ($withInvoice) {
             $billingDocuments->where('type_id', 1); // Con factura
         } else {
             $billingDocuments->where('type_id', '!=', 1); // Sin factura (notas)
-        }
+        }*/
+        
 
         $billingDocuments = $billingDocuments->with(['patientServices' => function($query) {
             $query->with([
@@ -70,7 +73,7 @@ class RipsGeneratorService
                 ->value('document_number');
 
             // Configuración diferente para facturas vs notas
-            if ($withInvoice) {
+            /*if ($withInvoice) {
                 $documentData = [
                     'numDocumentoIdObligado'=> $tenantDocumentNumber, // Usamos el tenant_id aquí
                     'numFactura' => $document->document_number ?? null,
@@ -86,7 +89,23 @@ class RipsGeneratorService
                     'numNota' => $document->document_number ?? null,
                     //'idRelacion' => $document->id ?? null
                 ];
+            }*/
+            if ($document->type_id === 1) {
+                $documentData = [
+                    'numDocumentoIdObligado'=> $tenantDocumentNumber,
+                    'numFactura' => $document->document_number ?? null,
+                    'tipoNota' => null,
+                    'numNota' => null,
+                ];
+            } else {
+                $documentData = [
+                    'numDocumentoIdObligado' => $tenantDocumentNumber,
+                    'numFactura' => null,
+                    'tipoNota' => 'RS',
+                    'numNota' => $document->document_number ?? null,
+                ];
             }
+
 
             $ripsItem = array_merge($documentData, ['usuarios' => []]);
 
@@ -97,15 +116,16 @@ class RipsGeneratorService
 
                 $usuario = $this->mapPatientToRips($patient, $patientServices);
                 $usuario['consecutivo'] = count($ripsItem['usuarios']) + 1;
-                $usuario['servicios'] = $this->processServices($patientServices);
+                $usuario['servicios'] = $this->processServices($patientServices, $tenant);
+
 
                 $ripsItem['usuarios'][] = $usuario;
             }
 
             $ripsData[] = [
                 'rips' => $ripsItem,
-                'xmlFevFile' => $withInvoice && !empty($document->xml_path) 
-                    ? base64_encode(file_get_contents($document->xml_path)) 
+                'xmlFevFile' => $document->type_id === 1 && !empty($document->xml_path)
+                    ? base64_encode(file_get_contents($document->xml_path))
                     : null
             ];
         }
@@ -136,24 +156,21 @@ class RipsGeneratorService
         ];
     }*/
     //para evitar que salga la palabra consultas y procedimientos en el rips si estan vacios
-    protected function processServices($services)
+    
+
+    protected function processServices($services, $tenant)
     {
         $result = [];
-        
-        $consultas = $this->mapConsultas($services);
-        if (!empty($consultas)) {
-            $result['consultas'] = $consultas;
-        }
+        $consultas = $this->mapConsultas($services, $tenant);
+        if (!empty($consultas)) $result['consultas'] = $consultas;
 
-        $procedimientos = $this->mapProcedimientos($services);
-        if (!empty($procedimientos)) {
-            $result['procedimientos'] = $procedimientos;
-        }
+        $procedimientos = $this->mapProcedimientos($services, $tenant);
+        if (!empty($procedimientos)) $result['procedimientos'] = $procedimientos;
+
         return $result;
-        
     }
 
-    protected function mapConsultas($services)
+    protected function mapConsultas($services, $tenant)
     {
         $consultas = [];
         $consecutivo = 1;
@@ -166,7 +183,8 @@ class RipsGeneratorService
                 $diagnosticosRelacionados = $diagnosticos->where('sequence', '>', 1)->take(3)->values(); // 👈 Reindexar aquí
 
                 $consultas[] = [
-                    'codPrestador' => $service->doctor->rips_provider_code,
+                    //'codPrestador' => $service->doctor->rips_provider_code,
+                    'codPrestador' => $tenant->provider_code,
                     'fechaInicioAtencion' => $service->service_datetime,
                     'codConsulta' => $consulta->cups->code ?? '',
                     'modalidadGrupoServicioTecSal' => $consulta->serviceGroupMode->id ?? '',
@@ -193,7 +211,7 @@ class RipsGeneratorService
         return $consultas;
     }
 
-    protected function mapProcedimientos($services)
+    protected function mapProcedimientos($services, $tenant)
     {
         $procedimientos = [];
         $consecutivo = 1;
@@ -202,7 +220,8 @@ class RipsGeneratorService
             foreach ($service->procedures as $procedure) {
                 //sdd($procedure);
                 $procedimientos[] = [
-                    'codPrestador' => $service->doctor->rips_provider_code,
+                    //'codPrestador' => $service->doctor->rips_provider_code,
+                    'codPrestador' => $tenant->provider_code, // Usar el código del proveedor del tenant
                     'fechaInicioAtencion' => $service->service_datetime,
                     'idMIPRES' => $procedure->mipres_id ?? '',
                     'numAutorizacion' => $procedure->authorization_number ?? '',
@@ -268,7 +287,8 @@ class RipsGeneratorService
             }
 
             $filename = "rips_agreement_{$agreementId}_" . now()->timestamp . ".json";
-            Storage::put($filename, json_encode($ripsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            //Storage::put($filename, json_encode($ripsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            Storage::disk('public')->put($filename, json_encode($ripsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
             $generatedFiles[] = $filename;
         }
@@ -287,15 +307,19 @@ class RipsGeneratorService
         if (count($generatedFiles) === 1) {
             $url = asset('uploads/' . $generatedFiles[0]);
 
+            $body = "<a href='{$url}' target='_blank'>📥 Descargar archivo RIPS</a>";
+
             Notification::make()
                 ->title('Archivo RIPS generado')
-                ->body("Haz clic para [descargar el archivo]($url).")
+                ->body($body) // HTML como en múltiples
                 ->success()
                 ->persistent()
                 ->send();
 
             return;
         }
+
+
 
         // Si hay múltiples archivos, mostramos los enlaces con Filament Notification
         $downloadLinks = collect($generatedFiles)->map(fn($file) => asset('uploads/' . $file))->all();
