@@ -13,13 +13,15 @@ class CreateRipsStatusesTable extends Migration
      */
     public function up()
     {
-        Schema::create('rips_statuses', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');  // Nombre del estado (e.g. 'Creado', 'Validado')
-            $table->text('description')->nullable();  // Descripción opcional
-            $table->timestamps();
-            $table->unique('name');  // Asegura que el nombre del estado sea único
-        });
+        if (!Schema::hasTable('rips_statuses')) {
+            Schema::create('rips_statuses', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');  // Nombre del estado (e.g. 'Creado', 'Validado')
+                $table->text('description')->nullable();  // Descripción opcional
+                $table->timestamps();
+                $table->unique('name');  // Asegura que el nombre del estado sea único
+            });
+        }
     }
 
     /**
