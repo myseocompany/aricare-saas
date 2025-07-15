@@ -1,12 +1,14 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters\RipsPayers\Resources\Rips;
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource;
 
-use App\Filament\HospitalAdmin\Clusters\RipsPayers\Resources\Rips\RipsPayerResource\RelationManagers\RipsPayerAgreementRelationManager;
 
-use App\Filament\HospitalAdmin\Clusters\RipsPayers;
-use App\Filament\HospitalAdmin\Clusters\RipsPayers\Resources\Rips\RipsPayerResource\Pages;
-use App\Filament\HospitalAdmin\Clusters\RipsPayers\Resources\Rips\RipsPayerResource\RelationManagers;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\RelationManagers\RipsPayerAgreementRelationManager;
+
+
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\Pages;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\RelationManagers;
+
 use App\Models\Rips\RipsPayer;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -17,12 +19,17 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
 
+use App\Filament\HospitalAdmin\Clusters\RipsCluster;
+
+
+
+
 class RipsPayerResource extends Resource
 {
     protected static ?string $model = RipsPayer::class;
 
     
-    protected static ?string $cluster = RipsPayers::class;
+    protected static ?string $cluster = RipsCluster::class;
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
     
 
@@ -111,4 +118,20 @@ public static function getRelations(): array
             'edit' => Pages\EditRipsPayer::route('/{record}/edit'),
         ];
     }
+
+    public static function getModelLabel(): string
+    {
+        return __('messages.rips.payer.title');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('messages.rips.payer.title_plural');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('messages.rips.payer.title_plural');
+    }
+
 }

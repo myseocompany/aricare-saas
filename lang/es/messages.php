@@ -3144,6 +3144,21 @@ return [
             'add_related_diagnosis' => 'Agregar diagnóstico relacionado',
             'principal_diagnoses' => 'Diagnóstico principal'
         ],
+        'billingdocument' => [
+            'title' => 'Documento de Facturación RIPS',
+            'title_plural' => 'Documentos de Facturación RIPS',
+        ],
+        'payer' => [
+            'title' => 'Pagador RIPS',
+            'title_plural' => 'Pagadores RIPS',
+            'tenant_id' => 'Código de la Entidad',
+            'type_id' => 'Tipo de Identificación',
+            'name' => 'Nombre del Pagador',
+            'identification' => 'Identificación',
+            'address' => 'Dirección',
+            'phone' => 'Teléfono',
+            'email' => 'Correo Electrónico',
+        ],
     ],
 
     
