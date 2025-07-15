@@ -5,6 +5,11 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Models\Patient;
+use App\Models\Doctor;
+use App\Models\Department;
+use App\Models\DoctorDepartment;
 
 class FormService
 {
@@ -31,6 +36,34 @@ class FormService
                                 ->get()
                                 ->mapWithKeys(fn ($patient) => [$patient->id => $patient->user?->first_name . ' ' . $patient->user?->last_name]);
                         })
+                        ->createOptionForm([
+                            Forms\Components\TextInput::make('first_name')
+                                ->label('Nombre')
+                                ->required(),
+                            Forms\Components\TextInput::make('last_name')
+                                ->label('Apellido')
+                                ->required(),
+                        ])
+                        ->createOptionUsing(function (array $data) {
+                            $tenantId = auth()->user()->tenant_id;
+                            $user = \App\Models\User::create([
+                                'first_name' => $data['first_name'],
+                                'last_name' => $data['last_name'],
+                                'email' => uniqid('patient_').'@example.com',
+                                'password' => bcrypt('secret'),
+                                'status' => 1,
+                                'tenant_id' => $tenantId,
+                            ]);
+
+                            $patient = \App\Models\Patient::create([
+                                'user_id' => $user->id,
+                                'tenant_id' => $tenantId,
+                            ]);
+
+                            $user->update(['owner_id' => $patient->id, 'owner_type' => \App\Models\Patient::class]);
+
+                            return $patient->id;
+                        })
                         ->required(),
 
                     Forms\Components\Select::make('doctor_id')
@@ -50,6 +83,44 @@ class FormService
                                 ->limit(20)
                                 ->get()
                                 ->mapWithKeys(fn ($doctor) => [$doctor->id => $doctor->user?->first_name . ' ' . $doctor->user?->last_name]);
+                        })
+                        ->createOptionForm([
+                            Forms\Components\TextInput::make('first_name')
+                                ->label('Nombre')
+                                ->required(),
+                            Forms\Components\TextInput::make('last_name')
+                                ->label('Apellido')
+                                ->required(),
+                            Forms\Components\TextInput::make('specialist')
+                                ->label('Especialidad')
+                                ->required(),
+                        ])
+                        ->createOptionUsing(function (array $data) {
+                            $tenantId = auth()->user()->tenant_id;
+                            $departmentId = \App\Models\Department::where('name', 'Doctor')->value('id');
+                            $doctorDepartmentId = \App\Models\DoctorDepartment::where('tenant_id', $tenantId)->value('id');
+
+                            $user = \App\Models\User::create([
+                                'first_name' => $data['first_name'],
+                                'last_name' => $data['last_name'],
+                                'email' => uniqid('doctor_').'@example.com',
+                                'password' => bcrypt('secret'),
+                                'status' => 1,
+                                'designation' => 'doctor',
+                                'department_id' => $departmentId,
+                                'tenant_id' => $tenantId,
+                            ]);
+
+                            $doctor = \App\Models\Doctor::create([
+                                'user_id' => $user->id,
+                                'doctor_department_id' => $doctorDepartmentId,
+                                'specialist' => $data['specialist'],
+                                'tenant_id' => $tenantId,
+                            ]);
+
+                            $user->update(['owner_id' => $doctor->id, 'owner_type' => \App\Models\Doctor::class]);
+
+                            return $doctor->id;
                         })
                         ->preload()
                         ->required(),
