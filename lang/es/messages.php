@@ -3128,6 +3128,7 @@ return [
 
     'rips' => [
         'patientservice' => [
+            'title_plural' => 'RIPS',
             'patient' => 'Paciente',
             'tenant_id' => 'Código del Hospital o IPS',
             'doctor' => 'Médico Tratante',

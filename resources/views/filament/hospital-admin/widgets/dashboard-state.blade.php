@@ -26,7 +26,8 @@
                 </div>
             </a>
         @endif
-        @if (getModuleAccess('Invoices'))
+        
+        {{-- @if (getModuleAccess('Invoices'))
             <a href="{{ route('filament.hospitalAdmin.billings.resources.invoices.index') }}">
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
@@ -51,9 +52,9 @@
                     </div>
                 </div>
             </a>
-        @endif
+        @endif --}}
 
-        @if (getModuleAccess('Bills'))
+        {{-- @if (getModuleAccess('Bills'))
             <a href="{{ route('filament.hospitalAdmin.billings.resources.bills.index') }}">
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
@@ -78,8 +79,8 @@
                     </div>
                 </div>
             </a>
-        @endif
-        @if (getModuleAccess('Payments'))
+        @endif --}}
+        {{-- @if (getModuleAccess('Payments'))
             <a href="{{ route('filament.hospitalAdmin.billings.resources.payments.index') }}">
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
@@ -104,9 +105,9 @@
                     </div>
                 </div>
             </a>
-        @endif
+        @endif --}}
 
-        @if (getModuleAccess('Advance Payments'))
+        {{-- @if (getModuleAccess('Advance Payments'))
             <a href="{{ route('filament.hospitalAdmin.billings.resources.advanced-payments.index') }} ">
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
@@ -132,9 +133,9 @@
                     </div>
                 </div>
             </a>
-        @endif
+        @endif --}}
 
-        @if (getModuleAccess('Doctors'))
+       {{--  @if (getModuleAccess('Doctors')) --}}
             <a href="{{ route('filament.hospitalAdmin.doctors.resources.doctors.index') }}">
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
@@ -159,7 +160,7 @@
                     </div>
                 </div>
             </a>
-        @endif
+        {{-- @endif --}}
 
         @if (getModuleAccess('Patients'))
             <a href="{{ route('filament.hospitalAdmin.patients.resources.patients.index') }}">
@@ -188,7 +189,7 @@
             </a>
         @endif
 
-        @if (getModuleAccess('Nurses'))
+        {{-- @if (getModuleAccess('Nurses'))
             <a href="{{ route('filament.hospitalAdmin.users.resources.nurses.index') }}">
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
@@ -213,9 +214,9 @@
                     </div>
                 </div>
             </a>
-        @endif
+        @endif --}}
 
-        @if (getModuleAccess('Beds'))
+        {{-- @if (getModuleAccess('Beds'))
             <a href="{{ route('filament.hospitalAdmin.bed-management.resources.beds.index') }}">
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
@@ -240,7 +241,7 @@
                     </div>
                 </div>
             </a>
-        @endif
+        @endif --}}
 
     </div>
 </x-filament-widgets::widget>

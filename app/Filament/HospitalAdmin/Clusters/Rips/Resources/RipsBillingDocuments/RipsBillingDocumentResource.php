@@ -1,11 +1,17 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments\Resources\Rips;
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocuments;
 
-use App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments;
-use App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments\Resources\Rips\RipsBillingDocumentResource\Pages;
-use App\Filament\HospitalAdmin\Clusters\RipsBillingDocuments\Resources\Rips\RipsBillingDocumentResource\RelationManagers;
+//use app\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocumentsCluster;
+//use app\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocumentsCluster;
+//use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RIPSResource;
+use App\Filament\HospitalAdmin\Clusters\RipsCluster;
+
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocuments\RipsBillingDocumentResource\Pages;
+
+
 use App\Models\Rips\RipsBillingDocument;
+
 use App\Models\Patient;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -30,7 +36,9 @@ class RipsBillingDocumentResource extends Resource
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
-    protected static ?string $cluster = RipsBillingDocuments::class;
+    protected static ?string $cluster = RipsCluster::class;
+    //protected static ?string $cluster = RipsCluster::class;
+
 
     public static function form(Form $form): Form
     {

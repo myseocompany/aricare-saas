@@ -3,7 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\RipsTerritorialZoneType;
+use App\Models\Rips\RipsTerritorialZoneType;
+
 
 class RipsTerritorialZoneTypeSeeder extends Seeder
 {

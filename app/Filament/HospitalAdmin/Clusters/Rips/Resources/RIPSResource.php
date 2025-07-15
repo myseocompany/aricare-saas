@@ -94,9 +94,20 @@ public static function form(Form $form): Form
             ->withCount(['consultations', 'procedures']);
     }
 
-protected function mutateFormDataBeforeFill(array $data): array
-{
-    return RipsFormatter::formatForForm($this->record);
-}
+    protected function mutateFormDataBeforeFill(array $data): array
+    {
+        return RipsFormatter::formatForForm($this->record);
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('messages.rips.patientservice.title_plural');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('messages.rips.patientservice.title_plural');
+    }
+
 
 }

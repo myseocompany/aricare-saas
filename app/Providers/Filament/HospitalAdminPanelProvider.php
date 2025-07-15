@@ -36,6 +36,11 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Saade\FilamentFullCalendar\FilamentFullCalendarPlugin;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 
+
+  //  use Filament\Navigation\NavigationGroup;
+  //  use Filament\Navigation\NavigationItem;
+ //   use App\Models\Module;
+
 class HospitalAdminPanelProvider extends PanelProvider
 {
     public function tenant()
@@ -64,6 +69,7 @@ class HospitalAdminPanelProvider extends PanelProvider
                     ->icon(fn() => Auth::user()->profile),
             ])
             ->profile(EditProfile::class, isSimple: false)
+            
             ->userMenuItems([
                 MenuItem::make()
                     ->hidden(fn() => !auth()->user()->hasRole(['Admin']))
@@ -86,6 +92,7 @@ class HospitalAdminPanelProvider extends PanelProvider
                     url(route('filament.hospitalAdmin.pages.subscription-plans')),
                     SmartPatientCardResource::getUrl('create'),
                     ])
+                    
             ->renderHook(PanelsRenderHook::HEAD_START, fn() => (session()->has('impersonated_by') && session()->get('impersonated_by') == 1) ? view('layout.hospital-head') : '') //for add something in header-tag
             ->sidebarCollapsibleOnDesktop()
             ->renderHook(PanelsRenderHook::SCRIPTS_BEFORE, fn() => view('layout.scripts'))
@@ -145,4 +152,33 @@ class HospitalAdminPanelProvider extends PanelProvider
                 RoleMiddleware::class . ':Admin|Accountant|Doctor|Patient|Nurse|Receptionist|Pharmacist|Lab Technician|Case Manager',
             ]);
     }
+
+
+/*
+
+    public function register(): void
+    {
+        Filament::serving(function () {
+            Filament::registerNavigationGroups([
+                'Módulos activos',
+            ]);
+
+            $tenantId = auth()->user()->tenant_id;
+
+            $modules = Module::where('tenant_id', $tenantId)
+                ->where('is_active', 1)
+                ->where('is_hidden', 0)
+                ->get();
+
+            foreach ($modules as $module) {
+                Filament::registerNavigationItems([
+                    NavigationItem::make($module->name)
+                        ->url(route($module->route))
+                        ->icon('heroicon-o-cube') // o algo dinámico si tienes columna `icon`
+                        ->group('Módulos activos'),
+                ]);
+            }
+        });
+    }
+*/
 }
