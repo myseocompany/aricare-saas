@@ -5,6 +5,10 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Illuminate\Support\Facades\Auth;
+use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form\PatientForm;
+use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorForm;
+use App\Repositories\PatientRepository;
+use App\Repositories\DoctorRepository;
 
 class FormService
 {
@@ -31,6 +35,12 @@ class FormService
                                 ->get()
                                 ->mapWithKeys(fn ($patient) => [$patient->id => $patient->user?->first_name . ' ' . $patient->user?->last_name]);
                         })
+                        ->createOptionForm(PatientForm::schema())
+                        ->createOptionUsing(function (array $data) {
+                            $data['tenant_id'] = auth()->user()->tenant_id;
+                            $user = app(\App\Repositories\PatientRepository::class)->store($data, false);
+                            return $user->owner_id;
+                        })
                         ->required(),
 
                     Forms\Components\Select::make('doctor_id')
@@ -50,6 +60,12 @@ class FormService
                                 ->limit(20)
                                 ->get()
                                 ->mapWithKeys(fn ($doctor) => [$doctor->id => $doctor->user?->first_name . ' ' . $doctor->user?->last_name]);
+                        })
+                        ->createOptionForm(DoctorForm::schema())
+                        ->createOptionUsing(function (array $data) {
+                            $data['tenant_id'] = auth()->user()->tenant_id;
+                            $user = app(\App\Repositories\DoctorRepository::class)->store($data, false);
+                            return $user->owner_id;
                         })
                         ->preload()
                         ->required(),
