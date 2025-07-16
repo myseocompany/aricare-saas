@@ -9,6 +9,11 @@ use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form\
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorForm;
 use App\Repositories\PatientRepository;
 use App\Repositories\DoctorRepository;
+use App\Models\User;
+use App\Models\Patient;
+use App\Models\Doctor;
+use App\Models\Department;
+use App\Models\DoctorDepartment;
 
 class FormService
 {
@@ -35,11 +40,13 @@ class FormService
                                 ->get()
                                 ->mapWithKeys(fn ($patient) => [$patient->id => $patient->user?->first_name . ' ' . $patient->user?->last_name]);
                         })
+
                         ->createOptionForm(PatientForm::schema())
                         ->createOptionUsing(function (array $data) {
                             $data['tenant_id'] = auth()->user()->tenant_id;
                             $user = app(\App\Repositories\PatientRepository::class)->store($data, false);
                             return $user->owner_id;
+
                         })
                         ->required(),
 
@@ -61,11 +68,13 @@ class FormService
                                 ->get()
                                 ->mapWithKeys(fn ($doctor) => [$doctor->id => $doctor->user?->first_name . ' ' . $doctor->user?->last_name]);
                         })
+
                         ->createOptionForm(DoctorForm::schema())
                         ->createOptionUsing(function (array $data) {
                             $data['tenant_id'] = auth()->user()->tenant_id;
                             $user = app(\App\Repositories\DoctorRepository::class)->store($data, false);
                             return $user->owner_id;
+
                         })
                         ->preload()
                         ->required(),

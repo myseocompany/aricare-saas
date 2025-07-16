@@ -195,5 +195,23 @@ class RipsBillingDocumentResource extends Resource
             'create' => Pages\CreateRipsBillingDocument::route('/create'),
             'edit' => Pages\EditRipsBillingDocument::route('/{record}/edit'),
         ];
+
+
     }
+
+    public static function getModelLabel(): string
+    {
+        return __('messages.rips.billingdocument.title');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('messages.rips.billingdocument.title_plural');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('messages.rips.billingdocument.title_plural');
+    }
+
 }

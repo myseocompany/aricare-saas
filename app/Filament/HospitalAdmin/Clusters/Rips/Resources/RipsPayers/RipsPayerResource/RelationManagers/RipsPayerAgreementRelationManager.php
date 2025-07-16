@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters\RipsPayers\Resources\Rips\RipsPayerResource\RelationManagers;
+
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\RelationManagers;
 
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;

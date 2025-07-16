@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters\RipsPayers\Resources\Rips\RipsPayerResource\Pages;
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\Pages;
 
-use App\Filament\HospitalAdmin\Clusters\RipsPayers\Resources\Rips\RipsPayerResource;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\RipsPayerResource;
+
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 

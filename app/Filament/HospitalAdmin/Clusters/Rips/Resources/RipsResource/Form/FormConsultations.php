@@ -14,6 +14,7 @@ use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form\FormCon
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form\FormConsultationSimpleDiagnoses;
 //use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationDiagnoses;
 //use App\Filament\HospitalAdmin\Clusters\Patients\Resources\RipsPatientServiceResource\Form\FormConsultationSimpleDiagnoses;
+use Illuminate\Support\Facades\Cache;
 
 class FormConsultations
 {
@@ -34,12 +35,25 @@ class FormConsultations
                                         ->searchable()
                                         ->inlineLabel()
                                         ->getSearchResultsUsing(function (string $search) {
+                                                $cached = Cache::remember('cups_chapter_16', 3600, function () {
+                                                return \App\Models\Rips\RipsCups::whereRaw("LOWER(description) = 'capitulo 16 consulta, monitorizacion y procedimientos diagnosticos'")
+
+                                                    ->pluck('name', 'id')
+                                                    ->toArray();
+                                            });
+
+                                            /*
                                             return \App\Models\Rips\RipsCups::query()
                                                 ->where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
                                                 ->where('name', 'like', "%{$search}%")
                                                 ->orderBy('name')
                                                 ->limit(20)
                                                 ->pluck('name', 'id')
+                                                ->toArray();
+                                                */
+                                                    return collect($cached)
+                                                ->filter(fn($name) => stripos($name, $search) !== false)
+                                                ->slice(0, 20)
                                                 ->toArray();
                                         })
                                         ->getOptionLabelUsing(fn ($value) =>
