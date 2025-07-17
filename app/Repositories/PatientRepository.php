@@ -64,13 +64,29 @@ class PatientRepository extends BaseRepository
             $input['gender'] = $input['gender'] ?? null;
             $input['rips_identification_type_id'] = $input['rips_identification_type_id'] ?? null;
             $input['rips_identification_number'] = $input['rips_identification_number'] ?? null;
+            if (!isset($input['password']) || empty($input['password'])) {
+                // Generar una contraseña aleatoria segura si no se envía una
+                $defaultPassword = Str::random(10); // o algo como: 'Password123*'
+                $input['password'] = Hash::make($defaultPassword);
+                // Puedes almacenar la versión sin hash si necesitas mostrarla o enviarla por email
+                $input['plain_password'] = $defaultPassword;
+            } else {
+                $input['password'] = Hash::make($input['password']);
+            }
+            if (!isset($input['email']) || empty($input['email'])) {
+                // Generar un email falso único (puedes usar uuid o número aleatorio)
+                $input['email'] = 'paciente_' . uniqid() . '@fakeemail.local';
+            }
+
+
             $input['password'] = Hash::make($input['password']);
             if (!empty(getSuperAdminSettingValue()['default_language']->value)) {
                 $input['language'] = getSuperAdminSettingValue()['default_language']->value;
             }
             $input['tenant_id'] = $input['tenant_id'] ?? getLoggedInUser()?->tenant_id;
 
-
+            $input['status'] = $input['status'] ?? 1;
+            //dd($input);
             $user = User::create($input);
 
             if ($mail) {
@@ -96,10 +112,13 @@ class PatientRepository extends BaseRepository
                 'record_number' => $input['record_number'] ?? null,
                 'affiliate_number' => $input['affiliate_number'] ?? null,
                 'template_id' => $input['template_id'] ?? null,
-                'document_type' => $input['document_type'] ?? null,
+                //'document_type' => $input['document_type'] ?? null,
+                'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
+                
+
             
                 // Ya existentes:
-                'document_number' => $input['document_number'] ?? null,
+                'rips_identification_number' => $input['rips_identification_number'] ?? null,
                 'type_id' => $input['patient_type_id'] ?? null,
                 'birth_date' => $input['dob'] ?? null,
                 //'sex_code' => Gender::from((int) $input['gender'])->sexCode(),
@@ -111,6 +130,7 @@ class PatientRepository extends BaseRepository
                 'rips_municipality_id' => $input['rips_municipality_id'] ?? null,
                 'zone_code' => $input['zone_code'] ?? null,
                 'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
+                
             ];
             
             
