@@ -63,6 +63,8 @@ use Filament\Infolists\Components\SpatieMediaLibraryImageEntry;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\RelationManagers;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorForm;
+use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorMinimalForm;
+
 use Filament\Resources\Pages\Page;
 
 class DoctorResource extends Resource
@@ -132,7 +134,7 @@ class DoctorResource extends Resource
         }
 
         return $form->schema([
-            ...DoctorForm::schema(),
+            ...DoctorMinimalForm::schema(),
         ]);
     }
 

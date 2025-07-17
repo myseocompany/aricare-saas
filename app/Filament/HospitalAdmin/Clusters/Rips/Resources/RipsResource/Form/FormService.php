@@ -7,6 +7,8 @@ use Filament\Forms\Form;
 use Illuminate\Support\Facades\Auth;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form\PatientForm;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorForm;
+use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorMinimalForm;
+
 use App\Repositories\PatientRepository;
 use App\Repositories\DoctorRepository;
 use App\Models\User;
@@ -69,7 +71,7 @@ class FormService
                                 ->mapWithKeys(fn ($doctor) => [$doctor->id => $doctor->user?->first_name . ' ' . $doctor->user?->last_name]);
                         })
 
-                        ->createOptionForm(DoctorForm::schema())
+                        ->createOptionForm(DoctorMinimalForm::schema())
                         ->createOptionUsing(function (array $data) {
                             $data['tenant_id'] = auth()->user()->tenant_id;
                             $user = app(\App\Repositories\DoctorRepository::class)->store($data, false);
