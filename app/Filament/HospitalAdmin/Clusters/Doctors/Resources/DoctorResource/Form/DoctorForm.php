@@ -1,4 +1,4 @@
-    <?php
+<?php
 
     namespace App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form;
 
