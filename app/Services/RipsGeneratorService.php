@@ -137,14 +137,20 @@ class RipsGeneratorService
         return [
             'tipoDocumentoIdentificacion' => $patient->patientUser->ripsIdentificationType->code ?? '',
             'numDocumentoIdentificacion' => $patient->patientUser->rips_identification_number ?? '',
-            'tipoUsuario' => $patient-> ripsUserType->name ?? '',
+            //'tipoUsuario' => $patient-> ripsUserType->id ?? '',
+            'tipoUsuario' => str_pad((string) ($patient->ripsUserType->id ?? ''), 2, '0', STR_PAD_LEFT),
             'fechaNacimiento' => $patient->birth_date,
             'codSexo' => $patient->sex_code,
-            'codPaisResidencia' => $patient->residenceCountry->code ?? '',
-            'codMunicipioResidencia' => $patient->ripsMunicipality->code ?? '',
-            'codZonaTerritorialResidencia' => $patient->zone_code ?? '',
+            //'codPaisResidencia' => $patient->residenceCountry->code ?? '',
+            'codPaisResidencia' => (string) ($patient->residenceCountry->code ?? ''),
+            //'codMunicipioResidencia' => $patient->ripsMunicipality->code ?? '',
+            'codMunicipioResidencia' => str_pad((string) ($patient->ripsMunicipality->code ?? ''), 5, '0', STR_PAD_LEFT),
+
+            //'codZonaTerritorialResidencia' => $patient->zone_code ?? '',
+            'codZonaTerritorialResidencia' => str_pad((string) ($patient->zone_code ?? ''), 2, '0', STR_PAD_LEFT),
             'incapacidad' => $patientServices->contains('has_incapacity', 1) ? 'SI' : 'NO',
-            'codPaisOrigen' => $patient->originCountry->code ?? '',
+            //'codPaisOrigen' => $patient->originCountry->code ?? '',
+            'codPaisOrigen' => (string) ($patient->originCountry->code ?? ''),
         ];
     }
 
@@ -185,29 +191,36 @@ class RipsGeneratorService
                 $consultas[] = [
                     //'codPrestador' => $service->doctor->rips_provider_code,
                     'codPrestador' => $tenant->provider_code,
-                    'fechaInicioAtencion' => $service->service_datetime,
+                    //'fechaInicioAtencion' => $service->service_datetime,
+                    'fechaInicioAtencion' => \Carbon\Carbon::parse($service->service_datetime)->format('Y-m-d H:i'),
+
                     'codConsulta' => $consulta->cups->code ?? '',
-                    'modalidadGrupoServicioTecSal' => $consulta->serviceGroupMode->id ?? '',
-                    'grupoServicios' => $consulta->serviceGroup->id ?? '',
-                    'codServicio' => $consulta->service->code ?? '',
-                    'finalidadTecnologiaSalud' => $consulta->technologyPurpose->code ?? '12',
+                    //'modalidadGrupoServicioTecSal' => $consulta->serviceGroupMode->id ?? '',
+                    'modalidadGrupoServicioTecSal' => str_pad((string) ($consulta->serviceGroupMode->id ?? ''), 2, '0', STR_PAD_LEFT),
+                    //'grupoServicios' => $consulta->serviceGroup->id ?? '',
+                    'grupoServicios' => str_pad((string) ($consulta->serviceGroup->id ?? ''), 2, '0', STR_PAD_LEFT),
+                    //'codServicio' => $consulta->service->code ?? '',
+                    'codServicio' => (int) ($consulta->service->code ?? 334),
+                    //'finalidadTecnologiaSalud' => $consulta->technologyPurpose->code ?? '12',
+                    'finalidadTecnologiaSalud' => (string) ($consulta->technologyPurpose->code ?? '12'),
                     'causaMotivoAtencion' => '35',
                     'codDiagnosticoPrincipal' => $diagnosticoPrincipal->cie10->code ?? 'Z012',
                     'codDiagnosticoRelacionado1' => $diagnosticosRelacionados->get(0)->cie10->code ?? null,
                     'codDiagnosticoRelacionado2' => $diagnosticosRelacionados->get(1)->cie10->code ?? null,
                     'codDiagnosticoRelacionado3' => $diagnosticosRelacionados->get(2)->cie10->code ?? null,
-                    'tipoDiagnosticoPrincipal' => $diagnosticoPrincipal->diagnosisType->code ?? null,
+                    'tipoDiagnosticoPrincipal' => str_pad((string) ($diagnosticoPrincipal->diagnosisType->code ?? ''), 2, '0', STR_PAD_LEFT),
+                    //'tipoDiagnosticoPrincipal' => $diagnosticoPrincipal->diagnosisType->code ?? null,
                     'tipoDocumentoIdentificacion' => $service->doctor->doctorUser->ripsIdentificationType->code ?? '',
                     'numDocumentoIdentificacion' => $service->doctor->doctorUser->rips_identification_number,
                     'vrServicio' => $consulta->service_value ?? 0,
-                    'conceptoRecaudo' => $consulta->collectionConcept->code ?? '05',
+                    //'conceptoRecaudo' => $consulta->collectionConcept->code ?? '05',
+                    'conceptoRecaudo' => str_pad($consulta->collectionConcept->code ?? '05', 2, '0', STR_PAD_LEFT),
                     'valorPagoModerador' => $consulta->copayment_value ?? 0,
                     'numFEVPagoModerador' => $consulta->copayment_receipt_number ?? '',
                     'consecutivo' => $consecutivo++
                 ];
             }
         }
-
         return $consultas;
     }
 
@@ -222,22 +235,29 @@ class RipsGeneratorService
                 $procedimientos[] = [
                     //'codPrestador' => $service->doctor->rips_provider_code,
                     'codPrestador' => $tenant->provider_code, // Usar el código del proveedor del tenant
-                    'fechaInicioAtencion' => $service->service_datetime,
+                    //'fechaInicioAtencion' => $service->service_datetime,
+                    'fechaInicioAtencion' => \Carbon\Carbon::parse($service->service_datetime)->format('Y-m-d H:i'),
+
                     'idMIPRES' => $procedure->mipres_id ?? '',
                     'numAutorizacion' => $procedure->authorization_number ?? '',
                     'codProcedimiento' => $procedure->cups->code ?? '',
-                    'viaIngresoServicioSalud' =>  $procedure->admissionRoute->code ?? 'Z012',
-                    'modalidadGrupoServicioTecSal' =>  $procedure->serviceGroupMode->id ?? '',
-                    'grupoServicios' => $procedure->serviceGroup->id ?? '',
-                    'codServicio' => $procedure->service->code ?? '',
-                    'finalidadTecnologiaSalud' => $procedure->technologyPurpose->code ?? '',
+                    //'viaIngresoServicioSalud' =>  $procedure->admissionRoute->code ?? 'Z012',
+                    'viaIngresoServicioSalud' => (string) ($procedure->admissionRoute->code ?? 'Z012'),
+                    //'modalidadGrupoServicioTecSal' =>  $procedure->serviceGroupMode->id ?? '',
+                    'modalidadGrupoServicioTecSal' => str_pad((string) ($procedure->serviceGroupMode->id ?? ''), 2, '0', STR_PAD_LEFT),
+                    //'grupoServicios' => $procedure->serviceGroup->id ?? '',
+                    'grupoServicios' => str_pad((string) ($procedure->serviceGroup->id ?? ''), 2, '0', STR_PAD_LEFT),
+                    //'codServicio' => $procedure->service->code ?? '334',
+                    'codServicio' => (int) ($procedure->service->code ?? 334),
+                    //'finalidadTecnologiaSalud' => $procedure->technologyPurpose->code ?? '',
+                    'finalidadTecnologiaSalud' => (string) ($procedure->technologyPurpose->code ?? ''),
                     'tipoDocumentoIdentificacion' => $service->doctor->doctorUser->ripsIdentificationType->code ?? '',
                     'numDocumentoIdentificacion' => $service->doctor->doctorUser->rips_identification_number,
                     'codDiagnosticoPrincipal' => $procedure->cie10->code ?? 'Z012',
                     'codDiagnosticoRelacionado' => $procedure->surgeryCie10->code ?? null,
                     'codComplicacion' => $procedure->complicationCie10->code ?? null,
                     'vrServicio' => $procedure->service_value ?? 0,
-                    'conceptoRecaudo' => '05',
+                    'conceptoRecaudo' => str_pad($procedure->collectionConcept->code ?? '05', 2, '0', STR_PAD_LEFT),
                     'valorPagoModerador' => $procedure->copayment_value ?? 0,
                     'numFEVPagoModerador' => $procedure->copayment_receipt_number ?? '',
                     'consecutivo' => $consecutivo++

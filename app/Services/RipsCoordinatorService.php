@@ -108,19 +108,27 @@ class RipsCoordinatorService
 
             // Envía el documento
             $respuesta = $this->submissionService->enviarFactura($factura, $conFactura);
-
+            Log::info('Respuesta de la API SISPRO', ['numero' => $numero, 'respuesta' => $respuesta]);
             // Guarda archivo de respuesta
             $filename = "respuesta_rips_{$numero}_" . now()->format('Ymd_His') . '.json';
             Storage::put("respuestas/{$filename}", json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
+            Log::info("Archivo de respuesta guardado", ['archivo' => $filename]);
             // Determina estado: accepted / rejected / pending
             $estado = 'pending';
-            if (isset($respuesta['response']['resultState'])) {
-                $estado = $respuesta['response']['resultState'] === true ? 'accepted' : 'rejected';
+            if (isset($respuesta['response']['ResultState'])) {
+                $estado = $respuesta['response']['ResultState'] === true ? 'accepted' : 'rejected';
             }
 
+            Log::info("Estado evaluado para {$numero}", ['estado' => $estado]);
+
             // Actualiza el estado en la base de datos
-            $documento?->update(['submission_status' => $estado]);
+            if ($documento) {
+                Log::info("Actualizando estado de documento {$numero}", ['submission_status' => $estado]);
+                $documento->update(['submission_status' => $estado]);
+            } else {
+                Log::warning("Documento no encontrado para actualizar estado", ['numero' => $numero]);
+            }
+
 
             // Agrega al resumen
             $resultados[] = [
