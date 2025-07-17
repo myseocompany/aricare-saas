@@ -88,11 +88,12 @@ class HospitalAdminPanelProvider extends PanelProvider
                 //     })
                 //     ->url(fn() => route('filament-impersonate.leave')),
                 ])
+                /*
                 ->spaUrlExceptions(fn(): array => [
                     url(route('filament.hospitalAdmin.pages.subscription-plans')),
                     SmartPatientCardResource::getUrl('create'),
                     ])
-                    
+                  */  
             ->renderHook(PanelsRenderHook::HEAD_START, fn() => (session()->has('impersonated_by') && session()->get('impersonated_by') == 1) ? view('layout.hospital-head') : '') //for add something in header-tag
             ->sidebarCollapsibleOnDesktop()
             ->renderHook(PanelsRenderHook::SCRIPTS_BEFORE, fn() => view('layout.scripts'))

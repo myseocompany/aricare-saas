@@ -61,7 +61,8 @@ class PatientRepository extends BaseRepository
             //$input['department_id'] = Department::whereName('Patient')->first()->id;
             $input['department_id'] = Department::where('name', 'Patient')->value('id') ?? 3;
             // Asegúrate de que estos campos estén en el $input para User::create()
-            $input['gender'] = $input['gender'] ?? null;
+            $input['gender'] = isset($input['gender']) ? (int) $input['gender'] : null;
+
             $input['rips_identification_type_id'] = $input['rips_identification_type_id'] ?? null;
             $input['rips_identification_number'] = $input['rips_identification_number'] ?? null;
             if (!isset($input['password']) || empty($input['password'])) {
@@ -119,7 +120,7 @@ class PatientRepository extends BaseRepository
             
                 // Ya existentes:
                 'rips_identification_number' => $input['rips_identification_number'] ?? null,
-                'type_id' => $input['patient_type_id'] ?? null,
+                'type_id' => $input['type_id'] ?? null,
                 'birth_date' => $input['dob'] ?? null,
                 //'sex_code' => Gender::from((int) $input['gender'])->sexCode(),
                 //'gender' => $input['gender'] ?? null,
