@@ -13,11 +13,14 @@ use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocuments\Rips
 use App\Models\Rips\RipsBillingDocument;
 
 use App\Models\Patient;
+use App\Models\Rips\RipsPayer;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
@@ -51,6 +54,32 @@ class RipsBillingDocumentResource extends Resource
                     ->label('Convenio')
                     ->relationship('agreement', 'name')
                     ->searchable()
+                    ->createOptionForm([
+                        Select::make('payer_id')
+                            ->label('Pagador')
+                            ->options(RipsPayer::pluck('name', 'id'))
+                            ->searchable()
+                            ->required(),
+                        Forms\Components\TextInput::make('name')
+                            ->label('Nombre del convenio')
+                            ->required(),
+                        Forms\Components\TextInput::make('code')
+                            ->label('Código')
+                            ->required(),
+                        Textarea::make('description')
+                            ->label('Descripción')
+                            ->maxLength(500),
+                        DatePicker::make('start_date')
+                            ->label('Fecha de inicio')
+                            ->required(),
+                        DatePicker::make('end_date')
+                            ->label('Fecha de finalización')
+                            ->afterOrEqual('start_date')
+                            ->nullable(),
+                    ])
+                    ->createOptionUsing(function (array $data) {
+                        return \App\Models\Rips\RipsTenantPayerAgreement::create($data)->id;
+                    })
                     ->required(),
                 Forms\Components\TextInput::make('type_id')
                     ->required()
