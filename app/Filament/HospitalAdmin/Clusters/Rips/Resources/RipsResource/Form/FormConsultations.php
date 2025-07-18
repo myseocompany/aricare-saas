@@ -103,31 +103,36 @@ class FormConsultations
                                     Select::make('rips_technology_purpose_id')
                                         ->label('Finalidad Tecnológica')
                                         ->searchable()
-                                        ->inlineLabel()
-                                        ->required()
-                                        ->getSearchResultsUsing(function (string $search) {
+                                        ->preload()
+                                        ->options(function () {
                                             return \App\Models\Rips\RipsTechnologyPurpose::query()
-                                                ->where(function ($query) use ($search) {
-                                                    $query->where('name', 'like', "{$search}%")
-                                                        ->orWhere('code', 'like', "{$search}%");
-                                                })
-                                                ->orderBy('name')
+                                                ->select('id', 'code', 'name')
+                                                ->orderBy('code')
                                                 ->limit(20)
                                                 ->get()
-                                                ->mapWithKeys(function ($item) {
-                                                    $formattedName = ucfirst(strtolower($item->name));
-                                                    return [
-                                                        $item->id => "{$item->code} - {$formattedName}",
-                                                    ];
-                                                })
-                                                ->toArray();
+                                                ->mapWithKeys(fn ($item) => [
+                                                    $item->id => "{$item->code} - {$item->name}"
+                                                ]);
+                                        })
+                                        ->getSearchResultsUsing(function (string $search) {
+                                            return \App\Models\Rips\RipsTechnologyPurpose::query()
+                                                ->select('id', 'code', 'name')
+                                                ->where('code', 'like', "%{$search}%")
+                                                ->orWhere('name', 'like', "%{$search}%")
+                                                ->orderBy('code')
+                                                ->limit(20)
+                                                ->get()
+                                                ->mapWithKeys(fn ($item) => [
+                                                    $item->id => "{$item->code} - {$item->name}"
+                                                ]);
                                         })
                                         ->getOptionLabelUsing(function ($value) {
-                                            $item = \App\Models\Rips\RipsTechnologyPurpose::find($value);
-                                            if (!$item) return null;
-                                            $formattedName = ucfirst(strtolower($item->name));
-                                            return "{$item->code} - {$formattedName}";
-                                        }),
+                                            $item = \App\Models\Rips\RipsTechnologyPurpose::select('code', 'name')->find($value);
+                                            return $item ? "{$item->code} - {$item->name}" : $value;
+                                        })
+                                        ->inlineLabel()
+                                        ->required(),
+
 
 
 
@@ -153,7 +158,9 @@ class FormConsultations
                                         ->options(\App\Models\Rips\RipsCollectionConcept::pluck('name', 'id'))
                                         ->searchable()
                                         ->required(),
+                                    
 
+                            
 
                                     TextInput::make('copayment_receipt_number')
                                         ->label('Número FEV Pago Moderador')
@@ -177,6 +184,7 @@ class FormConsultations
                                 ->columnSpan(4),
                         ])
                         ->columns(12),
+                                   
 
                     Group::make([
                         Repeater::make('principal_diagnoses')

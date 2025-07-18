@@ -34,23 +34,74 @@ class FormProcedures
 
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
-                                        ->options(\App\Models\Rips\RipsServiceGroupMode::pluck('name', 'id'))
+                                        ->options(
+                                            \App\Models\Rips\RipsServiceGroupMode::all()
+                                                ->mapWithKeys(function ($item) {
+                                                    $formatted = ucfirst(strtolower($item->name));
+                                                    return [$item->id => "{$item->code} - {$formatted}"];
+                                                })
+                                                ->toArray()
+                                        )
                                         ->searchable()
                                         ->inlineLabel()
                                         ->required(),
 
                                     Select::make('rips_service_group_id')
                                         ->label('Grupo de Servicio')
-                                        ->options(\App\Models\Rips\RipsServiceGroup::pluck('name', 'id'))
+                                        ->options(
+                                            \App\Models\Rips\RipsServiceGroup::all()
+                                                ->mapWithKeys(function ($item) {
+                                                    return [$item->id => "{$item->code} - {$item->name}"];
+                                                })
+                                                ->toArray()
+                                        )
+                                        ->searchable()
+                                        ->inlineLabel()
+                                        ->required(),
+
+                                    Select::make('rips_service_id')
+                                        ->label('Servicio')
+                                        ->options(
+                                            \App\Models\Rips\RipsService::all()->mapWithKeys(fn ($s) => [
+                                                $s->id => "{$s->code} - {$s->name}"
+                                            ])
+                                        )
                                         ->searchable()
                                         ->inlineLabel()
                                         ->required(),
 
                                     Select::make('rips_technology_purpose_id')
                                         ->label('Finalidad Tecnológica')
-                                        ->options(\App\Models\Rips\RipsTechnologyPurpose::pluck('name', 'id'))
                                         ->searchable()
-                                        ->inlineLabel(),
+                                        ->preload()
+                                        ->options(function () {
+                                            return \App\Models\Rips\RipsTechnologyPurpose::query()
+                                                ->select('id', 'code', 'name')
+                                                ->orderBy('code')
+                                                ->limit(20)
+                                                ->get()
+                                                ->mapWithKeys(fn ($item) => [
+                                                    $item->id => "{$item->code} - {$item->name}"
+                                                ]);
+                                        })
+                                        ->getSearchResultsUsing(function (string $search) {
+                                            return \App\Models\Rips\RipsTechnologyPurpose::query()
+                                                ->select('id', 'code', 'name')
+                                                ->where('code', 'like', "%{$search}%")
+                                                ->orWhere('name', 'like', "%{$search}%")
+                                                ->orderBy('code')
+                                                ->limit(20)
+                                                ->get()
+                                                ->mapWithKeys(fn ($item) => [
+                                                    $item->id => "{$item->code} - {$item->name}"
+                                                ]);
+                                        })
+                                        ->getOptionLabelUsing(function ($value) {
+                                            $item = \App\Models\Rips\RipsTechnologyPurpose::select('code', 'name')->find($value);
+                                            return $item ? "{$item->code} - {$item->name}" : $value;
+                                        })
+                                        ->inlineLabel()
+                                        ->required(),
 
                                     TextInput::make('mipres_id')
                                         ->label('Mipres ID')

@@ -19,6 +19,7 @@ class RipsBillingDocument extends Model
         'cufe',
         'agreement_id',
         'uuid_dian',
+        'submission_status',
         'total_amount',
         'copay_amount',
         'discount_amount',

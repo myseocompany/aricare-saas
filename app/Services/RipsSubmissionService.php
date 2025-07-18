@@ -52,9 +52,14 @@ class RipsSubmissionService
         unset($ripsData['rips']['idRelacion']);
 
         // Enviamos la solicitud HTTP con el token de autorización
-        $response = Http::withToken($this->token)
+        /*$response = Http::withToken($this->token)
             ->acceptJson()
             ->timeout(60) // Tiempo máximo de espera en segundos
+            ->post($url, $ripsData);*/
+        $response = Http::withoutVerifying() // Ignora validación SSL (solo en entornos de prueba)
+            ->withToken($this->token)
+            ->acceptJson()
+            ->timeout(60)
             ->post($url, $ripsData);
 
         // Manejo de errores si la API no responde correctamente
