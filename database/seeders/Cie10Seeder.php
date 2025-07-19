@@ -27,7 +27,7 @@ class Cie10Seeder extends Seeder
             DB::table('cie10')->updateOrInsert(
                 ['code' => trim($row[1])],
                 [
-                    'description' => trim($row[2]),
+                    'description' => ucwords(strtolower(trim($row[2]))),
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]

@@ -66,7 +66,7 @@ class FormConsultations
                                             \App\Models\Rips\RipsServiceGroupMode::all()
                                                 ->mapWithKeys(function ($item) {
                                                     $formatted = ucfirst(strtolower($item->name));
-                                                    return [$item->id => "{$item->code} - {$formatted}"];
+                                                    return [$item->id => "{$item->id} - {$formatted}"];
                                                 })
                                                 ->toArray()
                                         )
@@ -79,7 +79,7 @@ class FormConsultations
                                         ->options(
                                             \App\Models\Rips\RipsServiceGroup::all()
                                                 ->mapWithKeys(function ($item) {
-                                                    return [$item->id => "{$item->code} - {$item->name}"];
+                                                    return [$item->id => "{$item->id} - {$item->name}"];
                                                 })
                                                 ->toArray()
                                         )

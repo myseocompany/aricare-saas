@@ -10,7 +10,7 @@ class CupsTableSeeder extends Seeder
 {
     public function run(): void
 {
-    $path = database_path('seeders/data/cups.csv');
+    $path = database_path('seeders/data/rips_cups.csv');
 
     if (!File::exists($path)) {
         throw new \Exception("El archivo cups.csv no se encuentra en database/seeders/data");
@@ -25,9 +25,9 @@ class CupsTableSeeder extends Seeder
         
         if (!isset($row[1], $row[2], $row[3], $row[8], $row[9])) continue;
 
-        DB::table('cups')->insert([
+        DB::table('rips_cups')->insert([
             'code' => trim($row[1]),
-            'name' => trim($row[2]),
+            'name' => ucwords(strtolower(trim($row[2]))),
             'description' => trim($row[3]),
             'group' => trim($row[8]),
             'subgroup_code' => trim($row[9]),

@@ -32,3 +32,5 @@ php artisan migrate --path=database/migrations/2025_07_18_185043_add_requires_fe
 
 
 php artisan db:seed --class=RipsAdmissionRouteSeeder
+php artisan db:seed --class=CupsTableSeeder
+php artisan db:seed --class=Cie10Seeder
