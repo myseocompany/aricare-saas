@@ -36,3 +36,4 @@ php artisan db:seed --class=RipsAdmissionRouteSeeder
 php artisan db:seed --class=CupsTableSeeder
 php artisan db:seed --class=Cie10Seeder
 php artisan db:seed --class=RipsServiceReasonSeeder
+php artisan db:seed --class=RipsServiceSeeder

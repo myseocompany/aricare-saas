@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\RipsService;
-use App\Models\RipsServiceGroup;
+use App\Models\Rips\RipsService;
+use App\Models\Rips\RipsServiceGroup;
 
 class RipsServiceSeeder extends Seeder
 {
@@ -12,7 +12,7 @@ class RipsServiceSeeder extends Seeder
     {
         $path = database_path('seeders/data/rips_services.csv');
         $rows = array_map('str_getcsv', file($path));
-        $headerSkipped = false;
+        $headerSkipped = true;
 
         foreach ($rows as $row) {
             if (!$headerSkipped) {
