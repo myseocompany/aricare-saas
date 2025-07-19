@@ -112,6 +112,7 @@ class EditRips extends EditRecord
         $data = app(LoadTemplateToForm::class)($templateId);
         if ($data) {
             $this->form->fill($data);
+            $this->dispatch('refreshForm');
         }
     }
 
