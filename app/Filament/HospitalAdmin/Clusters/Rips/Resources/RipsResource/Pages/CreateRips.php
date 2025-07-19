@@ -108,7 +108,8 @@ class CreateRips extends CreateRecord
 public function loadTemplate($templateId)
 {
     $data = app(LoadTemplateToForm::class)($templateId);
-    dd($data);
+    //dd($data);
+
     if ($data) {
         $this->form->fill($data);
         $this->dispatch('templateLoaded');
