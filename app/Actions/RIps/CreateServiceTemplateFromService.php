@@ -18,7 +18,7 @@ class CreateServiceTemplateFromService
             'is_public' => false,
         ]);
 
-        foreach ($service->consultations as $consultation) {
+        foreach ($service->consultations ?? [] as $consultation) {
             $template->consultations()->create([
                 'rips_cups_id' => $consultation->rips_cups_id,
                 'rips_service_group_id' => $consultation->rips_service_group_id,
@@ -34,15 +34,32 @@ class CreateServiceTemplateFromService
             ]);
         }
 
-        foreach ($service->consultationDiagnoses as $diagnosis) {
-            $template->diagnoses()->create([
-                'cie10_id' => $diagnosis->cie10_id,
-                'rips_diagnosis_type_id' => $diagnosis->rips_diagnosis_type_id,
-                'sequence' => $diagnosis->sequence,
+        foreach ($service->consultations ?? [] as $consultation) {
+            $templateConsultation = $template->consultations()->create([
+                'rips_cups_id' => $consultation->rips_cups_id,
+                'rips_service_group_id' => $consultation->rips_service_group_id,
+                'rips_service_group_mode_id' => $consultation->rips_service_group_mode_id,
+                'rips_service_reason_id' => $consultation->rips_service_reason_id,
+                'rips_consultation_cups_id' => $consultation->rips_consultation_cups_id,
+                'rips_service_id' => $consultation->rips_service_id,
+                'rips_technology_purpose_id' => $consultation->rips_technology_purpose_id,
+                'service_value' => $consultation->service_value,
+                'rips_collection_concept_id' => $consultation->rips_collection_concept_id,
+                'copayment_value' => $consultation->copayment_value,
+                'copayment_receipt_number' => $consultation->copayment_receipt_number,
             ]);
+
+            foreach ($consultation->diagnoses ?? [] as $diagnosis) {
+                $templateConsultation->diagnoses()->create([
+                    'cie10_id' => $diagnosis->cie10_id,
+                    'rips_diagnosis_type_id' => $diagnosis->rips_diagnosis_type_id,
+                    'sequence' => $diagnosis->sequence,
+                ]);
+            }
         }
 
-        foreach ($service->procedures as $procedure) {
+
+        foreach ($service->procedures ?? [] as $procedure) {
             $template->procedures()->create([
                 'rips_admission_route_id' => $procedure->rips_admission_route_id,
                 'rips_service_group_mode_id' => $procedure->rips_service_group_mode_id,

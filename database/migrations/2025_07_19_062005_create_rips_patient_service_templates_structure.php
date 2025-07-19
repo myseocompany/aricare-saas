@@ -44,14 +44,14 @@ return new class extends Migration {
         // Diagnósticos de consulta
         Schema::create('rips_patient_service_template_consultation_diagnoses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('template_id');
             $table->unsignedBigInteger('cie10_id');
             $table->unsignedBigInteger('rips_diagnosis_type_id')->nullable();
             $table->smallInteger('sequence');
+
             $table->timestamps();
 
-            $table->foreign('template_id', 'rpst_diag_template_fk')
-                  ->references('id')->on('rips_patient_service_templates')->onDelete('cascade');
+            $table->foreignId('consultation_id')
+                ->constrained('rips_patient_service_template_consultations')->onDelete('cascade');
         });
 
         // Procedimientos

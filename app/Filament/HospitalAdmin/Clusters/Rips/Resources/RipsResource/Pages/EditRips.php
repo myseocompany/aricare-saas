@@ -7,6 +7,9 @@ use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
+use App\Actions\Rips\CreateServiceTemplateFromService;
+
+
 class EditRips extends EditRecord
 {
     protected static string $resource = RipsResource::class;
@@ -190,5 +193,15 @@ class EditRips extends EditRecord
 
         return $data;
     }
+    protected function afterCreate(): void
+    {
+        $data = $this->form->getState();
 
+        if (!empty($data['save_as_template']) && !empty($data['template_name'])) {
+            app(CreateServiceTemplateFromService::class)(
+                $this->record, // RipsPatientService
+                $data['template_name']
+            );
+        }
+    }
 }

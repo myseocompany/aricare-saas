@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
 use Filament\Actions;
 
+use App\Actions\Rips\CreateServiceTemplateFromService;
 
 
 class CreateRips extends CreateRecord
