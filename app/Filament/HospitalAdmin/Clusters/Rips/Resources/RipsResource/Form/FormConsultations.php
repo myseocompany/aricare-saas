@@ -35,30 +35,25 @@ class FormConsultations
                                         ->searchable()
                                         ->inlineLabel()
                                         ->getSearchResultsUsing(function (string $search) {
-                                                $cached = Cache::remember('cups_chapter_16', 3600, function () {
+                                            $cached = Cache::remember('cups_chapter_16_full', 3600, function () {
                                                 return \App\Models\Rips\RipsCups::whereRaw("LOWER(description) = 'capitulo 16 consulta, monitorizacion y procedimientos diagnosticos'")
-
-                                                    ->pluck('name', 'id')
+                                                    ->get()
+                                                    ->mapWithKeys(fn ($item) => [
+                                                        $item->id => "{$item->code} - {$item->name}"
+                                                    ])
                                                     ->toArray();
                                             });
 
-                                            /*
-                                            return \App\Models\Rips\RipsCups::query()
-                                                ->where('description', 'Capítulo 16 CONSULTA, MONITORIZACIÓN Y PROCEDIMIENTOS DIAGNÓSTICOS')
-                                                ->where('name', 'like', "%{$search}%")
-                                                ->orderBy('name')
-                                                ->limit(20)
-                                                ->pluck('name', 'id')
-                                                ->toArray();
-                                                */
-                                                    return collect($cached)
-                                                ->filter(fn($name) => stripos($name, $search) !== false)
+                                            return collect($cached)
+                                                ->filter(fn ($label) => str_contains(strtolower($label), strtolower($search)))
                                                 ->slice(0, 20)
                                                 ->toArray();
                                         })
-                                        ->getOptionLabelUsing(fn ($value) =>
-                                            optional(\App\Models\Rips\RipsCups::find($value))->name
-                                        ),
+                                        ->getOptionLabelUsing(function ($value): ?string {
+                                            $cups = \App\Models\Rips\RipsCups::find($value);
+                                            return $cups ? "{$cups->code} - {$cups->name}" : null;
+                                        }),
+
 
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
