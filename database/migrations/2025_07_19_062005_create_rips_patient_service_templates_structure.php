@@ -48,10 +48,16 @@ return new class extends Migration {
             $table->unsignedBigInteger('rips_diagnosis_type_id')->nullable();
             $table->smallInteger('sequence');
 
+
+
+            $table->unsignedBigInteger('consultation_id');
+            $table->foreign('consultation_id', 'rpst_diag_consult_fk')
+                ->references('id')
+                ->on('rips_patient_service_template_consultations')
+                ->onDelete('cascade');
+            
             $table->timestamps();
 
-            $table->foreignId('consultation_id')
-                ->constrained('rips_patient_service_template_consultations')->onDelete('cascade');
         });
 
         // Procedimientos

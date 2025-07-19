@@ -12,6 +12,7 @@ class RipsPatientServiceProcedure extends Model
         'rips_admission_route_id',
         'rips_service_group_mode_id',
         'rips_service_group_id',
+        'rips_service_id',
         'rips_collection_concept_id',
         'mipres_id',
         'rips_technology_purpose_id',

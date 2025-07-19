@@ -40,3 +40,5 @@ php artisan db:seed --class=RipsServiceSeeder
 
 
 php artisan migrate --path=database/migrations/2025_07_19_062005_create_rips_patient_service_templates_structure.php
+
+php artisan migrate --path=database/migrations/2025_06_30_135806_create_rips_statuses_table.php

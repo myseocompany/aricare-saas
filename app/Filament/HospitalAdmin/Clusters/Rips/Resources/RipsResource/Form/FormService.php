@@ -179,6 +179,7 @@ class FormService
                     Forms\Components\Hidden::make('tenant_id')
                         ->default(Auth::user()->tenant_id)
                         ->required(),
+
                     Forms\Components\Select::make('template_id')
                         ->label('Usar Plantilla')
                         ->searchable()
@@ -191,18 +192,16 @@ class FormService
                                 ->pluck('name', 'id');
                         })
                         ->afterStateUpdated(function ($state, callable $set) {
-                            $template = \App\Models\Rips\RipsPatientServiceTemplate::with([
-                                'consultations', 'diagnoses', 'procedures'
-                            ])->find($state);
-
-                            if ($template) {
-                                // Aquí debes mapear y llenar tus campos de servicio (consultations, diagnoses, etc.)
-                                // Ejemplo:
-                                $set('doctor_id', Auth::user()->doctor?->id);
-                                // $set(...) otros campos si están definidos directamente en la plantilla.
+                            
+                            if ($state) {
+                                $data = app(\App\Actions\Rips\LoadTemplateToForm::class)($state);
+                                foreach ($data as $key => $value) {
+                                    $set($key, $value);
+                                }
                             }
                         })
                         ->columnSpan(1),
+
 
                     Forms\Components\Toggle::make('save_as_template')
                         ->label('¿Guardar como plantilla?')

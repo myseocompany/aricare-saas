@@ -8,6 +8,10 @@ use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 
 use App\Actions\Rips\CreateServiceTemplateFromService;
+use App\Actions\Rips\LoadTemplateToForm;
+use App\Actions\Rips\SyncConsultationsAndProcedures;
+
+
 
 
 class EditRips extends EditRecord
@@ -47,55 +51,8 @@ class EditRips extends EditRecord
             $record->save();
         }
 
-        // 🚨 Limpiar consultas y diagnósticos existentes
-        $record->consultations()->each(function ($consultation) {
-            $consultation->diagnoses()->delete();
-            $consultation->delete();
-        });
-        $record->procedures()->delete();
+        app(SyncConsultationsAndProcedures::class)($record, $data);
 
-        // 🚀 Volver a crear las consultas y diagnósticos
-        $consultations = $data['consultations'] ?? [];
-
-        foreach ($consultations as $consultationData) {
-            $consultation = $record->consultations()->create([
-                'rips_cups_id' => $consultationData['rips_cups_id'],
-                'rips_service_group_id' => $consultationData['rips_service_group_id'],
-                'rips_service_group_mode_id' => $consultationData['rips_service_group_mode_id'] ?? null,
-                'rips_service_reason_id' => $consultationData['rips_service_reason_id'] ?? null,
-                'rips_consultation_cups_id' => $consultationData['rips_consultation_cups_id'] ?? null,
-                'rips_service_id' => $consultationData['rips_service_id'],
-                'rips_technology_purpose_id' => $consultationData['rips_technology_purpose_id'],
-                'rips_collection_concept_id' => $consultationData['rips_collection_concept_id'],
-                'copayment_receipt_number' => $consultationData['copayment_receipt_number'],
-                'service_value' => $consultationData['service_value'],
-                'copayment_value' => $consultationData['copayment_value'],
-            ]);
-
-            foreach ($consultationData['diagnoses'] ?? [] as $diagnosis) {
-                $consultation->diagnoses()->create($diagnosis);
-            }
-        }
-
-        foreach ($data['procedures'] ?? [] as $procedureData) {
-            $record->procedures()->create([
-                'rips_admission_route_id' => $procedureData['rips_admission_route_id'] ?? null,
-                'rips_service_group_mode_id' => $procedureData['rips_service_group_mode_id'] ?? null,
-                'rips_service_group_id' => $procedureData['rips_service_group_id'] ?? null,
-                'rips_collection_concept_id' => $procedureData['rips_collection_concept_id'] ?? null,
-                'rips_technology_purpose_id' => $procedureData['rips_technology_purpose_id'] ?? null,
-
-                'mipres_id' => $procedureData['mipres_id'] ?? null,
-                'authorization_number' => $procedureData['authorization_number'] ?? null,
-                'rips_cups_id' => $procedureData['rips_cups_id'] ?? null,
-                'cie10_id' => $procedureData['cie10_id'] ?? null,
-                'surgery_cie10_id' => $procedureData['surgery_cie10_id'] ?? null,
-                'rips_complication_cie10_id' => $procedureData['rips_complication_cie10_id'] ?? null,
-                'service_value' => $procedureData['service_value'] ?? null,
-                'copayment_value' => $procedureData['copayment_value'] ?? null,
-                'copayment_receipt_number' => $procedureData['copayment_receipt_number'] ?? null,
-            ]);
-        }
         return $record;
     }
 
@@ -134,68 +91,13 @@ class EditRips extends EditRecord
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
-        $record = $this->record->load([
-            'consultations.diagnoses',
-            'procedures',
-            'billingDocument' 
-        ]);
-
-        if ($record->billingDocument) {
-            $data['billing_document_id'] = $record->billing_document_id;
-            $data['billing_document_number'] = $record->billingDocument->document_number;
-            $data['agreement_id'] = $record->billingDocument->agreement_id; // Importante para que también se vea el convenio
-
-            // Ejemplo: precargar campos adicionales si se usan en el formulario
-            $data['billing_document_issued_at'] = $record->billingDocument->issued_at?->format('Y-m-d\TH:i');
-            // Puedes seguir agregando aquí otros campos si el formulario necesita mostrarlos
-        }
-
-
-        $data['consultations'] = $record->consultations->map(function ($consultation) {
-            return [
-                'rips_cups_id' => $consultation->rips_cups_id,
-                'rips_service_group_id' => $consultation->rips_service_group_id,
-                'rips_service_group_mode_id' => $consultation->rips_service_group_mode_id,
-                'rips_service_reason_id' => $consultation->rips_service_reason_id,
-                'rips_consultation_cups_id' => $consultation->rips_consultation_cups_id,
-                'rips_service_id' => $consultation->rips_service_id,
-                'rips_technology_purpose_id' => $consultation->rips_technology_purpose_id,
-                'rips_collection_concept_id' => $consultation->rips_collection_concept_id,
-                'copayment_receipt_number' => $consultation->copayment_receipt_number,
-                'service_value' => $consultation->service_value,
-                'copayment_value' => $consultation->copayment_value,
-                'principal_diagnoses' => $consultation->principalDiagnoses->map(fn ($d) => [
-                    'cie10_id' => $d->cie10_id,
-                    'rips_diagnosis_type_id' => $d->rips_diagnosis_type_id,
-                ])->toArray(),
-                'related_diagnoses' => $consultation->relatedDiagnoses->sortBy('sequence')->pluck('cie10_id')->toArray(),
-            ];
-        })->toArray();
-
-        $data['procedures'] = $record->procedures->map(function ($procedure) {
-            return [
-                'rips_admission_route_id' => $procedure->rips_admission_route_id,
-                'rips_service_group_mode_id' => $procedure->rips_service_group_mode_id,
-                'rips_service_group_id' => $procedure->rips_service_group_id,
-                'rips_technology_purpose_id' => $procedure->rips_technology_purpose_id,
-                'rips_collection_concept_id' => $procedure->rips_collection_concept_id,
-                'mipres_id' => $procedure->mipres_id,
-                'authorization_number' => $procedure->authorization_number,
-                'rips_cups_id' => $procedure->rips_cups_id,
-                'cie10_id' => $procedure->cie10_id,
-                'surgery_cie10_id' => $procedure->surgery_cie10_id,
-                'rips_complication_cie10_id' => $procedure->rips_complication_cie10_id,
-                'copayment_receipt_number' => $procedure->copayment_receipt_number,
-                'service_value' => $procedure->service_value,
-                'copayment_value' => $procedure->copayment_value,
-            ];
-        })->toArray();
-
-        return $data;
+        return app(\App\Actions\Rips\MapServiceDataForForm::class)($this->record);
     }
-    protected function afterCreate(): void
+
+    protected function afterSave(): void
     {
         $data = $this->form->getState();
+
 
         if (!empty($data['save_as_template']) && !empty($data['template_name'])) {
             app(CreateServiceTemplateFromService::class)(
@@ -204,4 +106,13 @@ class EditRips extends EditRecord
             );
         }
     }
+
+    public function loadTemplate($templateId)
+    {
+        $data = app(LoadTemplateToForm::class)($templateId);
+        if ($data) {
+            $this->form->fill($data);
+        }
+    }
+
 }
