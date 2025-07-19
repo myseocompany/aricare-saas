@@ -193,7 +193,6 @@ class RipsGeneratorService
                     'codPrestador' => $tenant->provider_code,
                     //'fechaInicioAtencion' => $service->service_datetime,
                     'fechaInicioAtencion' => \Carbon\Carbon::parse($service->service_datetime)->format('Y-m-d H:i'),
-
                     'codConsulta' => $consulta->cups->code ?? '',
                     //'modalidadGrupoServicioTecSal' => $consulta->serviceGroupMode->id ?? '',
                     'modalidadGrupoServicioTecSal' => str_pad((string) ($consulta->serviceGroupMode->id ?? ''), 2, '0', STR_PAD_LEFT),
@@ -203,7 +202,7 @@ class RipsGeneratorService
                     'codServicio' => (int) ($consulta->service->code ?? 334),
                     //'finalidadTecnologiaSalud' => $consulta->technologyPurpose->code ?? '12',
                     'finalidadTecnologiaSalud' => (string) ($consulta->technologyPurpose->code ?? '12'),
-                    'causaMotivoAtencion' => '35',
+                    'causaMotivoAtencion' => (string) ($consulta->serviceReason->code ?? '35'),
                     'codDiagnosticoPrincipal' => $diagnosticoPrincipal->cie10->code ?? 'Z012',
                     'codDiagnosticoRelacionado1' => $diagnosticosRelacionados->get(0)->cie10->code ?? null,
                     'codDiagnosticoRelacionado2' => $diagnosticosRelacionados->get(1)->cie10->code ?? null,
