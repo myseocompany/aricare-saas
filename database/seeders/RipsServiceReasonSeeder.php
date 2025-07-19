@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\RipsServiceReason;
+use App\Models\Rips\RipsServiceReason;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -29,7 +29,7 @@ class RipsServiceReasonSeeder extends Seeder
 
             RipsServiceReason::create([
                 'code' => $row[0],
-                'name' => $row[1],
+                'name' => ucwords(strtolower(trim($row[1]))),    
             ]);
         }
     }

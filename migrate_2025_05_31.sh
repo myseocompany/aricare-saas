@@ -29,8 +29,10 @@ php artisan migrate --path=database/migrations/2025_06_01_231459_add_rips_diagno
 
 
 php artisan migrate --path=database/migrations/2025_07_18_185043_add_requires_fev_to_rips_patient_services_table.php
+php artisan migrate --path=database/migrations/2025_07_18_200438_add_rips_service_id_to_rips_patient_service_procedures_table.php
 
 
 php artisan db:seed --class=RipsAdmissionRouteSeeder
 php artisan db:seed --class=CupsTableSeeder
 php artisan db:seed --class=Cie10Seeder
+php artisan db:seed --class=RipsServiceReasonSeeder

@@ -76,6 +76,8 @@ class FormProcedures
                                         ->inlineLabel()
                                         ->required(),
 
+
+
                                     Select::make('rips_technology_purpose_id')
                                         ->label('Finalidad Tecnológica')
                                         ->searchable()
