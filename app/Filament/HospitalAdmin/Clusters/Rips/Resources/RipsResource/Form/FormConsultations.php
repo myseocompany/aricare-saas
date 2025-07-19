@@ -199,19 +199,19 @@ class FormConsultations
                             ->columns(2)
                             ->createItemButtonLabel('Añadir un diagnostico principal'),
 
-Repeater::make('related_diagnoses')
-    ->label(__('messages.rips.patientservice.related_diagnoses'))
-    ->reorderable(false)
-    ->default([])
-    ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
-    ->minItems(0)
-    ->maxItems(3)
-    ->columns(2)
-    ->createItemButtonLabel(__('messages.rips.patientservice.add_related_diagnosis'))
-    ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
-        $data['sequence'] = $item->getIndex() + 2;
-        return $data;
-    }),
+            Repeater::make('related_diagnoses')
+                ->label(__('messages.rips.patientservice.related_diagnoses'))
+                ->reorderable(false)
+                ->default([])
+                ->simple(FormConsultationSimpleDiagnoses::schema(false)) // 👈 Solo el cie10_id
+                ->minItems(0)
+                ->maxItems(3)
+                ->columns(2)
+                ->createItemButtonLabel(__('messages.rips.patientservice.add_related_diagnosis'))
+                ->mutateRelationshipDataBeforeCreateUsing(function (array $data, Forms\Components\RepeaterItem $item) {
+                    $data['sequence'] = $item->getIndex() + 2;
+                    return $data;
+                }),
 
                     ]),
                 ])

@@ -20,6 +20,7 @@ class RipsPatientService extends Model
         'location_code',
         'has_incapacity',
         'service_datetime',
+        'requires_fev',
     ];
 
     // Relación con el paciente

@@ -27,10 +27,16 @@ class FormProcedures
                                 ->schema([
                                     Select::make('rips_admission_route_id')
                                         ->label('Vía de Ingreso')
-                                        ->options(\App\Models\Rips\RipsAdmissionRoute::pluck('name', 'id'))
+                                        ->options(
+                                            \App\Models\Rips\RipsAdmissionRoute::all()
+                                                ->mapWithKeys(fn ($route) => [$route->id => "{$route->code} - {$route->name}"])
+                                        )
                                         ->searchable()
+                                        ->preload() // 👈 fuerza carga inmediata
                                         ->inlineLabel()
                                         ->required(),
+
+
 
                                     Select::make('rips_service_group_mode_id')
                                         ->label('Modo del Grupo de Servicio')
@@ -38,7 +44,7 @@ class FormProcedures
                                             \App\Models\Rips\RipsServiceGroupMode::all()
                                                 ->mapWithKeys(function ($item) {
                                                     $formatted = ucfirst(strtolower($item->name));
-                                                    return [$item->id => "{$item->code} - {$formatted}"];
+                                                    return [$item->id => "{$item->id} - {$formatted}"];
                                                 })
                                                 ->toArray()
                                         )
@@ -51,7 +57,7 @@ class FormProcedures
                                         ->options(
                                             \App\Models\Rips\RipsServiceGroup::all()
                                                 ->mapWithKeys(function ($item) {
-                                                    return [$item->id => "{$item->code} - {$item->name}"];
+                                                    return [$item->id => "{$item->id} - {$item->name}"];
                                                 })
                                                 ->toArray()
                                         )

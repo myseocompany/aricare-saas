@@ -26,3 +26,9 @@ php artisan db:seed --class=RipsTerritorialZoneTypeSeeder
 
 
 php artisan migrate --path=database/migrations/2025_06_01_231459_add_rips_diagnosis_type_id_to_rips_patient_service_consultation_diagnoses_table.php
+
+
+php artisan migrate --path=database/migrations/2025_07_18_185043_add_requires_fev_to_rips_patient_services_table.php
+
+
+php artisan db:seed --class=RipsAdmissionRouteSeeder

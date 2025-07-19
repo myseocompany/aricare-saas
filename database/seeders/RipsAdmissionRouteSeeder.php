@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\RipsAdmissionRoute;
+use App\Models\Rips\RipsAdmissionRoute;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,7 +14,7 @@ class RipsAdmissionRouteSeeder extends Seeder
      */
     public function run(): void
     {
-        $path = database_path('seeders/data/rips_service_reasons.csv');
+        $path = database_path('seeders/data/rips_admission_routes.csv');
         $rows = array_map('str_getcsv', file($path));
 
         // Saltar encabezado
@@ -28,9 +28,10 @@ class RipsAdmissionRouteSeeder extends Seeder
 
             if (count($row) < 2) continue;
 
+
             RipsAdmissionRoute::create([
                 'code' => $row[0],
-                'name' => $row[1],
+                'name' => ucwords(strtolower(trim($row[1]))), 
             ]);
         }
     }

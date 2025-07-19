@@ -130,13 +130,10 @@ class FormService
                                 'issued_at' => now(),
                             ])->id;
                         }),
-                    Forms\Components\Select::make('electronic_invoice')
-                                        ->label('Factura Electrónica')
-                                        ->options([
-                                            'yes' => 'Sí',
-                                            'no' => 'No',
-                                        ])
-                                        ->required(),    
+                    Forms\Components\Toggle::make('requires_fev')
+                        ->label('Requiere FEV')
+                        ->inlineLabel()
+                        ->required(),    
 
                     Forms\Components\Select::make('agreement_id')
                         ->label('Convenio / Contrato')
