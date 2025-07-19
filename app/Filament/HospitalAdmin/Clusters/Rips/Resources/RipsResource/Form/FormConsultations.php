@@ -139,7 +139,7 @@ class FormConsultations
                                     
 
                                     Select::make('rips_service_reason_id')
-                                        ->label('Causa Motivo Atencion')
+                                        ->label('Causa Motivo Atención')
                                         ->options(\App\Models\Rips\RipsServiceReason::all()->mapWithKeys(fn ($reason) => [
                                             $reason->id => "{$reason->code} - {$reason->name}"
                                         ]))
