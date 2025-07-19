@@ -48,7 +48,7 @@ class RipsResource extends Resource
     
     protected static ?string $cluster = RipsCluster::class;
 
-public static function form(Form $form): Form
+    public static function form(Form $form): Form
     {
         return $form->schema([
             Grid::make(1) 
