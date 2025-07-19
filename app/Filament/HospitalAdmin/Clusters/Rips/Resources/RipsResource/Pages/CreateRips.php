@@ -96,38 +96,50 @@ class CreateRips extends CreateRecord
     }
 
     protected function mutateFormDataBeforeCreate(array $data): array
-{
-    foreach ($data['consultations'] as &$consultation) {
-        $diagnoses = [];
+    {
+        foreach ($data['consultations'] as &$consultation) {
+            $diagnoses = [];
 
-        if (!empty($consultation['principal_diagnoses'])) {
-            foreach ($consultation['principal_diagnoses'] as $diagnosis) {
-                $diagnosis['sequence'] = 1;
-                $diagnoses[] = $diagnosis;
+            if (!empty($consultation['principal_diagnoses'])) {
+                foreach ($consultation['principal_diagnoses'] as $diagnosis) {
+                    $diagnosis['sequence'] = 1;
+                    $diagnoses[] = $diagnosis;
+                }
             }
+
+            if (!empty($consultation['related_diagnoses'])) {
+                foreach ($consultation['related_diagnoses'] as $index => $cie10Id) {
+                    $diagnoses[] = [
+                        'cie10_id' => $cie10Id,
+                        'rips_diagnosis_type_id' => null,
+                        'sequence' => $index + 2,
+                    ];
+                }
+            }
+
+            $consultation['diagnoses'] = $diagnoses;
+
+            // Eliminamos estos campos temporales, no existen en la DB
+            unset($consultation['principal_diagnoses']);
+            unset($consultation['related_diagnoses']);
         }
 
-        if (!empty($consultation['related_diagnoses'])) {
-            foreach ($consultation['related_diagnoses'] as $index => $cie10Id) {
-                $diagnoses[] = [
-                    'cie10_id' => $cie10Id,
-                    'rips_diagnosis_type_id' => null,
-                    'sequence' => $index + 2,
-                ];
-            }
-        }
-
-        $consultation['diagnoses'] = $diagnoses;
-
-        // Eliminamos estos campos temporales, no existen en la DB
-        unset($consultation['principal_diagnoses']);
-        unset($consultation['related_diagnoses']);
+        return $data;
+    }
+    protected function getRedirectUrl(): string
+    {
+        return static::$resource::getUrl('index');
     }
 
-    return $data;
-}
-protected function getRedirectUrl(): string
-{
-    return static::$resource::getUrl('index');
-}
+    protected function afterCreate(): void
+    {
+        $data = $this->form->getState();
+
+        if (!empty($data['save_as_template']) && !empty($data['template_name'])) {
+            app(CreateServiceTemplateFromService::class)(
+                $this->record, // RipsPatientService
+                $data['template_name']
+            );
+        }
+    }
 }

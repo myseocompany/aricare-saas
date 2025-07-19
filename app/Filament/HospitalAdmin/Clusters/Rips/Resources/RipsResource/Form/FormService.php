@@ -17,13 +17,15 @@ use App\Models\Doctor;
 use App\Models\Department;
 use App\Models\DoctorDepartment;
 
+
 class FormService
 {
     public static function make(Form $form): Form
     {
         return $form->schema([
-            Forms\Components\Grid::make(3) // <-- DOS columnas
+            Forms\Components\Grid::make(3) 
                 ->schema([
+                    
                     Forms\Components\Select::make('patient_id')
                         ->label(__('messages.ipd_patient.patient_id'))
                         ->searchable()
@@ -177,6 +179,44 @@ class FormService
                     Forms\Components\Hidden::make('tenant_id')
                         ->default(Auth::user()->tenant_id)
                         ->required(),
+                    Forms\Components\Select::make('template_id')
+                        ->label('Usar Plantilla')
+                        ->searchable()
+                        ->inlineLabel()
+                        ->options(function () {
+                            $tenantId = auth()->user()->tenant_id;
+                            return \App\Models\Rips\RipsPatientServiceTemplate::query()
+                                ->where('tenant_id', $tenantId)
+                                ->orWhere('is_public', true)
+                                ->pluck('name', 'id');
+                        })
+                        ->afterStateUpdated(function ($state, callable $set) {
+                            $template = \App\Models\Rips\RipsPatientServiceTemplate::with([
+                                'consultations', 'diagnoses', 'procedures'
+                            ])->find($state);
+
+                            if ($template) {
+                                // Aquí debes mapear y llenar tus campos de servicio (consultations, diagnoses, etc.)
+                                // Ejemplo:
+                                $set('doctor_id', Auth::user()->doctor?->id);
+                                // $set(...) otros campos si están definidos directamente en la plantilla.
+                            }
+                        })
+                        ->columnSpan(1),
+
+                    Forms\Components\Toggle::make('save_as_template')
+                        ->label('¿Guardar como plantilla?')
+                        ->reactive()
+                        ->inlineLabel(),
+
+                    Forms\Components\TextInput::make('template_name')
+                        ->label('Nombre de la plantilla')
+                        ->inlineLabel()
+                        ->required(fn ($get) => $get('save_as_template') === true)
+                        ->visible(fn ($get) => $get('save_as_template') === true)
+                        ->maxLength(255),
+                    
+
                 ]),
         ]);
     }
