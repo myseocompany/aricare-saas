@@ -15,7 +15,6 @@ class RipsPatientServiceProcedure extends Model
         'rips_collection_concept_id',
         'mipres_id',
         'rips_technology_purpose_id',
-
         'authorization_number',
         'rips_cups_id',
         'cie10_id',

@@ -106,6 +106,12 @@ class RipsCoordinatorService
                 continue; // Ya fue aceptado, no reenviar
             }
 
+            Log::info("Enviando documento RIPS a SISPRO", [
+                'numero' => $numero,
+                'json_enviado' => $factura
+            ]);
+
+
             // Envía el documento
             $respuesta = $this->submissionService->enviarFactura($factura, $conFactura);
             Log::info('Respuesta de la API SISPRO', ['numero' => $numero, 'respuesta' => $respuesta]);
