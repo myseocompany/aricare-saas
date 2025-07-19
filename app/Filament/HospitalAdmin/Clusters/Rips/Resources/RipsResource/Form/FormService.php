@@ -191,15 +191,9 @@ class FormService
                                 ->orWhere('is_public', true)
                                 ->pluck('name', 'id');
                         })
-                        ->afterStateUpdated(function ($state, callable $set) {
-                            
-                            if ($state) {
-                                $data = app(\App\Actions\Rips\LoadTemplateToForm::class)($state);
-                                foreach ($data as $key => $value) {
-                                    $set($key, $value);
-                                }
-                            }
-                        })
+
+                        ->afterStateUpdated(fn ($state, $livewire) => $livewire->loadTemplate($state))
+
                         ->columnSpan(1),
 
 

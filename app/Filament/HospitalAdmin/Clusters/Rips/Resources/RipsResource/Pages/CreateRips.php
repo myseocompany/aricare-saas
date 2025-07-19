@@ -14,6 +14,7 @@ use Filament\Actions;
 use App\Actions\Rips\CreateServiceTemplateFromService;
 use App\Actions\Rips\LoadTemplateToForm;
 use App\Actions\Rips\SyncConsultationsAndProcedures;
+use Livewire\Attributes\On;
 
 class CreateRips extends CreateRecord
 {
@@ -96,13 +97,25 @@ class CreateRips extends CreateRecord
         }
     }
 
-
-    public function loadTemplate($templateId)
+    #[On('templateLoaded')]
+    public function refreshForm(): void
     {
-        $data = app(LoadTemplateToForm::class)($templateId);
-        if ($data) {
-            $this->form->fill($data);
-        }
+        // Recarga los datos en estado del formulario
+        //$this->refreshFormData(/* opcional: campos específicos */);
+        $this->fillForm();
     }
+    
+public function loadTemplate($templateId)
+{
+    $data = app(LoadTemplateToForm::class)($templateId);
+    dd($data);
+    if ($data) {
+        $this->form->fill($data);
+        $this->dispatch('templateLoaded');
+    }
+}
+
+
+
 
 }
