@@ -20,21 +20,6 @@ class CreateServiceTemplateFromService
             'is_public' => false,
         ]);
 
-        foreach ($service->consultations ?? [] as $consultation) {
-            $template->consultations()->create([
-                'rips_cups_id' => $consultation->rips_cups_id,
-                'rips_service_group_id' => $consultation->rips_service_group_id,
-                'rips_service_group_mode_id' => $consultation->rips_service_group_mode_id,
-                'rips_service_reason_id' => $consultation->rips_service_reason_id,
-                'rips_consultation_cups_id' => $consultation->rips_consultation_cups_id,
-                'rips_service_id' => $consultation->rips_service_id,
-                'rips_technology_purpose_id' => $consultation->rips_technology_purpose_id,
-                'service_value' => $consultation->service_value,
-                'rips_collection_concept_id' => $consultation->rips_collection_concept_id,
-                'copayment_value' => $consultation->copayment_value,
-                'copayment_receipt_number' => $consultation->copayment_receipt_number,
-            ]);
-        }
 
         foreach ($service->consultations ?? [] as $consultation) {
             $templateConsultation = $template->consultations()->create([
