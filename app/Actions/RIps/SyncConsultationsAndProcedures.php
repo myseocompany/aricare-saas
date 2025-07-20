@@ -14,6 +14,7 @@ class SyncConsultationsAndProcedures
             $consultation->delete();
         });
         $record->procedures()->delete();
+        
 
         // Guardar consultas
         foreach ($data['consultations'] ?? [] as $consultationData) {
@@ -30,6 +31,7 @@ class SyncConsultationsAndProcedures
                 'service_value' => $consultationData['service_value'],
                 'copayment_value' => $consultationData['copayment_value'],
             ]);
+
 
             foreach ($consultationData['diagnoses'] ?? [] as $diagnosis) {
                 $consultation->diagnoses()->create([

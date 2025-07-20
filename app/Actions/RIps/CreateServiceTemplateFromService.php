@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Rips\RipsPatientService;
 use App\Models\Rips\RipsPatientServiceTemplate;
 
+
+
 class CreateServiceTemplateFromService
 {
     public function __invoke(RipsPatientService $service, string $templateName): RipsPatientServiceTemplate
@@ -58,13 +60,16 @@ class CreateServiceTemplateFromService
             }
         }
 
-
+        
         foreach ($service->procedures ?? [] as $procedure) {
-            $template->procedures()->create([
+
+            $newProcedure = $template->procedures()->create([
                 'rips_admission_route_id' => $procedure->rips_admission_route_id,
                 'rips_service_group_mode_id' => $procedure->rips_service_group_mode_id,
                 'rips_service_group_id' => $procedure->rips_service_group_id,
-                'rips_service_id' => $procedure->rips_service_id,
+
+                'rips_service_id' => isset($procedure->rips_service_id) ? (int) $procedure->rips_service_id : null,
+
                 'rips_collection_concept_id' => $procedure->rips_collection_concept_id,
                 'rips_technology_purpose_id' => $procedure->rips_technology_purpose_id,
                 'mipres_id' => $procedure->mipres_id,
@@ -77,6 +82,7 @@ class CreateServiceTemplateFromService
                 'copayment_value' => $procedure->copayment_value,
                 'copayment_receipt_number' => $procedure->copayment_receipt_number,
             ]);
+
         }
 
         return $template;

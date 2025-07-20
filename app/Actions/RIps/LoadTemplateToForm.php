@@ -36,7 +36,8 @@ class LoadTemplateToForm
                     ])->values()->toArray(),
                 'related_diagnoses' => $consultation->diagnoses
                     ->where('sequence', '>', 1)
-                    ->pluck('cie10_id')
+                    ->map(fn ($d) => ['cie10_id' => $d->cie10_id]) // Aquí está el cambio
+                    ->values()
                     ->toArray(),
             ];
         })->toArray();
@@ -46,6 +47,7 @@ class LoadTemplateToForm
                 'rips_admission_route_id' => $procedure->rips_admission_route_id,
                 'rips_service_group_mode_id' => $procedure->rips_service_group_mode_id,
                 'rips_service_group_id' => $procedure->rips_service_group_id,
+                'rips_service_id' => $procedure->rips_service_id,
                 'rips_technology_purpose_id' => $procedure->rips_technology_purpose_id,
                 'rips_collection_concept_id' => $procedure->rips_collection_concept_id,
                 'mipres_id' => $procedure->mipres_id,

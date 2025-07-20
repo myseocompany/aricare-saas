@@ -5,6 +5,9 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Form;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Illuminate\Support\Facades\Auth;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Set;
+
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form\PatientForm;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorForm;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorMinimalForm;
@@ -17,6 +20,8 @@ use App\Models\Doctor;
 use App\Models\Department;
 use App\Models\DoctorDepartment;
 
+use App\Actions\Rips\LoadTemplateToForm;
+
 
 class FormService
 {
@@ -26,7 +31,7 @@ class FormService
             Forms\Components\Grid::make(3) 
                 ->schema([
                     
-                    Forms\Components\Select::make('patient_id')
+                    Select::make('patient_id')
                         ->label(__('messages.ipd_patient.patient_id'))
                         ->searchable()
                         ->inlineLabel()
@@ -176,25 +181,27 @@ class FormService
                         ->inlineLabel()
                         ->label(__('messages.rips.patientservice.has_incapacity')),
                     
-                    Forms\Components\Hidden::make('tenant_id')
-                        ->default(Auth::user()->tenant_id)
-                        ->required(),
-
                     Forms\Components\Select::make('template_id')
-                        ->label('Usar Plantilla')
-                        ->searchable()
-                        ->inlineLabel()
-                        ->options(function () {
-                            $tenantId = auth()->user()->tenant_id;
-                            return \App\Models\Rips\RipsPatientServiceTemplate::query()
-                                ->where('tenant_id', $tenantId)
-                                ->orWhere('is_public', true)
-                                ->pluck('name', 'id');
-                        })
-
-                        ->afterStateUpdated(fn ($state, $livewire) => $livewire->loadTemplate($state))
-
-                        ->columnSpan(1),
+    ->label('Usar Plantilla')
+    ->searchable()
+    ->inlineLabel()
+    ->options(function () {
+        $tenantId = auth()->user()->tenant_id;
+        return \App\Models\Rips\RipsPatientServiceTemplate::query()
+            ->where('tenant_id', $tenantId)
+            ->orWhere('is_public', true)
+            ->pluck('name', 'id');
+    })
+    ->live()
+    ->afterStateUpdated(function (  $state, Set $set) {
+        if ($state) {
+            $data = app(\App\Actions\Rips\LoadTemplateToForm::class)($state);
+            
+            $set('consultations', $data['consultations'] ?? []);
+            $set('procedures', $data['procedures'] ?? []);
+        }
+    })
+    ->columnSpan(1),
 
 
                     Forms\Components\Toggle::make('save_as_template')

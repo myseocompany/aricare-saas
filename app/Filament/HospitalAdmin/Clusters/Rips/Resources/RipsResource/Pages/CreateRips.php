@@ -53,7 +53,7 @@ class CreateRips extends CreateRecord
     {
         foreach ($data['consultations'] as &$consultation) {
             $diagnoses = [];
-
+            Log::info('CONSULTATION CON DIAGNOSES', $consultation['diagnoses']);
             if (!empty($consultation['principal_diagnoses'])) {
                 foreach ($consultation['principal_diagnoses'] as $diagnosis) {
                     $diagnosis['sequence'] = 1;
@@ -77,7 +77,7 @@ class CreateRips extends CreateRecord
             unset($consultation['principal_diagnoses']);
             unset($consultation['related_diagnoses']);
         }
-
+        Log::info('FINAL FORM DATA', $data);
         return $data;
     }
     protected function getRedirectUrl(): string
@@ -85,6 +85,7 @@ class CreateRips extends CreateRecord
         return static::$resource::getUrl('index');
     }
 
+    /*
     protected function afterCreate(): void
     {
         $data = $this->form->getState();
@@ -93,30 +94,11 @@ class CreateRips extends CreateRecord
             app(CreateServiceTemplateFromService::class)(
                 $this->record, // RipsPatientService
                 $data['template_name']
+                
             );
+            
         }
     }
-
-    #[On('templateLoaded')]
-    public function refreshForm(): void
-    {
-        // Recarga los datos en estado del formulario
-        //$this->refreshFormData(/* opcional: campos específicos */);
-        $this->fillForm();
-    }
-    
-public function loadTemplate($templateId)
-{
-    $data = app(LoadTemplateToForm::class)($templateId);
-    //dd($data);
-
-    if ($data) {
-        $this->form->fill($data);
-        $this->dispatch('templateLoaded');
-    }
-}
-
-
-
-
+    */
+   
 }
