@@ -45,6 +45,12 @@ class RipsPatientServiceProcedure extends Model
     {
         return $this->belongsTo(RipsServiceGroup::class, 'rips_service_group_id');
     }
+
+    public function service(): BelongsTo
+    {
+        return $this->belongsTo(RipsService::class, 'rips_service_id');
+    }
+
     
     public function technologyPurpose(): BelongsTo
     {
