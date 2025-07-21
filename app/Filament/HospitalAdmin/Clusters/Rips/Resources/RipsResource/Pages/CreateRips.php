@@ -25,6 +25,7 @@ class CreateRips extends CreateRecord
     {
         Log::info("CreateRipsPatientService=>", $data);
         $tenantId = auth()->user()->tenant_id;
+        $data['tenant_id'] = $tenantId;
 
         $billingDocument = null;
         if (!empty($data['billing_document_id'])) {
@@ -53,7 +54,7 @@ class CreateRips extends CreateRecord
     {
         foreach ($data['consultations'] as &$consultation) {
             $diagnoses = [];
-            Log::info('CONSULTATION CON DIAGNOSES', $consultation['diagnoses']);
+            //Log::info('CONSULTATION CON DIAGNOSES', $consultation['diagnoses']);
             if (!empty($consultation['principal_diagnoses'])) {
                 foreach ($consultation['principal_diagnoses'] as $diagnosis) {
                     $diagnosis['sequence'] = 1;
@@ -71,7 +72,7 @@ class CreateRips extends CreateRecord
                 }
             }
 
-            $consultation['diagnoses'] = $diagnoses;
+            $diagnosesData = $consultation['diagnoses'] ?? [];
 
             // Eliminamos estos campos temporales, no existen en la DB
             unset($consultation['principal_diagnoses']);
