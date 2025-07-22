@@ -118,3 +118,79 @@ CREATE TABLE `rips_patient_service_consultation_diagnoses` (
   CONSTRAINT `fk_rps_consultation_diagnoses` FOREIGN KEY (`rips_patient_service_consultation_id`) REFERENCES `rips_patient_service_consultations` (`id`) ON DELETE CASCADE,
   CONSTRAINT `rips_patient_service_consultation_diagnoses_cie10_id_foreign` FOREIGN KEY (`cie10_id`) REFERENCES `cie10` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `rips_patient_service_templates` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` text COLLATE utf8mb4_unicode_ci,
+  `tenant_id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `user_id` bigint unsigned DEFAULT NULL,
+  `is_public` tinyint(1) NOT NULL DEFAULT '0',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `rips_patient_service_templates_tenant_id_foreign` (`tenant_id`),
+  CONSTRAINT `rips_patient_service_templates_tenant_id_foreign` FOREIGN KEY (`tenant_id`) REFERENCES `tenants` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `rips_patient_service_template_procedures` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `template_id` bigint unsigned NOT NULL,
+  `rips_admission_route_id` bigint unsigned DEFAULT NULL,
+  `rips_service_group_mode_id` bigint unsigned DEFAULT NULL,
+  `rips_service_group_id` bigint unsigned DEFAULT NULL,
+  `rips_service_id` bigint unsigned DEFAULT NULL,
+  `rips_collection_concept_id` bigint unsigned DEFAULT NULL,
+  `rips_technology_purpose_id` bigint unsigned DEFAULT NULL,
+  `mipres_id` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `authorization_number` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `rips_cups_id` bigint unsigned NOT NULL,
+  `cie10_id` bigint unsigned DEFAULT NULL,
+  `surgery_cie10_id` bigint unsigned DEFAULT NULL,
+  `rips_complication_cie10_id` bigint unsigned DEFAULT NULL,
+  `service_value` double DEFAULT NULL,
+  `copayment_value` double DEFAULT NULL,
+  `copayment_receipt_number` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `rpst_proc_template_fk` (`template_id`),
+  CONSTRAINT `rpst_proc_template_fk` FOREIGN KEY (`template_id`) REFERENCES `rips_patient_service_templates` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `rips_patient_service_template_consultations` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `template_id` bigint unsigned NOT NULL,
+  `rips_cups_id` bigint unsigned DEFAULT NULL,
+  `rips_service_group_id` bigint unsigned DEFAULT NULL,
+  `rips_service_group_mode_id` bigint unsigned DEFAULT NULL,
+  `rips_service_reason_id` bigint unsigned DEFAULT NULL,
+  `rips_consultation_cups_id` bigint unsigned DEFAULT NULL,
+  `rips_service_id` bigint unsigned DEFAULT NULL,
+  `rips_technology_purpose_id` bigint unsigned DEFAULT NULL,
+  `service_value` double DEFAULT NULL,
+  `rips_collection_concept_id` bigint unsigned DEFAULT NULL,
+  `copayment_value` double DEFAULT NULL,
+  `copayment_receipt_number` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `rpst_cons_template_fk` (`template_id`),
+  CONSTRAINT `rpst_cons_template_fk` FOREIGN KEY (`template_id`) REFERENCES `rips_patient_service_templates` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+CREATE TABLE `rips_patient_service_template_consultation_diagnoses` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `cie10_id` bigint unsigned NOT NULL,
+  `rips_diagnosis_type_id` bigint unsigned DEFAULT NULL,
+  `sequence` smallint NOT NULL,
+  `consultation_id` bigint unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `rpst_diag_consult_fk` (`consultation_id`),
+  CONSTRAINT `rpst_diag_consult_fk` FOREIGN KEY (`consultation_id`) REFERENCES `rips_patient_service_template_consultations` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
