@@ -37,25 +37,39 @@ class RipsSubmissionService
      */
     public function enviarFactura(array $ripsData, bool $conFactura): array
     {
+        Log::debug('RECIBIDO en enviarFactura()', [
+            'conFactura' => $conFactura,
+            'numFactura' => $ripsData['rips']['numFactura'] ?? null,
+            'numNota' => $ripsData['rips']['numNota'] ?? null,
+            'json' => $ripsData,
+        ]);
         // Determinar la URL de envío según si es con o sin factura
         $endpoint = $conFactura ? '/PaquetesFevRips/CargarFevRips' : '/PaquetesFevRips/CargarRipsSinFactura';
         $url = $this->baseUrl . $endpoint;
 
         // Si no es con factura, adaptamos el JSON como nota (numNota y tipoNota)
         if (!$conFactura) {
-            $ripsData['rips']['numNota'] = $ripsData['rips']['numFactura'];
+            // Usamos el que esté presente, dándole prioridad al numFactura si está
+            $numeroOriginal = $ripsData['rips']['numFactura'] ?? $ripsData['rips']['numNota'] ?? null;
+
+            $ripsData['rips']['numNota'] = $numeroOriginal;
             $ripsData['rips']['tipoNota'] = 'RS';
             $ripsData['rips']['numFactura'] = null;
         }
 
+
         // Eliminamos 'idRelacion' si existe, porque no se debe enviar
         unset($ripsData['rips']['idRelacion']);
 
-        // Enviamos la solicitud HTTP con el token de autorización
-        /*$response = Http::withToken($this->token)
-            ->acceptJson()
-            ->timeout(60) // Tiempo máximo de espera en segundos
-            ->post($url, $ripsData);*/
+        Log::debug('ANTES DE POST FINAL a SISPRO', [
+            'endpoint' => $url,
+            'numFactura' => $ripsData['rips']['numFactura'] ?? null,
+            'numNota' => $ripsData['rips']['numNota'] ?? null,
+            'tipoNota' => $ripsData['rips']['tipoNota'] ?? null,
+            'json_final' => $ripsData,
+        ]);
+
+        
         $response = Http::withoutVerifying() // Ignora validación SSL (solo en entornos de prueba)
             ->withToken($this->token)
             ->acceptJson()
@@ -67,7 +81,8 @@ class RipsSubmissionService
             Log::error('Error al enviar RIPS', [
                 'status' => $response->status(),
                 'body' => $response->body(),
-                'ripsData' => $ripsData,
+                'numFactura' => $ripsData['rips']['numFactura'] ?? null,
+                'numNota' => $ripsData['rips']['numNota'] ?? null,
             ]);
 
             return [

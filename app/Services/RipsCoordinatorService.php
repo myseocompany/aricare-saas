@@ -106,9 +106,13 @@ class RipsCoordinatorService
                 continue; // Ya fue aceptado, no reenviar
             }
 
-            Log::info("Enviando documento RIPS a SISPRO", [
+
+            Log::debug('ANTES de enviarFactura - Estado de factura preparada', [
                 'numero' => $numero,
-                'json_enviado' => $factura
+                'conFactura' => $conFactura,
+                'numFactura' => $factura['rips']['numFactura'] ?? null,
+                'numNota' => $factura['rips']['numNota'] ?? null,
+                'json' => $factura,
             ]);
 
 
