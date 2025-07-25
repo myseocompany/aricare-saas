@@ -12,7 +12,7 @@ use Filament\Forms\Components\Textarea;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\SubNavigationPosition;
-use App\Filament\HospitalAdmin\Clusters\FrontCms;
+use App\Filament\HospitalAdmin\Clusters\Settings;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use App\Filament\HospitalAdmin\Clusters\FrontCms\Resources\TestimonialsResource\Pages;
@@ -21,7 +21,7 @@ class TestimonialsResource extends Resource
 {
     protected static ?string $model = Testimonial::class;
 
-    protected static ?string $cluster = FrontCms::class;
+    protected static ?string $cluster = Settings::class;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 

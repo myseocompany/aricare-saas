@@ -46,4 +46,9 @@ class FrontCms extends Cluster
         }
         return true;
     }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return false;
+    }
 }

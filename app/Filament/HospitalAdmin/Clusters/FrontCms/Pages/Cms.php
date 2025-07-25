@@ -2,7 +2,7 @@
 
 namespace App\Filament\HospitalAdmin\Clusters\FrontCms\Pages;
 
-use App\Filament\HospitalAdmin\Clusters\FrontCms;
+use App\Filament\HospitalAdmin\Clusters\Settings;
 use Filament\Pages\Page;
 use App\Models\FrontSetting;
 use Filament\Forms\Components\Tabs;
@@ -31,9 +31,9 @@ class Cms extends Page implements HasForms
 
     public ?array $data = [];
 
-    protected static string $view = 'filament.hospital-admin.clusters.front-cms.pages.cms';
+    protected static string $view = 'filament.hospital-admin.clusters.settings.pages.cms';
 
-    protected static ?string $cluster = FrontCms::class;
+    protected static ?string $cluster = Settings::class;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
