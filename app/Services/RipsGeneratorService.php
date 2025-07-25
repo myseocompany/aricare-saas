@@ -241,7 +241,7 @@ class RipsGeneratorService
                     'numAutorizacion' => $procedure->authorization_number ?? '',
                     'codProcedimiento' => $procedure->cups->code ?? '',
                     //'viaIngresoServicioSalud' =>  $procedure->admissionRoute->code ?? 'Z012',
-                    'viaIngresoServicioSalud' => (string) ($procedure->admissionRoute->code ?? 'Z012'),
+                    'viaIngresoServicioSalud' => str_pad((string) ($procedure->admissionRoute->code ?? '01'), 2, '0', STR_PAD_LEFT),
                     //'modalidadGrupoServicioTecSal' =>  $procedure->serviceGroupMode->id ?? '',
                     'modalidadGrupoServicioTecSal' => str_pad((string) ($procedure->serviceGroupMode->id ?? ''), 2, '0', STR_PAD_LEFT),
                     //'grupoServicios' => $procedure->serviceGroup->id ?? '',
