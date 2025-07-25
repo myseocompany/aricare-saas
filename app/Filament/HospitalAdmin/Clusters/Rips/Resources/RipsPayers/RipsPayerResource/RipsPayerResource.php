@@ -38,26 +38,34 @@ class RipsPayerResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('tenant_id')
+                    ->label(__('messages.rips.payer.tenant_id'))
                     ->required()
                     ->maxLength(36),
                 Forms\Components\TextInput::make('type_id')
+                    ->label(__('messages.rips.payer.type_id'))
                     ->required()
                     ->numeric(),
                 Forms\Components\TextInput::make('name')
+                    ->label(__('messages.rips.payer.name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('identification')
+                    ->label(__('messages.rips.payer.identification'))
                     ->required()
                     ->maxLength(20),
                 Forms\Components\TextInput::make('address')
+                    ->label(__('messages.rips.payer.address'))
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
+                    ->label(__('messages.rips.payer.phone'))
                     ->tel()
                     ->maxLength(20),
                 Forms\Components\TextInput::make('email')
+                    ->label(__('messages.rips.payer.email'))
                     ->email()
                     ->maxLength(100),
             ]);
+
     }
 
     public static function table(Table $table): Table
