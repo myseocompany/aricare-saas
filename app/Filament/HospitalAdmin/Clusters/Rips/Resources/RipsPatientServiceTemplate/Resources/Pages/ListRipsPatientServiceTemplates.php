@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters\TemplatesCluster\Resources\RipsPatientServiceTemplateResource\Pages;
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPatientServiceTemplate\Resources\Pages;
 
-use App\Filament\HospitalAdmin\Clusters\TemplatesCluster\Resources\RipsPatientServiceTemplateResource;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPatientServiceTemplate\Resources\RipsPatientServiceTemplateResource;
+
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 

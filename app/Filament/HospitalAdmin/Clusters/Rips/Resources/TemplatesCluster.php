@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters;
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources;
+
 
 use Filament\Clusters\Cluster;
 

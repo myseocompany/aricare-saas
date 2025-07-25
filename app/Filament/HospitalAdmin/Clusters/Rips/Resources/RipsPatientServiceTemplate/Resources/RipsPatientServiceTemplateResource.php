@@ -1,10 +1,14 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters\TemplatesCluster\Resources;
+namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPatientServiceTemplate\Resources;
 
-use App\Filament\HospitalAdmin\Clusters\TemplatesCluster;
-use App\Filament\HospitalAdmin\Clusters\TemplatesCluster\Resources\RipsPatientServiceTemplateResource\Pages;
-use App\Filament\HospitalAdmin\Clusters\TemplatesCluster\Resources\RipsPatientServiceTemplateResource\RelationManagers;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\TemplatesCluster;
+
+
+
+
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPatientServiceTemplate\Resources\Pages;
+
 use App\Models\Rips\RipsPatientServiceTemplate;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -15,6 +19,8 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
 
+use App\Filament\HospitalAdmin\Clusters\RipsCluster;
+
 class RipsPatientServiceTemplateResource extends Resource
 {
     protected static ?string $model = RipsPatientServiceTemplate::class;
@@ -24,7 +30,7 @@ class RipsPatientServiceTemplateResource extends Resource
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
 
-    protected static ?string $cluster = TemplatesCluster::class;
+    protected static ?string $cluster = RipsCluster::class;
 
     public static function form(Form $form): Form
     {
