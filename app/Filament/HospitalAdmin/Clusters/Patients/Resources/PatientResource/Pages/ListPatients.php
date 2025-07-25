@@ -22,6 +22,7 @@ use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
 
 
+
 class ListPatients extends ListRecords
 {
     protected static string $resource = PatientResource::class;
@@ -31,6 +32,8 @@ class ListPatients extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            CreateAction::make(),
+            /*
             ActionGroup::make([
                 Actions\CreateAction::make()
                     ->icon('')
@@ -114,7 +117,10 @@ class ListPatients extends ListRecords
                     })
                     ->modalSubmitActionLabel('Generar Prueba')
                     ->modalCancelActionLabel('Cancelar'),
-            ]),
+            ]),*/
+            
         ];
     }
+
+
 }

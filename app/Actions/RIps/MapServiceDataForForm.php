@@ -16,6 +16,14 @@ class MapServiceDataForForm
 
         $data = $record->toArray();
 
+        // Dividir service_datetime en fecha y hora
+        if (!empty($record->service_datetime)) {
+            $datetime = \Carbon\Carbon::parse($record->service_datetime);
+            $data['service_date'] = $datetime->format('Y-m-d');
+            $data['service_time'] = $datetime->format('H:i');
+        }
+
+
         // Factura
         if ($record->billingDocument) {
             $data['billing_document_id'] = $record->billing_document_id;

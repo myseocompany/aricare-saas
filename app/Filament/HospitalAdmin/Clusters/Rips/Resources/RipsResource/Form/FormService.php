@@ -11,6 +11,7 @@ use Filament\Forms\Set;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form\PatientForm;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorForm;
 use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorMinimalForm;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\Form\RipsPayerMinimalForm;
 
 use App\Repositories\PatientRepository;
 use App\Repositories\DoctorRepository;
@@ -87,13 +88,23 @@ class FormService
                         })
                         ->preload()
                         ->required(),
-
-                    Forms\Components\DateTimePicker::make('service_datetime')
-                        ->label(__('messages.rips.patientservice.service_datetime'))
-                        ->default(now())
+                    Forms\Components\Toggle::make('has_incapacity')
+                        ->inlineLabel()
+                        ->label(__('messages.rips.patientservice.has_incapacity')),
+                    Forms\Components\DatePicker::make('service_date')
+                        ->label('Fecha del Servicio')
+                        ->displayFormat('d/m/Y')
+                        ->format('Y-m-d')
+                        ->native(true)
                         ->inlineLabel()
                         ->required(),
-                        
+
+                    Forms\Components\TimePicker::make('service_time')
+                        ->label('Hora del Servicio')
+                        ->native(true)
+                        ->inlineLabel()
+                        ->required(),
+
                     Forms\Components\Select::make('billing_document_id')
                         ->label('Factura')
                         ->searchable()
@@ -126,6 +137,37 @@ class FormService
                                 ->label('Convenio')
                                 ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
                                 ->searchable()
+                                ->createOptionForm([
+                                    Select::make('payer_id')
+                                        ->label('Pagador')
+                                        ->options(\App\Models\Rips\RipsPayer::pluck('name', 'id'))
+                                        ->searchable()
+                                        ->createOptionForm(RipsPayerMinimalForm::schema())
+                                        ->createOptionUsing(function (array $data) {
+                                            $data['tenant_id'] = auth()->user()->tenant_id;
+                                            return \App\Models\Rips\RipsPayer::create($data)->id;
+                                        })
+                                        ->required(),
+                                    Forms\Components\TextInput::make('name')
+                                        ->label('Nombre del convenio')
+                                        ->required(),
+                                    Forms\Components\TextInput::make('code')
+                                        ->label('Código')
+                                        ->required(),
+                                    Forms\Components\Textarea::make('description')
+                                        ->label('Descripción')
+                                        ->maxLength(500),
+                                    Forms\Components\DatePicker::make('start_date')
+                                        ->label('Fecha de inicio')
+                                        ->required(),
+                                    Forms\Components\DatePicker::make('end_date')
+                                        ->label('Fecha de finalización')
+                                        ->afterOrEqual('start_date')
+                                        ->nullable(),
+                                ])
+                                ->createOptionUsing(function (array $data) {
+                                    return \App\Models\Rips\RipsTenantPayerAgreement::create($data)->id;
+                                })
                                 ->required(),
                         ])
                         ->createOptionUsing(function (array $data) {
@@ -177,9 +219,7 @@ class FormService
 
 
 
-                    Forms\Components\Toggle::make('has_incapacity')
-                        ->inlineLabel()
-                        ->label(__('messages.rips.patientservice.has_incapacity')),
+
                     
                     Forms\Components\Select::make('template_id')
     ->label('Usar Plantilla')

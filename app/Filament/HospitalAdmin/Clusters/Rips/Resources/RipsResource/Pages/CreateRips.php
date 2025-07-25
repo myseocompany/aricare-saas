@@ -52,6 +52,12 @@ class CreateRips extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+            // Combina fecha y hora en un solo campo datetime
+        $data['service_datetime'] = $data['service_date'] . ' ' . $data['service_time'];
+
+        // Puedes eliminar los campos separados si no se necesitan en la BD
+        unset($data['service_date'], $data['service_time']);
+
         foreach ($data['consultations'] as &$consultation) {
             $diagnoses = [];
             //Log::info('CONSULTATION CON DIAGNOSES', $consultation['diagnoses']);
@@ -81,6 +87,7 @@ class CreateRips extends CreateRecord
         Log::info('FINAL FORM DATA', $data);
         return $data;
     }
+
     protected function getRedirectUrl(): string
     {
         return static::$resource::getUrl('index');

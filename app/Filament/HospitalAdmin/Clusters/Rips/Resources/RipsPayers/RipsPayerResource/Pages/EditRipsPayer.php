@@ -17,4 +17,11 @@ class EditRipsPayer extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $data['tenant_id'] = auth()->user()->tenant_id;
+        return $data;
+    }
 }

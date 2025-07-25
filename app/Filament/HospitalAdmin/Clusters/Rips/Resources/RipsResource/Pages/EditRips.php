@@ -28,6 +28,8 @@ class EditRips extends EditRecord
 
         protected function handleRecordUpdate(Model $record, array $data): Model
     {
+
+
         // 🚨 Actualizar primero la factura asociada
         $billingDocument = null;
         if (!empty($data['billing_document_id'])) {
@@ -59,6 +61,11 @@ class EditRips extends EditRecord
     // 🚨 Mutar antes de guardar - igual que en Create
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        // Combina fecha y hora en un solo campo datetime
+        $data['service_datetime'] = $data['service_date'] . ' ' . $data['service_time'];
+
+        // Puedes eliminar los campos separados si no se necesitan en la BD
+        unset($data['service_date'], $data['service_time']);
         foreach ($data['consultations'] as &$consultation) {
             $diagnoses = [];
 
