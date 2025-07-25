@@ -3144,9 +3144,22 @@ return [
             'add_related_diagnosis' => 'Agregar diagnóstico relacionado',
             'principal_diagnoses' => 'Diagnóstico principal'
         ],
-        'billingdocument' => [
-            'title' => 'Documento de Facturación RIPS',
-            'title_plural' => 'Documentos de Facturación RIPS',
+        'billingdocumenttype' => [
+            'title' => 'Tipo de Documento de Facturación',
+            'title_plural' => 'Tipos de Documentos de Facturación',
+            'name' => 'Nombre del Tipo',
+            'description' => 'Descripción',
+            'agreement_id' => 'Convenio',
+            'type_id' => 'Tipo de Documento',
+            'document_number' => 'Número de Factura',
+            'issued_at' => 'Fecha de Emisión',
+            'cufe' => 'CUFE',
+            'uuid_dian' => 'UUID DIAN',
+            'total_amount' => 'Valor Total',
+            'copay_amount' => 'Valor del Copago',
+            'discount_amount' => 'Descuento',
+            'net_amount' => 'Valor Neto',
+            'xml_path' => 'Archivo XML',
         ],
         'payer' => [
             'title' => 'Pagador RIPS',

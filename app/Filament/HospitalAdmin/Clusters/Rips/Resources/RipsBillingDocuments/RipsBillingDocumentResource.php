@@ -6,6 +6,7 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocument
 //use app\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocumentsCluster;
 //use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RIPSResource;
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
+use App\Models\Rips\RipsBillingDocumentType;
 
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocuments\RipsBillingDocumentResource\Pages;
 
@@ -51,7 +52,7 @@ class RipsBillingDocumentResource extends Resource
                     ->default(fn() => Auth::user()->tenant_id)
                     ->required(),
                 Select::make('agreement_id')
-                    ->label('Convenio')
+                    ->label(__('messages.rips.billingdocumenttype.agreement_id'))
                     ->relationship('agreement', 'name')
                     ->searchable()
                     ->createOptionForm([
@@ -81,25 +82,34 @@ class RipsBillingDocumentResource extends Resource
                         return \App\Models\Rips\RipsTenantPayerAgreement::create($data)->id;
                     })
                     ->required(),
-                Forms\Components\TextInput::make('type_id')
-                    ->required()
-                    ->numeric(),
+                Forms\Components\Select::make('type_id')
+                    ->label(__('messages.rips.billingdocumenttype.title'))
+                    ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
+                    ->searchable()
+                    ->required(),
+
                 Forms\Components\TextInput::make('document_number')
+                    ->label(__('messages.rips.billingdocumenttype.document_number'))
                     ->required()
                     ->maxLength(30),
                 Forms\Components\DateTimePicker::make('issued_at')
+                    ->label(__('messages.rips.billingdocumenttype.issued_at'))
                     ->required(),
                 Forms\Components\TextInput::make('cufe')
                     ->maxLength(100),
                 Forms\Components\TextInput::make('uuid_dian')
                     ->maxLength(100),
-                Forms\Components\TextInput::make('total_amount')
+                Forms\Components\TextInput::make('copay_amount')
+                    ->label(__('messages.rips.billingdocumenttype.copay_amount'))
                     ->numeric(),
                 Forms\Components\TextInput::make('copay_amount')
+                    ->label(__('messages.rips.billingdocumenttype.copay_amount'))
                     ->numeric(),
                 Forms\Components\TextInput::make('discount_amount')
+                    ->label(__('messages.rips.billingdocumenttype.discount_amount'))
                     ->numeric(),
                 Forms\Components\TextInput::make('net_amount')
+                    ->label(__('messages.rips.billingdocumenttype.net_amount'))
                     ->numeric(),
                 FileUpload::make('xml_path')
                     ->label('Archivo XML')
@@ -173,7 +183,7 @@ class RipsBillingDocumentResource extends Resource
                 DateRangeFilter::make('issued_at')
                     ->label('Fecha de Emisión'),
                 SelectFilter::make('agreement_id')
-                    ->label('Convenio')
+                    ->label(__('messages.rips.billingdocumenttype.agreement_id'))
                     ->relationship('agreement', 'name'),
                 Filter::make('document_number')
                     ->form([
@@ -230,17 +240,20 @@ class RipsBillingDocumentResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('messages.rips.billingdocument.title');
+        return __('messages.rips.billingdocumenttype.title');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('messages.rips.billingdocument.title_plural');
+        return __('messages.rips.billingdocumenttype.title_plural');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('messages.rips.billingdocument.title_plural');
+        return __('messages.rips.billingdocumenttype.title_plural');
     }
+
+
+    
 
 }
