@@ -258,6 +258,8 @@ return [
         'no_data_available' => 'No hay datos disponibles en la tabla',
         'select_donor_name' => 'Seleccione el nombre del donante',
         'select_patient_name' => 'Seleccione el nombre del paciente',
+        'identification_type' => 'Tipo de documento',
+        'identification_number' => 'Número de identificación'
 
     ],
     //post keys

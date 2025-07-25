@@ -30,14 +30,14 @@ class DoctorMinimalForm
 
                     Select::make('rips_identification_type_id')
                         ->required()
-                        ->label(__('messages.rips.identification_type'))
+                        ->label(__('messages.user.identification_type'))
                         ->options(
                             RipsIdentificationType::pluck('name', 'id')
                         ),
 
                     TextInput::make('rips_identification_number')
                         ->required()
-                        ->label(__('messages.rips.identification_number')),
+                        ->label(__('messages.user.identification_number')),
 
                     // Campos ocultos requeridos
                     Hidden::make('status')->default(User::ACTIVE),
