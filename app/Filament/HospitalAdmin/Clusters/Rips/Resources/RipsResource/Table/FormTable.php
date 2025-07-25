@@ -180,15 +180,15 @@ Tables\Columns\TextColumn::make('service_datetime')
                     default    => null,
                 };
             }),*/
-       
-        SelectFilter::make('convenio')
-            ->label('Convenio')
-            ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
-            ->query(function (Builder $query, $state) {
-                if (!empty($data['state'])) {
+    SelectFilter::make('convenio')
+        ->label('Convenio')
+        ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
+        ->query(function (Builder $query, $state) {
+            if (!empty($state)) {
                 $query->whereHas('billingDocument', fn ($q) => $q->where('agreement_id', $state));
-                }
-            }),
+            }
+        }),
+
 
         DateRangeFilter::make('service_datetime')
             ->label('Fecha de Servicio')

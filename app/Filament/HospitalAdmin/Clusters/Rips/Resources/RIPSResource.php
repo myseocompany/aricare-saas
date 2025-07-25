@@ -110,16 +110,16 @@ class RipsResource extends Resource
     }
 
     protected static function mutateFormDataBeforeSave(array $data): array
-{
-    // Combina fecha y hora en un solo campo datetime
-    $data['service_datetime'] = $data['service_date'] . ' ' . $data['service_time'];
-    dd($data);
+    {
+        // Combina fecha y hora en un solo campo datetime
+        $data['service_datetime'] = $data['service_date'] . ' ' . $data['service_time'];
+        dd($data);
 
-    // Puedes eliminar los campos separados si no se necesitan en la BD
-    unset($data['service_date'], $data['service_time']);
+        // Puedes eliminar los campos separados si no se necesitan en la BD
+        unset($data['service_date'], $data['service_time']);
 
-    return $data;
-}
+        return $data;
+    }
 
 
 
