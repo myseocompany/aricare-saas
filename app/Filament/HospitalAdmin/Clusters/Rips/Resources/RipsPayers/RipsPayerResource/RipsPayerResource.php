@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
+use App\Traits\TenantTrait;
 
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
 
@@ -28,6 +29,8 @@ class RipsPayerResource extends Resource
 {
     protected static ?string $model = RipsPayer::class;
 
+    use TenantTrait;
+
     
     protected static ?string $cluster = RipsCluster::class;
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
@@ -37,14 +40,13 @@ class RipsPayerResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('tenant_id')
-                    ->label(__('messages.rips.payer.tenant_id'))
-                    ->required()
-                    ->maxLength(36),
-                Forms\Components\TextInput::make('type_id')
+                Forms\Components\Select::make('type_id')
                     ->label(__('messages.rips.payer.type_id'))
-                    ->required()
-                    ->numeric(),
+                    ->relationship('type', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
+
                 Forms\Components\TextInput::make('name')
                     ->label(__('messages.rips.payer.name'))
                     ->required()
@@ -72,26 +74,34 @@ class RipsPayerResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('tenant_id')
+
+                Tables\Columns\TextColumn::make('type.name')
+                    ->label(__('messages.rips.payer.type_id'))
+                    ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('type_id')
-                    ->numeric()
-                    ->sortable(),
+
                 Tables\Columns\TextColumn::make('name')
+                    ->label(__('messages.rips.payer.name'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('identification')
+                ->label(__('messages.rips.payer.identification'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('address')
+                ->label(__('messages.rips.payer.address'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phone')
+                ->label(__('messages.rips.payer.phone'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                ->label(__('messages.rips.payer.email'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
+                ->label(__('messages.rips.payer.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                ->label(__('messages.rips.payer.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -142,4 +152,7 @@ public static function getRelations(): array
         return __('messages.rips.payer.title_plural');
     }
 
+
+
+    
 }

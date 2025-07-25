@@ -6,35 +6,41 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPaye
 use Filament\Forms;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
+use Illuminate\Support\Facades\Lang;
 
 class RipsPayerAgreementRelationManager extends RelationManager
 {
     protected static string $relationship = 'agreements'; // <- Este nombre debe ser el método en el modelo RipsPayer
 
     protected static ?string $title = 'Acuerdos';
+    protected static ?string $modelLabel = 'Acuerdo';
+    protected static ?string $pluralModelLabel = 'Acuerdos';
+
+
+
 
     public function form(Forms\Form $form): Forms\Form
     {
         return $form->schema([
             Forms\Components\TextInput::make('name')
-                ->label('Nombre del acuerdo')
+                ->label(__('messages.rips.payer_agreement.name'))
                 ->required()
                 ->maxLength(255),
 
             Forms\Components\TextInput::make('code')
-                ->label('Código del acuerdo')
+                ->label(__('messages.rips.payer_agreement.code'))
                 ->maxLength(50),
 
             Forms\Components\Textarea::make('description')
-                ->label('Descripción')
+                ->label(__('messages.rips.payer_agreement.description'))
                 ->maxLength(500),
 
             Forms\Components\DatePicker::make('start_date')
-                ->label('Fecha de inicio')
+                ->label(__('messages.rips.payer_agreement.start_date'))
                 ->required(),
 
             Forms\Components\DatePicker::make('end_date')
-                ->label('Fecha de finalización')
+                ->label(__('messages.rips.payer_agreement.end_date'))
                 ->afterOrEqual('start_date')
                 ->nullable(),
         ]);
@@ -45,26 +51,31 @@ class RipsPayerAgreementRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Nombre')
+                    ->label(__('messages.rips.payer_agreement.name'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('code')
-                    ->label('Código')
+                    ->label(__('messages.rips.payer_agreement.code'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('start_date')
-                    ->label('Inicio')
+                    ->label(__('messages.rips.payer_agreement.start_label'))
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('end_date')
-                    ->label('Fin')
+                    ->label(__('messages.rips.payer_agreement.end_label'))
                     ->date()
                     ->sortable(),
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make(),
+                Tables\Actions\CreateAction::make()
+                    ->label(__('messages.rips.payer_agreement.create')),
             ])
+
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->label(__('messages.rips.payer_agreement.edit')),
+                Tables\Actions\DeleteAction::make()
+                    ->label(__('messages.rips.payer_agreement.delete')),
             ]);
+
     }
 }

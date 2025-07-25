@@ -25,4 +25,5 @@ class RipsTenantPayerAgreement extends Model
         return $this->belongsTo(RipsPayer::class, 'payer_id');
     }
     
+    
 }
