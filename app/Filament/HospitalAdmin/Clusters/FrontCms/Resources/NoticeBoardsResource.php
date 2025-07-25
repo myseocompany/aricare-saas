@@ -11,7 +11,7 @@ use App\Models\NoticeBoard;
 use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Pages\SubNavigationPosition;
-use App\Filament\HospitalAdmin\Clusters\FrontCms;
+use App\Filament\HospitalAdmin\Clusters\Settings;
 use App\Filament\HospitalAdmin\Clusters\FrontCms\Resources\NoticeBoardsResource\Pages;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -19,7 +19,7 @@ class NoticeBoardsResource extends Resource
 {
     protected static ?string $model = NoticeBoard::class;
 
-    protected static ?string $cluster = FrontCms::class;
+    protected static ?string $cluster = Settings::class;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
