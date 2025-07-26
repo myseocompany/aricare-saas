@@ -75,13 +75,20 @@ class DoctorResource extends Resource
 
     protected static ?string $cluster = Doctors::class;
 
+    protected static ?string $navigationIcon = 'fas-user-doctor'; // opcional, para ícono
+//    protected static ?string $slug = 'doctors'; // esencial para URL correcta
+
+
     public static function shouldRegisterNavigation(): bool
     {
+        /*
         if (auth()->user()->hasRole('Admin') && !getModuleAccess('Doctors')) {
             return false;
         } elseif (!auth()->user()->hasRole('Admin') && !getModuleAccess('Doctors')) {
             return false;
         }
+            */
+
         return true;
     }
 
@@ -379,4 +386,6 @@ class DoctorResource extends Resource
             'edit' => Pages\EditDoctor::route('/{record}/edit'),
         ];
     }
+
+    
 }

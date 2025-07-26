@@ -9,6 +9,7 @@ class Patients extends Cluster
     protected static ?string $navigationIcon = 'fas-user-injured';
 
     protected static ?int $navigationSort = 20;
+    
 
     public function mount(): void
     {

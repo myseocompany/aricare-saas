@@ -73,4 +73,9 @@ class ListDoctors extends ListRecords
                 ->button(),
         ];
     }
+    public static function getRouteName(?string $panel = null): string
+    {
+        return 'doctors.index';
+    }
+
 }

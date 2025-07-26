@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form;
+    namespace App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource\Form;
+
+    use App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource;
 
 use Filament\Forms;
 use Filament\Forms\Components\Hidden;

@@ -10,6 +10,7 @@ class Doctors extends Cluster
     protected static ?int $navigationSort = 7;
     public function mount(): void
     {
+        
         if (auth()->user()->hasRole('Admin') && !getModuleAccess('Doctors') && !getModuleAccess('Doctor Departments') && !getModuleAccess('Schedules')) {
             abort(404);
         }
@@ -23,6 +24,7 @@ class Doctors extends Cluster
                 return;
             }
         }
+            
     }
 
     public static function getNavigationLabel(): string
