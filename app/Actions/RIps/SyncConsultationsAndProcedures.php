@@ -7,6 +7,7 @@ use App\Models\Rips\RipsPatientService;
 class SyncConsultationsAndProcedures
 {
     
+    
     public function __invoke(RipsPatientService $record, array $data): void
     {
         // Borrar lo anterior :)
