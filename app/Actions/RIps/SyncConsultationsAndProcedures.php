@@ -6,14 +6,16 @@ use App\Models\Rips\RipsPatientService;
 
 class SyncConsultationsAndProcedures
 {
+    
     public function __invoke(RipsPatientService $record, array $data): void
     {
-        // Borrar lo anterior
+        // Borrar lo anterior :)
         $record->consultations()->each(function ($consultation) {
             $consultation->diagnoses()->delete();
             $consultation->delete();
         });
         $record->procedures()->delete();
+        
         
 
         // Guardar consultas
