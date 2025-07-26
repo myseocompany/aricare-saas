@@ -20,6 +20,7 @@ class CreateRips extends CreateRecord
 {
 
     protected static string $resource = RipsResource::class;
+    
 
     protected function handleRecordCreation(array $data): Model
     {
