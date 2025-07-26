@@ -13,7 +13,7 @@ use Filament\Actions;
 
 use App\Actions\Rips\CreateServiceTemplateFromService;
 use App\Actions\Rips\LoadTemplateToForm;
-use App\Actions\Rips\SyncConsultationsAndProcedures;
+use App\Actions\Rips\FormSyncConsultationsAndProcedures;
 use Livewire\Attributes\On;
 
 class CreateRips extends CreateRecord
@@ -46,7 +46,7 @@ class CreateRips extends CreateRecord
             $record->save();
         }
         
-        app(SyncConsultationsAndProcedures::class)($record, $data);
+        app(FormSyncConsultationsAndProcedures::class)($record, $data);
 
         return $record;
     }

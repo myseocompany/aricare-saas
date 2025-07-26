@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 use App\Actions\Rips\CreateServiceTemplateFromService;
 use App\Actions\Rips\LoadTemplateToForm;
-use App\Actions\Rips\SyncConsultationsAndProcedures;
+use App\Actions\Rips\FormSyncConsultationsAndProcedures;
 
 
 
@@ -53,7 +53,7 @@ class EditRips extends EditRecord
             $record->save();
         }
 
-        app(SyncConsultationsAndProcedures::class)($record, $data);
+        app(FormSyncConsultationsAndProcedures::class)($record, $data);
 
         return $record;
     }

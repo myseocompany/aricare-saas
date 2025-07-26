@@ -4,7 +4,7 @@ namespace App\Actions\Rips;
 
 use App\Models\Rips\RipsPatientService;
 
-class SyncConsultationsAndProcedures
+class FormSyncConsultationsAndProcedures
 {
     
     
