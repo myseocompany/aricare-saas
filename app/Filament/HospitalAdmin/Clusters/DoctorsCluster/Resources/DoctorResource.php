@@ -329,6 +329,7 @@ class DoctorResource extends Resource
             'index' => Pages\ListDoctors::route('/'),
             'create' => Pages\CreateDoctor::route('/create'),
             'edit' => Pages\EditDoctor::route('/{record}/edit'),
+            'view' => Pages\ViewDoctor::route('/{record}'),
         ];
     }
 }

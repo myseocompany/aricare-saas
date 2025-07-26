@@ -21,6 +21,8 @@ use App\Models\Patient;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource;
 use App\Models\Rips\RipsPatientService;
 
+use App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource;
+
 
 use App\Services\RipsGeneratorService;
 
@@ -106,7 +108,7 @@ class FormTable
                 ->collection('profile')
                 ->width(40)
                 ->height(40)
-                ->url(fn($record) => \App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource::getUrl('view', ['record' => $record->doctor->id]))
+                ->url(fn($record) => DoctorResource::getUrl('view', ['record' => $record->doctor->id]))
 
                 ->tooltip(fn($record) => $record->doctor->user->email)
                 ->extraAttributes(['class' => 'mr-2']),
@@ -116,7 +118,7 @@ class FormTable
                 ->html()
                 ->formatStateUsing(fn($record) => '
                     <div class="flex flex-col leading-tight">
-                        <a href="' . \App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource::getUrl('view', ['record' => $record->doctor->id]) . '" 
+                        <a href="' . DoctorResource::getUrl('view', ['record' => $record->doctor->id]) . '" 
                         class="font-semibold text-sm text-custom-600 dark:text-custom-400 hover:underline transition" style="--c-400:var(--primary-400);--c-600:var(--primary-600);">
                             ' . e($record->doctor->user->full_name) . '
                         </a>
@@ -180,15 +182,19 @@ Tables\Columns\TextColumn::make('service_datetime')
                     default    => null,
                 };
             }),*/
-    SelectFilter::make('convenio')
-        ->label('Convenio')
-        ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
-        ->query(function (Builder $query, $state) {
-            if (!empty($state)) {
-                $query->whereHas('billingDocument', fn ($q) => $q->where('agreement_id', $state));
-            }
-        }),
+SelectFilter::make('convenio')
+    ->label('Convenio')
+    ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
+    ->query(function (Builder $query, $state) {
+        $value = is_array($state) ? $state['value'] ?? null : $state;
 
+        if (!empty($value)) {
+            $query->whereHas('billingDocument', fn ($q) => $q->where('agreement_id', $value));
+        }
+    })
+
+
+,
 
         DateRangeFilter::make('service_datetime')
             ->label('Fecha de Servicio')

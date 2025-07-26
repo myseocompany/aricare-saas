@@ -9,8 +9,9 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Set;
 
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form\PatientForm;
-use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorForm;
-use App\Filament\HospitalAdmin\Clusters\Doctors\Resources\DoctorResource\Form\DoctorMinimalForm;
+use App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource\Form\DoctorForm;
+use App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource\Form\DoctorMinimalForm;
+
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\Form\RipsPayerMinimalForm;
 
 use App\Repositories\PatientRepository;
