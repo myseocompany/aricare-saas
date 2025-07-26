@@ -93,20 +93,17 @@ class CreateRips extends CreateRecord
         return static::$resource::getUrl('index');
     }
 
-    /*
     protected function afterCreate(): void
     {
         $data = $this->form->getState();
 
         if (!empty($data['save_as_template']) && !empty($data['template_name'])) {
             app(CreateServiceTemplateFromService::class)(
-                $this->record, // RipsPatientService
+                $this->record,
                 $data['template_name']
-                
             );
-            
         }
     }
-    */
+
    
 }
