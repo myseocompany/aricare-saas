@@ -30,12 +30,17 @@ class DoctorMinimalForm
                         ->required()
                         ->label(__('messages.user.last_name')),
 
-                    Select::make('rips_identification_type_id')
+                   Select::make('rips_identification_type_id')
                         ->required()
                         ->label(__('messages.user.identification_type'))
-                        ->options(
-                            RipsIdentificationType::pluck('name', 'id')
-                        ),
+                        ->options(function () {
+                            return RipsIdentificationType::whereIn('id', function ($query) {
+                                $query->select('identification_type_id')
+                                    ->from('rips_model_identification_types')
+                                    ->where('model_type', 'App\\Models\\Doctor');
+                            })->pluck('name', 'id');
+                        }),
+
 
                     TextInput::make('rips_identification_number')
                         ->required()
