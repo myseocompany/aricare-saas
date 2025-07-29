@@ -107,10 +107,14 @@ class PatientForm
                         ->searchable(),
                     Select::make('zone_code')
                         ->label(__('messages.patient.residence_zone') . ':')
-                        ->options($territorialZoneOptions)
+                        ->options(RipsTerritorialZoneType::pluck('name', 'id')) // <--- CAMBIO CLAVE
                         ->required()
-                        ->default('01')
-                        ->placeholder('Seleccione zona territorial'),
+                        ->default(1)
+                        ->placeholder('Seleccione zona territorial')
+                        ->native(false)
+                        ->searchable(),
+
+
                 ])->columns(2),
             ]),
         ];

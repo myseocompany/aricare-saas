@@ -3146,9 +3146,9 @@ return [
             'add_related_diagnosis' => 'Agregar diagnóstico relacionado',
             'principal_diagnoses' => 'Diagnóstico principal'
         ],
-        'billingdocumenttype' => [
-            'title' => 'Tipo de Documento de Facturación',
-            'title_plural' => 'Tipos de Documentos de Facturación',
+        'billingdocument' => [
+            'title' => 'Documento de Facturación',
+            'title_plural' => 'Documentos de Facturación',
             'name' => 'Nombre del Tipo',
             'description' => 'Descripción',
             'agreement_id' => 'Convenio',
@@ -3164,8 +3164,8 @@ return [
             'xml_path' => 'Archivo XML',
         ],
         'payer' => [
-            'title' => 'Pagador RIPS',
-            'title_plural' => 'Pagadores RIPS',
+            'title' => 'Convenio RIPS',
+            'title_plural' => 'Convenios RIPS',
             'tenant_id' => 'Código de la Entidad',
             'type_id' => 'Tipo de Entidad',
             'name' => 'Nombre del Pagador',
@@ -3187,6 +3187,10 @@ return [
             'create' => 'Crear acuerdo',
             'edit' => 'Editar acuerdo',
             'delete' => 'Borrar acuerdo',
+        ],
+        'patientservicetemplate' => [
+            'title' => 'Plantilla de Servicios al Paciente',
+            'title_plural' => 'Plantillas de Servicios al Paciente',
         ],
     ],
 

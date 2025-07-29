@@ -25,7 +25,7 @@ class RipsPatientServiceTemplateResource extends Resource
 {
     protected static ?string $model = RipsPatientServiceTemplate::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    //protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
@@ -93,4 +93,14 @@ class RipsPatientServiceTemplateResource extends Resource
             'edit' => Pages\EditRipsPatientServiceTemplate::route('/{record}/edit'),
         ];
     }
+    public static function getModelLabel(): string
+    {
+        return __('messages.rips.patientservicetemplate.title');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('messages.rips.patientservicetemplate.title_plural');
+    }
+
 }

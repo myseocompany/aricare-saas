@@ -6,12 +6,12 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocument
 //use app\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocumentsCluster;
 //use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RIPSResource;
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
-use App\Models\Rips\RipsBillingDocumentType;
+use App\Models\Rips\RipsBillingDocument;
 
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocuments\RipsBillingDocumentResource\Pages;
 
 
-use App\Models\Rips\RipsBillingDocument;
+use App\Models\Rips\RipsBillingDocumentType;
 
 use App\Models\Patient;
 use App\Models\Rips\RipsPayer;
@@ -52,7 +52,7 @@ class RipsBillingDocumentResource extends Resource
                     ->default(fn() => Auth::user()->tenant_id)
                     ->required(),
                 Select::make('agreement_id')
-                    ->label(__('messages.rips.billingdocumenttype.agreement_id'))
+                    ->label(__('messages.rips.billingdocument.agreement_id'))
                     ->relationship('agreement', 'name')
                     ->searchable()
                     ->createOptionForm([
@@ -83,33 +83,33 @@ class RipsBillingDocumentResource extends Resource
                     })
                     ->required(),
                 Forms\Components\Select::make('type_id')
-                    ->label(__('messages.rips.billingdocumenttype.title'))
+                    ->label(__('messages.rips.billingdocument.type_id'))
                     ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
                     ->searchable()
                     ->required(),
 
                 Forms\Components\TextInput::make('document_number')
-                    ->label(__('messages.rips.billingdocumenttype.document_number'))
+                    ->label(__('messages.rips.billingdocument.document_number'))
                     ->required()
                     ->maxLength(30),
                 Forms\Components\DateTimePicker::make('issued_at')
-                    ->label(__('messages.rips.billingdocumenttype.issued_at'))
+                    ->label(__('messages.rips.billingdocument.issued_at'))
                     ->required(),
                 Forms\Components\TextInput::make('cufe')
                     ->maxLength(100),
                 Forms\Components\TextInput::make('uuid_dian')
                     ->maxLength(100),
                 Forms\Components\TextInput::make('copay_amount')
-                    ->label(__('messages.rips.billingdocumenttype.copay_amount'))
+                    ->label(__('messages.rips.billingdocument.copay_amount'))
                     ->numeric(),
                 Forms\Components\TextInput::make('copay_amount')
-                    ->label(__('messages.rips.billingdocumenttype.copay_amount'))
+                    ->label(__('messages.rips.billingdocument.copay_amount'))
                     ->numeric(),
                 Forms\Components\TextInput::make('discount_amount')
-                    ->label(__('messages.rips.billingdocumenttype.discount_amount'))
+                    ->label(__('messages.rips.billingdocument.discount_amount'))
                     ->numeric(),
                 Forms\Components\TextInput::make('net_amount')
-                    ->label(__('messages.rips.billingdocumenttype.net_amount'))
+                    ->label(__('messages.rips.billingdocument.net_amount'))
                     ->numeric(),
                 FileUpload::make('xml_path')
                     ->label('Archivo XML')
@@ -183,7 +183,7 @@ class RipsBillingDocumentResource extends Resource
                 DateRangeFilter::make('issued_at')
                     ->label('Fecha de Emisión'),
                 SelectFilter::make('agreement_id')
-                    ->label(__('messages.rips.billingdocumenttype.agreement_id'))
+                    ->label(__('messages.rips.billingdocument.agreement_id'))
                     ->relationship('agreement', 'name'),
                 Filter::make('document_number')
                     ->form([
@@ -240,17 +240,17 @@ class RipsBillingDocumentResource extends Resource
 
     public static function getModelLabel(): string
     {
-        return __('messages.rips.billingdocumenttype.title');
+        return __('messages.rips.billingdocument.title');
     }
 
     public static function getPluralModelLabel(): string
     {
-        return __('messages.rips.billingdocumenttype.title_plural');
+        return __('messages.rips.billingdocument.title_plural');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('messages.rips.billingdocumenttype.title_plural');
+        return __('messages.rips.billingdocument.title_plural');
     }
 
 

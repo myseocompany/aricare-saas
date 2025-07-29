@@ -81,7 +81,8 @@ class Patient extends Model implements HasMedia
         'zone_code',
         'country_of_origin_id',
         'rips_identification_type_id',
-        'document_number'
+        'document_number',
+        'zone_code'
     ];
     
     const STATUS_ALL = 2;
