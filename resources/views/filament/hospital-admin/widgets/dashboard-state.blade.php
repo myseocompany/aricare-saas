@@ -136,7 +136,8 @@
         @endif --}}
 
        {{--  @if (getModuleAccess('Doctors')) --}}
-            <a href="{ route('filament.hospitalAdmin.doctors.resources.doctors.index') }}">
+            <!-- a href="{ route('filament.hospitalAdmin.doctors.resources.doctors.index') }}" -->
+            <a href="{{ url('hospital/doctors/doctors') }}">    
                 <div
                     class="fi-wi-stats-overview-stat relative items-center rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-950/5 dark:bg-gray-900 dark:ring-white/10 flex justify-between">
                     <div
