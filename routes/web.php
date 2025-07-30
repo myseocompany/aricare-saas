@@ -46,6 +46,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use App\Http\Controllers\SubscriptionPricingPlanController;
 use App\Http\Controllers\Web\AppointmentController as WebAppointmentController;
 use Illuminate\Support\Facades\Artisan;
+use App\Http\Controllers\RipsGeneracionController;
+
 
 use Illuminate\Support\Facades\Storage;
 
@@ -339,10 +341,13 @@ Route::get('/upgrade/database', function () {
         ]);
 });
 
+Route::get('/rips/confirmar-generacion', [RipsGeneracionController::class, 'confirmarGeneracion'])
+    ->name('rips.confirmar-generacion');
+
 Route::get('download/temp/rips/{file}', function ($file) {
-    $filePath = storage_path('app/' . $file);
-    
-    // Verifica si el archivo existe antes de intentar descargarlo
+    $path = 'temp/rips/' . $file;
+    $filePath = storage_path('app/' . $path);
+
     if (file_exists($filePath)) {
         return response()->download($filePath);
     } else {

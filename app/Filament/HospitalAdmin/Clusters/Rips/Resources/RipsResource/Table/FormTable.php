@@ -6,6 +6,9 @@ use Illuminate\Contracts\View\View;
 use Filament\Forms\Components\TextInput;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Support\Enums\FontWeight;
+use Illuminate\Support\Facades\Log;
+//use Filament\Notifications\Actions\Action;
+
 
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -261,43 +264,52 @@ SelectFilter::make('convenio')
 ])
 
         ->bulkActions([
-            // Agrupación de acciones por lotes
+            // Agrupación visual de todas las acciones por lotes
             Tables\Actions\BulkActionGroup::make([
-                // Acción para eliminar registros seleccionados
+
+                // ✅ Acción que permite eliminar registros seleccionados desde la tabla
                 Tables\Actions\DeleteBulkAction::make(),
 
-                // Acción para generar RIPS desde los servicios seleccionados
+                // ✅ Acción que intenta generar el archivo JSON RIPS
+                // Verifica si hay servicios faltantes por documento y pide confirmación
                 Tables\Actions\BulkAction::make('generateRips')
                     ->label('Generar RIPS')
                     ->action(function ($records) {
-                        $service = app(RipsGeneratorService::class);
-                        return $service->generateByPatientServices($records);
-                    })
-                    ->icon('heroicon-o-document-text')
-                    ->color('primary'),
+                        $service = app(\App\Services\RipsGeneratorService::class);
+                        return $service->generateOnlySelected($records);
+                    }),
 
-                // Acción para generar y enviar RIPS a la API externa
+                Tables\Actions\BulkAction::make('confirmarGeneracionRips')
+                    ->action(function () {
+                        Log::info('🚀 Entró a confirmarGeneracionRips desde botón'); 
+                        $service = app(\App\Services\RipsGeneratorService::class);
+                        return $service->confirmarGeneracionDesdeSesion();
+                    })
+                    ->hidden(), // Se ejecuta solo por el botón, no aparece visualmente
+
+
+                // ✅ Acción para generar y enviar RIPS a la API SISPRO
                 Tables\Actions\BulkAction::make('generarYEnviarRips')
-                    ->label('Generar y Enviar RIPS')
+                    ->label('Generar y Enviar RIPS') // Lo que ve el usuario en el botón
                     ->action(function ($records) {
                         $service = app(\App\Services\RipsCoordinatorService::class);
 
-                        // ID del tenant actual autenticado
+                        // Obtenemos el ID del tenant autenticado (quién está usando el sistema)
                         $tenantId = auth()->user()->tenant_id;
 
-                        // Agrupar los registros por convenio (agreement_id)
+                        // Agrupamos los registros seleccionados por convenio (EPS)
                         $grouped = $records->groupBy(fn($r) => optional($r->billingDocument)->agreement_id);
 
                         foreach ($grouped as $agreementId => $items) {
                             if (!$agreementId) continue;
 
-                            // Rango de fechas del servicio por grupo
+                            // Calculamos las fechas de inicio y fin con base en los servicios seleccionados
                             $start = $items->pluck('service_datetime')->filter()->min();
                             $end = $items->pluck('service_datetime')->filter()->max();
 
                             if (!$start || !$end) continue;
 
-                            // Procesar y enviar cada grupo de facturas por convenio
+                            // Enviamos el grupo de servicios del convenio a la API
                             $service->procesarYEnviarRips(
                                 tenantId: $tenantId,
                                 agreementId: $agreementId,
@@ -306,12 +318,11 @@ SelectFilter::make('convenio')
                             );
                         }
                     })
-                    ->requiresConfirmation() // Confirmación antes de ejecutar
+                    ->requiresConfirmation() // Le pide al usuario confirmar antes de ejecutar
                     ->color('success')
-                    ->icon('heroicon-o-paper-airplane'),
-                ]),
+                    ->icon('heroicon-o-paper-airplane'), // Ícono del botón (avión de papel)
+            ])
         ]);
-
     }
 }
 

@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use Carbon\Carbon;
-use App\Models\Rips\RipsPatientServices;
+use App\Models\Rips\RipsPatientService;
 use App\Models\Rips\RipsBillingDocument;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -12,13 +12,136 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Filament\Notifications\Notification;
-
+use Filament\Notifications\Actions\Action;
+use Illuminate\Support\Facades\File;
 
 
 
 
 class RipsGeneratorService
 {
+    public function generateOnlySelected(Collection $patientServices)
+    {
+        $missingServicesByDocument = [];
+
+        // Agrupar los servicios seleccionados por documento
+        $grouped = $patientServices->groupBy('billing_document_id');
+
+        foreach ($grouped as $documentId => $selectedServices) {
+            // Cargar todos los servicios que existen para ese documento
+            $allServices = RipsPatientService::where('billing_document_id', $documentId)->get();
+
+            if ($selectedServices->count() < $allServices->count()) {
+                $missingServicesByDocument[$documentId] = $allServices->diff($selectedServices);
+            }
+        }
+
+        // Si hay documentos con servicios faltantes, mostrar advertencia
+        if (!empty($missingServicesByDocument)) {
+            // Guardamos los IDs seleccionados para luego generar desde sesión
+            session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
+
+            // Obtenemos los números de factura/nota con servicios faltantes
+            $documentNumbers = RipsBillingDocument::whereIn('id', array_keys($missingServicesByDocument))
+                ->pluck('document_number')
+                ->implode(', ');
+
+            Notification::make()
+                ->title('Servicios faltantes')
+                ->body("Hay servicios no seleccionados en las facturas o notas: <strong>{$documentNumbers}</strong>. ¿Deseas continuar con solo los seleccionados?")
+                ->warning()
+                ->persistent()
+                ->actions([
+                    Action::make('continuar')
+                        ->label('Sí, continuar')
+                        ->button()
+                        ->color('success')
+                        ->url(route('rips.confirmar-generacion')),
+                    Action::make('cancelar')
+                        ->label('Cancelar')
+                        ->button()
+                        ->color('danger')
+                        ->close()
+                ])
+                ->send();
+
+            return null;
+        }
+
+        // ✅ Si no hay servicios faltantes, redirige directo a descarga
+        session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
+
+        return redirect()->route('rips.confirmar-generacion');
+    }
+
+
+
+    public function buildRipsFromSelectedServices(Collection $patientServices)
+    {
+        $ripsData = [];
+
+        // Agrupamos por factura/nota
+        $grouped = $patientServices->groupBy('billing_document_id');
+
+        foreach ($grouped as $documentId => $services) {
+            $document = \App\Models\Rips\RipsBillingDocument::with('patientServices.patient.user')->find($documentId);
+            if (!$document) continue;
+
+            // Se mantiene el formato actual de cabecera del documento
+            $tenantDocumentNumber = \DB::table('tenants')
+                ->where('id', $document->tenant_id)
+                ->value('document_number');
+
+            $documentData = $document->type_id === 1
+                ? [
+                    'numDocumentoIdObligado'=> $tenantDocumentNumber,
+                    'numFactura' => $document->document_number ?? null,
+                    'tipoNota' => null,
+                    'numNota' => null,
+                ]
+                : [
+                    'numDocumentoIdObligado' => $tenantDocumentNumber,
+                    'numFactura' => null,
+                    'tipoNota' => 'RS',
+                    'numNota' => $document->document_number ?? null,
+                ];
+
+            $ripsItem = array_merge($documentData, ['usuarios' => []]);
+
+            $servicesByPatient = $services->groupBy('patient_id');
+
+            foreach ($servicesByPatient as $patientId => $groupedServices) {
+                $patient = $groupedServices->first()->patient;
+                $usuario = $this->mapPatientToRips($patient, $groupedServices);
+                $usuario['consecutivo'] = count($ripsItem['usuarios']) + 1;
+                $usuario['servicios'] = $this->processServices($groupedServices, $document->tenant);
+
+                $ripsItem['usuarios'][] = $usuario;
+            }
+
+            $ripsData[] = [
+                'rips' => $ripsItem,
+                'xmlFevFile' => $document->type_id === 1 && !empty($document->xml_path)
+                    ? base64_encode(file_get_contents($document->xml_path))
+                    : null
+            ];
+        }
+
+        return $ripsData;
+    }
+
+    public function confirmarGeneracionDesdeSesion()
+    {
+        Log::info('➡️ Redirigiendo a la ruta de descarga');
+        return redirect()->route('rips.confirmar-generacion');
+    }
+
+
+
+
+
+
+    
     //public function generateByServices($agreementId, $startDate, $endDate, $withInvoice = true)
     public function generateByServices($agreementId, $startDate, $endDate)
     {
@@ -32,11 +155,7 @@ class RipsGeneratorService
                 Carbon::parse($endDate)->endOfDay()
             ]);
 
-        /*if ($withInvoice) {
-            $billingDocuments->where('type_id', 1); // Con factura
-        } else {
-            $billingDocuments->where('type_id', '!=', 1); // Sin factura (notas)
-        }*/
+        
         
 
         $billingDocuments = $billingDocuments->with(['patientServices' => function($query) {
@@ -72,24 +191,7 @@ class RipsGeneratorService
                 ->where('id', $document->tenant_id)
                 ->value('document_number');
 
-            // Configuración diferente para facturas vs notas
-            /*if ($withInvoice) {
-                $documentData = [
-                    'numDocumentoIdObligado'=> $tenantDocumentNumber, // Usamos el tenant_id aquí
-                    'numFactura' => $document->document_number ?? null,
-                    'tipoNota' => null,
-                    'numNota' => null,
-                    //'idRelacion' => $document->id ?? null
-                ];
-            } else {
-                $documentData = [
-                    'numDocumentoIdObligado' => $tenantDocumentNumber, // Usamos el tenant_id aquí
-                    'numFactura' => null,
-                    'tipoNota' => 'RS',
-                    'numNota' => $document->document_number ?? null,
-                    //'idRelacion' => $document->id ?? null
-                ];
-            }*/
+            
             if ($document->type_id === 1) {
                 $documentData = [
                     'numDocumentoIdObligado'=> $tenantDocumentNumber,
@@ -154,16 +256,7 @@ class RipsGeneratorService
         ];
     }
 
-    /*protected function processServices($services)
-    {
-        return [
-            'consultas' => $this->mapConsultas($services),
-            'procedimientos' => $this->mapProcedimientos($services)
-        ];
-    }*/
-    //para evitar que salga la palabra consultas y procedimientos en el rips si estan vacios
     
-
     protected function processServices($services, $tenant)
     {
         $result = [];
