@@ -143,7 +143,7 @@ class FormService
                                         ->label('Pagador')
                                         ->options(\App\Models\Rips\RipsPayer::pluck('name', 'id'))
                                         ->searchable()
-                                        ->createOptionForm(RipsPayerMinimalForm::schema())
+                                        //->createOptionForm(RipsPayerMinimalForm::schema())
                                         ->createOptionUsing(function (array $data) {
                                             $data['tenant_id'] = auth()->user()->tenant_id;
                                             return \App\Models\Rips\RipsPayer::create($data)->id;

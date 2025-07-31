@@ -30,6 +30,10 @@ class RipsTenantPayerAgreementResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Hidden::make('tenant_id')
+                    ->default(fn () => auth()->user()->tenant_id)
+                    ->required(),
+
                 Forms\Components\TextInput::make('name')
                     ->label(__('messages.rips.payer_agreement.name'))
                     ->required()

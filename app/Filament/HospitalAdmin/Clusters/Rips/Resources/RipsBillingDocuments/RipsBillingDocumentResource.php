@@ -53,35 +53,25 @@ class RipsBillingDocumentResource extends Resource
                     ->required(),
                 Select::make('agreement_id')
                     ->label(__('messages.rips.billingdocument.agreement_id'))
-                    ->relationship('agreement', 'name')
-                    ->searchable()
+                    ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
+                    ->searchable(false) // para mostrar todos de una vez
+                    ->preload()         // muy importante: carga todos sin escribir
                     ->createOptionForm([
-                        Select::make('payer_id')
-                            ->label('Pagador')
-                            ->options(RipsPayer::pluck('name', 'id'))
-                            ->searchable()
-                            ->required(),
                         Forms\Components\TextInput::make('name')
                             ->label('Nombre del convenio')
                             ->required(),
                         Forms\Components\TextInput::make('code')
                             ->label('Código')
+                            ->maxLength(50),
+                        Forms\Components\Hidden::make('tenant_id')
+                            ->default(fn () => Auth::user()->tenant_id)
                             ->required(),
-                        Textarea::make('description')
-                            ->label('Descripción')
-                            ->maxLength(500),
-                        DatePicker::make('start_date')
-                            ->label('Fecha de inicio')
-                            ->required(),
-                        DatePicker::make('end_date')
-                            ->label('Fecha de finalización')
-                            ->afterOrEqual('start_date')
-                            ->nullable(),
                     ])
                     ->createOptionUsing(function (array $data) {
                         return \App\Models\Rips\RipsTenantPayerAgreement::create($data)->id;
                     })
                     ->required(),
+
                 Forms\Components\Select::make('type_id')
                     ->label(__('messages.rips.billingdocument.type_id'))
                     ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))

@@ -14,12 +14,9 @@ class RipsTenantPayerAgreement extends Model
     protected $fillable = [
         'name',
         'code',
+        'tenant_id',
     ];
 
-    public function payer()
-    {
-        return $this->belongsTo(RipsPayer::class, 'payer_id');
-    }
-    
+
     
 }

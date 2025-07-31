@@ -15,7 +15,9 @@ return new class extends Migration {
             FROM information_schema.KEY_COLUMN_USAGE
             WHERE TABLE_NAME = 'rips_tenant_payer_agreements'
             AND CONSTRAINT_NAME = 'rips_tenant_payer_agreements_payer_id_foreign'
+            AND TABLE_SCHEMA = DATABASE()
         ");
+
 
         if ($foreignKeyExists) {
             DB::statement('ALTER TABLE rips_tenant_payer_agreements DROP FOREIGN KEY rips_tenant_payer_agreements_payer_id_foreign');
