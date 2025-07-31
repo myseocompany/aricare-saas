@@ -7,6 +7,7 @@ use Filament\Resources\Pages\CreateRecord;
 
 class CreateRipsBillingDocument extends CreateRecord
 {
+    
     protected static string $resource = RipsBillingDocumentResource::class;
 
     protected function handleRecordCreation(array $data): \Illuminate\Database\Eloquent\Model
