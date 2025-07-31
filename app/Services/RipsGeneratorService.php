@@ -22,27 +22,57 @@ class RipsGeneratorService
 {
     public function generateOnlySelected(Collection $patientServices)
     {
-        $missingServicesByDocument = [];
+        // Arrays donde se almacenan los errores detectados
+        $missingServicesByDocument = [];  // Documentos que tienen servicios no seleccionados
+        $missingXmlDocuments = [];       // Facturas que requieren XML pero no lo tienen
 
-        // Agrupar los servicios seleccionados por documento
+        // Agrupamos los servicios seleccionados por su factura o nota (billing_document_id)
         $grouped = $patientServices->groupBy('billing_document_id');
 
+        // Recorremos cada grupo (documento)
         foreach ($grouped as $documentId => $selectedServices) {
-            // Cargar todos los servicios que existen para ese documento
+            // Traemos TODOS los servicios reales asociados a ese documento
             $allServices = RipsPatientService::where('billing_document_id', $documentId)->get();
 
+            // Si el usuario no seleccionó todos los servicios, los guardamos en la lista de faltantes
             if ($selectedServices->count() < $allServices->count()) {
                 $missingServicesByDocument[$documentId] = $allServices->diff($selectedServices);
             }
+
+            // Verificamos si es una factura (type_id = 1) y necesita XML FEV
+            $document = \App\Models\Rips\RipsBillingDocument::find($documentId);
+
+            if ($document && $document->type_id === 1) {
+                $fullPath = storage_path('app/public/' . $document->xml_path);
+
+                // Si no tiene ruta válida o el archivo no existe, se marca como faltante
+                if (empty($document->xml_path) || !file_exists($fullPath)) {
+                    $missingXmlDocuments[] = $document->document_number;
+                }
+            }
         }
 
-        // Si hay documentos con servicios faltantes, mostrar advertencia
+        // 🚫 Si hay facturas sin XML obligatorio, se cancela todo y se notifica al usuario
+        if (!empty($missingXmlDocuments)) {
+            $facturasSinXml = implode(', ', $missingXmlDocuments);
+
+            Notification::make()
+                ->title('Facturas sin archivo XML')
+                ->body("Las siguientes facturas no tienen cargado el XML FEV requerido: <strong>{$facturasSinXml}</strong>. Por favor cárguelos antes de generar el RIPS.")
+                ->danger()
+                ->persistent()
+                ->send();
+
+            return null;
+        }
+
+        // ⚠️ Si hay servicios faltantes por documento, se muestra advertencia y se espera confirmación del usuario
         if (!empty($missingServicesByDocument)) {
-            // Guardamos los IDs seleccionados para luego generar desde sesión
+            // Se guarda temporalmente en sesión los servicios seleccionados para usarlos después
             session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
 
-            // Obtenemos los números de factura/nota con servicios faltantes
-            $documentNumbers = RipsBillingDocument::whereIn('id', array_keys($missingServicesByDocument))
+            // Obtenemos los números de factura/nota donde faltan servicios
+            $documentNumbers = \App\Models\Rips\RipsBillingDocument::whereIn('id', array_keys($missingServicesByDocument))
                 ->pluck('document_number')
                 ->implode(', ');
 
@@ -56,7 +86,7 @@ class RipsGeneratorService
                         ->label('Sí, continuar')
                         ->button()
                         ->color('success')
-                        ->url(route('rips.confirmar-generacion')),
+                        ->url(route('rips.confirmar-generacion')), // Redirige a una ruta para confirmar
                     Action::make('cancelar')
                         ->label('Cancelar')
                         ->button()
@@ -68,30 +98,33 @@ class RipsGeneratorService
             return null;
         }
 
-        // ✅ Si no hay servicios faltantes, redirige directo a descarga
-        session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
-
-        return redirect()->route('rips.confirmar-generacion');
+        // ✅ Si no hay problemas, se construye el JSON de los servicios seleccionados
+        return $this->buildRipsFromSelectedServices($patientServices);
     }
+
+
 
 
 
     public function buildRipsFromSelectedServices(Collection $patientServices)
     {
-        $ripsData = [];
+        $ripsData = []; // Aquí se guardará el JSON final
 
-        // Agrupamos por factura/nota
+        // Agrupamos los servicios seleccionados por documento (factura o nota)
         $grouped = $patientServices->groupBy('billing_document_id');
 
+        // Recorremos cada factura o nota
         foreach ($grouped as $documentId => $services) {
+            // Cargamos el documento completo, incluyendo servicios, paciente y usuario
             $document = \App\Models\Rips\RipsBillingDocument::with('patientServices.patient.user')->find($documentId);
             if (!$document) continue;
 
-            // Se mantiene el formato actual de cabecera del documento
-            $tenantDocumentNumber = \DB::table('tenants')
+            // Obtenemos el número de identificación del proveedor desde la tabla tenants
+            $tenantDocumentNumber = DB::table('tenants')
                 ->where('id', $document->tenant_id)
                 ->value('document_number');
 
+            // Armamos la cabecera del documento según si es factura o nota
             $documentData = $document->type_id === 1
                 ? [
                     'numDocumentoIdObligado'=> $tenantDocumentNumber,
@@ -106,23 +139,35 @@ class RipsGeneratorService
                     'numNota' => $document->document_number ?? null,
                 ];
 
+            // Estructura principal del JSON para este documento
             $ripsItem = array_merge($documentData, ['usuarios' => []]);
 
+            // Agrupamos los servicios por paciente (por si hay más de uno en el documento)
             $servicesByPatient = $services->groupBy('patient_id');
 
             foreach ($servicesByPatient as $patientId => $groupedServices) {
+                // Obtenemos el paciente desde el primer servicio
                 $patient = $groupedServices->first()->patient;
+
+                // Transformamos los datos del paciente a formato RIPS
                 $usuario = $this->mapPatientToRips($patient, $groupedServices);
                 $usuario['consecutivo'] = count($ripsItem['usuarios']) + 1;
+
+                // Procesamos los servicios médicos del paciente
                 $usuario['servicios'] = $this->processServices($groupedServices, $document->tenant);
 
+                // Agregamos al JSON
                 $ripsItem['usuarios'][] = $usuario;
             }
 
+            // Armamos la ruta completa del XML si aplica
+            $fullPath = storage_path('app/public/' . $document->xml_path);
+
+            // Estructura final del documento RIPS, incluyendo el XML FEV codificado (si existe)
             $ripsData[] = [
                 'rips' => $ripsItem,
-                'xmlFevFile' => $document->type_id === 1 && !empty($document->xml_path)
-                    ? base64_encode(file_get_contents($document->xml_path))
+                'xmlFevFile' => $document->type_id === 1 && $fullPath && file_exists($fullPath)
+                    ? base64_encode(file_get_contents($fullPath))
                     : null
             ];
         }
@@ -130,11 +175,6 @@ class RipsGeneratorService
         return $ripsData;
     }
 
-    public function confirmarGeneracionDesdeSesion()
-    {
-        Log::info('➡️ Redirigiendo a la ruta de descarga');
-        return redirect()->route('rips.confirmar-generacion');
-    }
 
 
 

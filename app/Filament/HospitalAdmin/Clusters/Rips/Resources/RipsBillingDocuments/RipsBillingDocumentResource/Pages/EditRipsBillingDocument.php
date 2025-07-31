@@ -6,6 +6,7 @@ use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocuments\Rips
 
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Log;
 
 class EditRipsBillingDocument extends EditRecord
 {
@@ -16,5 +17,15 @@ class EditRipsBillingDocument extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        Log::info('Datos antes de guardar:', $data);
+
+        // Puedes imprimir también el valor del campo xml_path directamente
+        Log::info('Ruta del archivo XML:', ['xml_path' => $data['xml_path'] ?? 'NO DEFINIDO']);
+
+        return $data;
     }
 }

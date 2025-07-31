@@ -32,17 +32,18 @@ return [
 
         'local' => [
             'driver' => 'local',
-            'root' => public_path('uploads'),
-            'url' => env('APP_URL') . '/uploads',
+            'root' => storage_path('app'), // ✅ Este es el predeterminado interno
             'throw' => false,
         ],
+
         'public' => [
             'driver' => 'local',
-            'root' => public_path('uploads'),
-            'url' => env('APP_URL') . '/uploads',
+            'root' => storage_path('app/public'), // ✅ Esta es la ruta correcta
+            'url' => env('APP_URL') . '/storage',
             'visibility' => 'public',
             'throw' => false,
         ],
+
 
 
         'google_json_file' => [

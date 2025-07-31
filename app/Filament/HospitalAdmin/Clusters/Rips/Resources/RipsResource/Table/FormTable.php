@@ -290,37 +290,17 @@ SelectFilter::make('convenio')
 
                 // ✅ Acción para generar y enviar RIPS a la API SISPRO
                 Tables\Actions\BulkAction::make('generarYEnviarRips')
-                    ->label('Generar y Enviar RIPS') // Lo que ve el usuario en el botón
+                    ->label('Generar y Enviar RIPS')
                     ->action(function ($records) {
-                        $service = app(\App\Services\RipsCoordinatorService::class);
-
-                        // Obtenemos el ID del tenant autenticado (quién está usando el sistema)
                         $tenantId = auth()->user()->tenant_id;
-
-                        // Agrupamos los registros seleccionados por convenio (EPS)
-                        $grouped = $records->groupBy(fn($r) => optional($r->billingDocument)->agreement_id);
-
-                        foreach ($grouped as $agreementId => $items) {
-                            if (!$agreementId) continue;
-
-                            // Calculamos las fechas de inicio y fin con base en los servicios seleccionados
-                            $start = $items->pluck('service_datetime')->filter()->min();
-                            $end = $items->pluck('service_datetime')->filter()->max();
-
-                            if (!$start || !$end) continue;
-
-                            // Enviamos el grupo de servicios del convenio a la API
-                            $service->procesarYEnviarRips(
-                                tenantId: $tenantId,
-                                agreementId: $agreementId,
-                                startDate: \Carbon\Carbon::parse($start)->format('Y-m-d'),
-                                endDate: \Carbon\Carbon::parse($end)->format('Y-m-d')
-                            );
-                        }
+                        app(\App\Services\RipsCoordinatorService::class)
+                            ->enviarDesdeSeleccion($records->all(), $tenantId);
                     })
-                    ->requiresConfirmation() // Le pide al usuario confirmar antes de ejecutar
+                    ->requiresConfirmation()
                     ->color('success')
-                    ->icon('heroicon-o-paper-airplane'), // Ícono del botón (avión de papel)
+                    ->icon('heroicon-o-paper-airplane')
+
+, // Ícono del botón (avión de papel)
             ])
         ]);
     }

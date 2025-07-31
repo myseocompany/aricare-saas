@@ -47,7 +47,7 @@ class FormService
                                         ->orWhere('last_name', 'like', "%{$search}%");
                                 })
                                 ->with('user')
-                                ->limit(20)
+                                ->limit(100)
                                 ->get()
                                 ->mapWithKeys(fn ($patient) => [$patient->id => $patient->user?->first_name . ' ' . $patient->user?->last_name]);
                         })
