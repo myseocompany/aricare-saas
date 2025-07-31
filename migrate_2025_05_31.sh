@@ -46,3 +46,5 @@ php artisan migrate --path=database/migrations/2025_07_06_231635_add_rips_fields
 php artisan migrate --path=database/migrations/2025_07_09_023102_add_submission_status_to_rips_billing_documents_table.php
 
 php artisan migrate --path=database/migrations/2025_07_28_183242_create_rips_model_identification_types_table.php
+
+php artisan migrate --path=database/migrations/2025_07_29_193908_simplify_tenant_payer_agreements_table.php

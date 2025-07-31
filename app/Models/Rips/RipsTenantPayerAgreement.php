@@ -12,12 +12,8 @@ class RipsTenantPayerAgreement extends Model
     protected $table = 'rips_tenant_payer_agreements';
 
     protected $fillable = [
-        'payer_id',
         'name',
         'code',
-        'description',
-        'start_date',
-        'end_date',
     ];
 
     public function payer()
