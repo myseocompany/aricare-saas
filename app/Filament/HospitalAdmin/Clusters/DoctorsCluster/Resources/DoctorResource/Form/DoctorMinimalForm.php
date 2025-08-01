@@ -22,10 +22,13 @@ class DoctorMinimalForm
         return [
             Section::make()
                 ->schema([
+                    Hidden::make('owner_type')
+                        ->default('App\\Models\\Doctor'),
+
                     TextInput::make('first_name')
                         ->required()
                         ->label(__('messages.user.first_name')),
-
+                    
                     TextInput::make('last_name')
                         ->required()
                         ->label(__('messages.user.last_name')),

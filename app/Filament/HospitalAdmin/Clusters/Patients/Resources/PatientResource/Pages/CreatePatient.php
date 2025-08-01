@@ -8,6 +8,7 @@ use App\Repositories\PatientRepository;
 use Illuminate\Database\Eloquent\Model;
 use Filament\Resources\Pages\CreateRecord;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource;
+use App\Models\Patient;
 
 class CreatePatient extends CreateRecord
 {
@@ -62,5 +63,19 @@ class CreatePatient extends CreateRecord
     protected function getCreatedNotificationTitle(): ?string
     {
         return __('messages.flash.Patient_saved');
+    }
+
+    protected function afterCreate(): void
+    {
+        /** @var \App\Models\Patient $patient */
+        $patient = $this->record;
+
+        $user = $patient->user;
+
+        if ($user) {
+            $user->owner_id = $patient->id;
+            $user->owner_type = Patient::class;
+            $user->save();
+        }
     }
 }

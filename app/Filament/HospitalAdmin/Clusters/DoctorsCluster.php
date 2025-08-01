@@ -7,7 +7,8 @@ use Filament\Clusters\Cluster;
 
 class DoctorsCluster extends Cluster
 {
-    protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';
+    
+    protected static ?string $navigationIcon = 'fas-user-doctor';
     protected static ?int $navigationSort = 21;
     
 }

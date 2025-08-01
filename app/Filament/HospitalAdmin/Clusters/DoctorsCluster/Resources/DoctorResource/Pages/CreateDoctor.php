@@ -30,6 +30,7 @@ class CreateDoctor extends CreateRecord
             'status' => 1,
             'designation' => 'Doctor',
             'qualification' => 'N/A',
+            'owner_type' => 'App\\Models\\Doctor',
             'language' => 'es',
             'department_id' => 1,
             'hospital_name' => '',
@@ -64,6 +65,20 @@ class CreateDoctor extends CreateRecord
         );
 
         return $data;
+    }
+
+    protected function afterCreate(): void
+    {
+        /** @var \App\Models\Doctor $doctor */
+        $doctor = $this->record;
+
+        $user = $doctor->user;
+        
+        if ($user) {
+            $user->owner_id = $doctor->id;
+            $user->owner_type = Doctor::class;
+            $user->save();
+        }
     }
 
 }

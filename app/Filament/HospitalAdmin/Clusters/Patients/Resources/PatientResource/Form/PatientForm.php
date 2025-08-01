@@ -69,7 +69,7 @@ class PatientForm
                     ->options($genderOptions)
                     ->columns(count($genderOptions)),
                 DatePicker::make('dob')
-                    ->native(false)
+                    ->native(true)
                     ->maxDate(now())
                     ->label(__('messages.user.dob') . ':'),
             ])->columns(2),
@@ -87,11 +87,13 @@ class PatientForm
                         ->label(__('messages.patient.residence_department') . ':')
                         ->options(function (callable $get) {
                             if (! $get('rips_country_id')) return [];
-                            return RipsDepartment::where('rips_country_id', $get('rips_country_id'))->pluck('name', 'id');
+                            return RipsDepartment::where('rips_country_id', $get('rips_country_id'))
+                                ->orderBy('name')
+                                ->pluck('name', 'id');
                         })
                         ->required()
                         ->searchable()
-                        ->default(fn () => RipsDepartment::where('name', 'Antioquia')->value('id'))
+                        //->default(fn () => RipsDepartment::where('name', 'Antioquia')->value('id'))
                         ->live()
                         ->afterStateUpdated(fn (callable $set) => $set('rips_municipality_id', null)),
                 ])->columns(2),
@@ -100,9 +102,11 @@ class PatientForm
                         ->label(__('messages.patient.residence_city') . ':')
                         ->options(function (callable $get) {
                             if (! $get('rips_department_id')) return [];
-                            return RipsMunicipality::where('rips_department_id', $get('rips_department_id'))->pluck('name', 'id');
+                            return RipsMunicipality::where('rips_department_id', $get('rips_department_id'))
+                                ->orderBy('name')
+                                ->pluck('name', 'id');
                         })
-                        ->default(fn () => RipsMunicipality::where('name', 'Medellín')->value('id'))
+                        //->default(fn () => RipsMunicipality::where('name', 'Medellín')->value('id'))
                         ->required()
                         ->searchable(),
                     Select::make('zone_code')

@@ -12,9 +12,9 @@ class RipsPayerAgreementRelationManager extends RelationManager
 {
     protected static string $relationship = 'agreements'; // <- Este nombre debe ser el método en el modelo RipsPayer
 
-    protected static ?string $title = 'Acuerdos';
-    protected static ?string $modelLabel = 'Acuerdo';
-    protected static ?string $pluralModelLabel = 'Acuerdos';
+    protected static ?string $title = 'Convenios';
+    protected static ?string $modelLabel = 'Convenio';
+    protected static ?string $pluralModelLabel = 'Convenios';
 
 
 

@@ -143,6 +143,7 @@ class ViewPatient extends ViewRecord
                         Tabs\Tab::make(__('messages.cases'))->schema([
                             Livewire::make(PatientCasesRelationTable::class)
                         ]),
+                        /*
                         Tabs\Tab::make(__('messages.patient_admissions'))->schema([
                             Livewire::make(PatientAdmissionRelationTable::class)
                         ]),
@@ -164,6 +165,7 @@ class ViewPatient extends ViewRecord
                         Tabs\Tab::make(__('messages.vaccinations'))->schema([
                             Livewire::make(PatientVaccinationRelationTable::class)
                         ]),
+                        */
                     ])->columnSpanFull(),
             ]);
     }

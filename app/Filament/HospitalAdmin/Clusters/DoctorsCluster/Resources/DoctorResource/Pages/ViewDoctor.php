@@ -83,11 +83,13 @@ class ViewDoctor extends ViewRecord
                         ->label('')
                         ->formatStateUsing(fn($record) => "<span class='text-2xl font-bold text-primary-600'>" . (isset($record->patients) && $record->patients ? $record->patients->count() : '0')  . "</span> <br> " . __('messages.patients'))
                         ->html()->extraAttributes(['class' => 'border p-6 rounded-xl'])->columnSpan(2),
+                    /*
                     TextEntry::make('id')
                         ->label('')
                         ->formatStateUsing(fn($record) => "<span class='text-2xl font-bold text-primary-600'>" . (isset($record->appointments) && $record->appointments ? $record->appointments->count() : '0')  . "</span> <br> " . "<span>" . __('messages.patient.total_appointments') . "</span>")
                         ->html()->extraAttributes(['class' => 'border p-6 rounded-xl'])
                         ->columnSpan(2),
+                        */
                 ])->columns(10),
                 Tabs::make('Tabs')
                     ->tabs([
@@ -148,6 +150,7 @@ class ViewDoctor extends ViewRecord
                             ->schema([
                                 Livewire::make(DoctorPatientRelationTable::class),
                             ]),
+                        /*    
                         Tabs\Tab::make(__('messages.appointments'))
                             ->schema([
                                 Livewire::make(DoctorAppointmentRelationTable::class),
@@ -160,6 +163,7 @@ class ViewDoctor extends ViewRecord
                             ->schema([
                                 Livewire::make(DoctorPayrollRelationTable::class),
                             ]),
+                            */
                     ])->columnSpanFull(),
             ]);
     }
