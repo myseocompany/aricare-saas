@@ -38,8 +38,13 @@ return new class extends Migration {
 
             $table->string('code', 50)->nullable()->change();
 
-            // Eliminar posibles índices anteriores
-            DB::statement("DROP INDEX IF EXISTS rips_tenant_payer_agreements_name_unique ON rips_tenant_payer_agreements");
+            $indexExists = DB::select("
+                SHOW INDEXES FROM rips_tenant_payer_agreements WHERE Key_name = 'rips_tenant_payer_agreements_name_unique'
+            ");
+
+            if (!empty($indexExists)) {
+                DB::statement("ALTER TABLE rips_tenant_payer_agreements DROP INDEX rips_tenant_payer_agreements_name_unique");
+            }
 
             // Crear índice compuesto correcto
             $table->unique(['tenant_id', 'name'], 'tenant_name_unique');
