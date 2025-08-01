@@ -36,7 +36,7 @@ return new class extends Migration {
             ");
 
             if (empty($indexes)) {
-                $table->unique('name', 'rips_tenant_payer_agreements_name_unique');
+                $table->unique(['tenant_id', 'name'], 'tenant_name_unique');
             }
         });
     }
@@ -45,7 +45,7 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('rips_tenant_payer_agreements', function (Blueprint $table) {
-            $table->dropUnique(['name']);
+            $table->dropUnique('tenant_name_unique');
 
             $table->foreignId('payer_id')->constrained('rips_payers')->onDelete('cascade');
             $table->unique(['payer_id', 'code']);
