@@ -16,6 +16,7 @@ use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsTenantPayerAgreement\
 
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\Form\RipsPayerMinimalForm;
 
+use Illuminate\Support\Carbon;
 use App\Repositories\PatientRepository;
 use App\Repositories\DoctorRepository;
 use App\Models\User;
@@ -51,6 +52,8 @@ class FormService
                                 ->with('user')
                                 ->limit(100)
                                 ->get()
+                                ->sortBy(fn($patient) => strtolower($patient->user?->first_name . ' ' . $patient->user?->last_name)) // 👈 Ordenar alfabéticamente
+        
                                 ->mapWithKeys(fn ($patient) => [$patient->id => $patient->user?->first_name . ' ' . $patient->user?->last_name]);
                         })
 
@@ -79,6 +82,8 @@ class FormService
                                 ->with('user')
                                 ->limit(20)
                                 ->get()
+                                ->sortBy(fn($doctor) => strtolower($doctor->user?->first_name . ' ' . $doctor->user?->last_name)) // 👈 Ordenar alfabéticamente
+        
                                 ->mapWithKeys(fn ($doctor) => [$doctor->id => $doctor->user?->first_name . ' ' . $doctor->user?->last_name]);
                         })
 
@@ -100,12 +105,14 @@ class FormService
                         ->format('Y-m-d')
                         ->native(true)
                         ->inlineLabel()
+                        ->default(now()->toDateString())
                         ->required(),
 
                     Forms\Components\TimePicker::make('service_time')
                         ->label('Hora del Servicio')
                         ->native(true)
                         ->inlineLabel()
+                        ->default(now()->format('H:i'))
                         ->required(),
                     Forms\Components\Select::make('billing_document_id')
                         ->label('Documento Soporte')
