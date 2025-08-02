@@ -6,6 +6,8 @@ use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
+use App\Services\RipsPatientServiceStatusUpdater;
+
 
 use App\Actions\Rips\CreateServiceTemplateFromService;
 use App\Actions\Rips\LoadTemplateToForm;
@@ -26,7 +28,7 @@ class EditRips extends EditRecord
         ];
     }
 
-        protected function handleRecordUpdate(Model $record, array $data): Model
+    protected function handleRecordUpdate(Model $record, array $data): Model
     {
 
 
@@ -52,8 +54,11 @@ class EditRips extends EditRecord
             $record->billing_document_id = null;
             $record->save();
         }
-
+        // ✅ Sincroniza consultas y procedimientos
         app(FormSyncConsultationsAndProcedures::class)($record, $data);
+
+        // ✅ Actualiza automáticamente el estado del servicio
+        app(RipsPatientServiceStatusUpdater::class)->actualizarEstado($record);
 
         return $record;
     }

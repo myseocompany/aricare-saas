@@ -21,6 +21,7 @@ class RipsPatientService extends Model
         'has_incapacity',
         'service_datetime',
         'requires_fev',
+        'status_id',
     ];
 
     // Relación con el paciente
@@ -33,6 +34,11 @@ class RipsPatientService extends Model
     public function doctor(): BelongsTo
     {
         return $this->belongsTo(Doctor::class);
+    }
+
+    public function status(): BelongsTo
+    {
+        return $this->belongsTo(RipsStatus::class, 'status_id');
     }
 
     public function procedures()

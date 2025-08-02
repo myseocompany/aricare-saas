@@ -52,22 +52,21 @@ class FormTable
                         return view('rips.billing_document_badge', ['record' => $record]);
                 }),
 
-            Tables\Columns\TextColumn::make('billingDocument.submission_status')
+            TextColumn::make('status.name')
                 ->label('Estado')
                 ->badge()
-                ->color(fn ($state) => match ($state) {
-                    'accepted' => 'success',
-                    'rejected' => 'danger',
-                    'pending'  => 'primary',
-                    default    => 'gray',
+                ->color(fn ($record) => match ($record->status_id) {
+                    1 => 'gray',      // Incompleto
+                    2 => 'info',      // Listo
+                    3 => 'warning',   // Sin Enviar
+                    4 => 'success',   // Aceptado
+                    5 => 'danger',    // Rechazado
+                    default => 'secondary',
                 })
-                ->formatStateUsing(fn ($state) => match ($state) {
-                    'accepted' => 'Aceptado',
-                    'rejected' => 'Rechazado',
-                    'pending'  => 'Pendiente',
-                    default    => 'Sin estado',
-                })
+                ->tooltip(fn ($record) => $record->status->description ?? '')
                 ->sortable(),
+
+
 
             Tables\Columns\SpatieMediaLibraryImageColumn::make('patient.user.profile')
                 ->label('Paciente')
@@ -299,8 +298,20 @@ SelectFilter::make('convenio')
                     ->requiresConfirmation()
                     ->color('success')
                     ->icon('heroicon-o-paper-airplane')
-
-, // Ícono del botón (avión de papel)
+                
+                /*Tables\Actions\BulkAction::make('generarYEnviarRips')
+                    ->label('Generar y Enviar RIPS')
+                    ->action(function ($records) {
+                        $tenantId = auth()->user()->tenant_id;
+                        app(\App\Services\RipsCoordinatorService::class)
+                            ->enviarDesdeSeleccion($records->all(), $tenantId);
+                    })
+                    ->modalHeading('Generando y enviando RIPS...')
+                    ->modalContent(view('filament.modals.enviando-spinner'))
+                    ->modalSubmitAction(false) // ❌ Oculta botón "Enviar"
+                    ->modalCancelAction(false) // ❌ Oculta botón "Cancelar"
+                    ->color('success')
+                    ->icon('heroicon-o-paper-airplane')*/
             ])
         ]);
     }

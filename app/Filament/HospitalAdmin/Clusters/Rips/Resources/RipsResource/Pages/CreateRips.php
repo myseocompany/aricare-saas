@@ -4,6 +4,7 @@ namespace App\Filament\HospitalAdmin\Clusters\RIPS\Resources\RipsResource\Pages;
 
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource;
 use App\Models\Rips\RipsBillingDocument;
+use App\Services\RipsPatientServiceStatusUpdater;
 
 
 use Filament\Resources\Pages\CreateRecord;
@@ -45,7 +46,8 @@ class CreateRips extends CreateRecord
             $record->billing_document_id = $billingDocument->id;
             $record->save();
         }
-        
+        // ✅ Llama aquí al servicio que actualiza el estado automáticamente
+        app(RipsPatientServiceStatusUpdater::class)->actualizarEstado($record);
         app(FormSyncConsultationsAndProcedures::class)($record, $data);
 
         return $record;

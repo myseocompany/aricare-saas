@@ -161,9 +161,10 @@ class RipsCoordinatorService
      */
     public function procesarYEnviarGrupoManual(string $tenantId, int $agreementId, string $startDate, string $endDate, bool $conFactura, array $facturas): void
     {
-        // Obtiene el token de autenticación
+        // 🔐 Intenta obtener el token de autenticación desde SISPRO para este tenant
         $token = $this->tokenService->obtenerToken($tenantId);
 
+        // ⚠️ Si no obtiene token, muestra una notificación de error y detiene todo
         if (!$token) {
             Notification::make()
                 ->title('Error de autenticación')
@@ -174,30 +175,55 @@ class RipsCoordinatorService
             return;
         }
 
+        // 🛠️ Preparamos el servicio que se encargará de enviar los RIPS con ese token
         $this->submissionService = new RipsSubmissionService($token);
+
+        // 🗃️ Aquí se irán guardando los resultados del envío de cada factura
         $resultados = [];
 
+        // ✅ Recorremos cada factura que fue generada en el JSON
         foreach ($facturas as $index => $factura) {
+            // 🧾 Obtenemos el número del documento (factura o nota)
             $numero = $factura['rips']['numFactura'] ?? $factura['rips']['numNota'] ?? 'documento_' . $index;
 
+            // 🔎 Buscamos ese documento en la base de datos
             $documento = RipsBillingDocument::where('tenant_id', $tenantId)
                 ->where('document_number', $numero)
                 ->first();
 
+            // 🚀 Enviamos el documento a la API SISPRO (puede ser factura o nota)
             $respuesta = $this->submissionService->enviarFactura($factura, $conFactura);
 
+            // 💾 Guardamos una copia de la respuesta en el disco (respaldo)
             $filename = "respuesta_rips_{$numero}_" . now()->format('Ymd_His') . '.json';
             Storage::put("respuestas/{$filename}", json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-            $estado = 'pending';
+            // 📌 Evaluamos el estado del envío según la respuesta de la API
+            $estado = 'pending'; // por defecto
             if (isset($respuesta['response']['ResultState'])) {
                 $estado = $respuesta['response']['ResultState'] === true ? 'accepted' : 'rejected';
             }
 
+            // 📝 Actualizamos el estado del documento en la base de datos
             if ($documento) {
                 $documento->update(['submission_status' => $estado]);
+
+                // 🔁 Recorremos todos los servicios asociados a este documento
+                $servicioUpdater = app(\App\Services\RipsPatientServiceStatusUpdater::class);
+                foreach ($documento->patientServices as $servicio) {
+                    // 📌 Verificamos si este servicio fue incluido en el JSON enviado
+                    if ($this->servicioIncluidoEnFactura($servicio, $factura)) {
+                        // ✅ Se envió, actualizamos con el resultado (aceptado o rechazado)
+                        $servicioUpdater->actualizarEstado($servicio, $estado);
+                    } else {
+                        // ❗ No se envió (no fue seleccionado) => se marca como SinEnviar
+                        $servicio->status_id = 3; // SinEnviar
+                        $servicio->save();
+                    }
+                }
             }
 
+            // 📊 Guardamos el resultado de esta factura para mostrar en la notificación final
             $resultados[] = [
                 'factura' => $numero,
                 'success' => $respuesta['success'],
@@ -206,14 +232,17 @@ class RipsCoordinatorService
             ];
         }
 
+        // 📈 Contamos cuántas fueron exitosas y cuántas fallaron
         $errores = collect($resultados)->where('success', false)->count();
         $exitos = collect($resultados)->where('success', true)->count();
 
+        // 📝 Construimos el mensaje del resumen para el usuario
         $body = "Facturas exitosas: {$exitos}<br>Errores: {$errores}<br><br>";
         $body .= collect($resultados)->map(function ($r) {
             return "<strong>{$r['factura']}</strong>: <a href='" . asset("storage/respuestas/{$r['archivo']}") . "' target='_blank'>Ver respuesta</a>";
         })->implode("<br>");
 
+        // 📢 Mostramos la notificación resumen con enlaces a cada respuesta
         Notification::make()
             ->title('Resultado del envío de RIPS')
             ->body($body)
@@ -221,6 +250,31 @@ class RipsCoordinatorService
             ->persistent()
             ->send();
     }
+
+    /**
+     * 🔍 Verifica si un servicio RIPS (consulta o procedimiento) fue incluido
+     * en el JSON de una factura enviada a SISPRO.
+     *
+     * Esto es útil para saber si un servicio fue realmente enviado o no,
+     * ya que una factura puede tener varios servicios, pero quizás solo se seleccionaron algunos.
+     *
+     * @param  mixed  $servicio El servicio RIPS (consulta o procedimiento) que queremos verificar.
+     * @param  array  $factura  El JSON completo de la factura enviada (incluye listas de consultas y procedimientos).
+     * @return bool             Devuelve true si el servicio sí está incluido en esa factura.
+     */
+    protected function servicioIncluidoEnFactura($servicio, $factura): bool
+    {
+        // ✅ Recorremos la lista de consultas del JSON (si existen), y extraemos solo los ID
+        $idsConsultas = collect($factura['consultas'] ?? [])->pluck('id');
+
+        // ✅ Recorremos la lista de procedimientos del JSON (si existen), y extraemos solo los ID
+        $idsProcedimientos = collect($factura['procedimientos'] ?? [])->pluck('id');
+
+        // 🧠 Si el ID del servicio que estamos evaluando aparece en cualquiera de las dos listas, retornamos true
+        return $idsConsultas->contains($servicio->id) || $idsProcedimientos->contains($servicio->id);
+    }
+
+
 
     /**
      * Flujo completo cuando el usuario selecciona manualmente documentos desde la tabla.
