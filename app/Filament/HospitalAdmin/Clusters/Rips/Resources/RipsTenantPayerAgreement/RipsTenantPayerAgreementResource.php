@@ -5,6 +5,8 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsTenantPayerAgre
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocumentsCluster;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsTenantPayerAgreement\RipsTenantPayerAgreementResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsTenantPayerAgreement\RipsTenantPayerAgreementResource\RelationManagers;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsTenantPayerAgreement\RipsTenantPayerAgreementResource\Form\AgreementMinimalForm;
+
 use App\Models\Rips\RipsTenantPayerAgreement;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -17,6 +19,8 @@ use App\Filament\HospitalAdmin\Clusters\RipsCluster;
 
 use Filament\Pages\SubNavigationPosition;
 
+
+
 class RipsTenantPayerAgreementResource extends Resource
 {
     protected static ?string $model = RipsTenantPayerAgreement::class;
@@ -28,23 +32,7 @@ class RipsTenantPayerAgreementResource extends Resource
 
     public static function form(Form $form): Form
     {
-        return $form
-            ->schema([
-                Forms\Components\Hidden::make('tenant_id')
-                    ->default(fn () => auth()->user()->tenant_id)
-                    ->required(),
-
-                Forms\Components\TextInput::make('name')
-                    ->label(__('messages.rips.payer_agreement.name'))
-                    ->required()
-                    ->maxLength(255),
-
-                Forms\Components\TextInput::make('code')
-                    ->label(__('messages.rips.payer_agreement.code'))
-                    ->required()
-                    ->maxLength(50),
-
-            ]);
+        return $form->schema(AgreementMinimalForm::schema());
     }
 
 

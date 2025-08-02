@@ -11,6 +11,8 @@ use Filament\Forms\Set;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form\PatientForm;
 use App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource\Form\DoctorForm;
 use App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource\Form\DoctorMinimalForm;
+use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsTenantPayerAgreement\RipsTenantPayerAgreementResource\Form\AgreementMinimalForm;
+
 
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPayers\RipsPayerResource\Form\RipsPayerMinimalForm;
 
@@ -105,68 +107,49 @@ class FormService
                         ->native(true)
                         ->inlineLabel()
                         ->required(),
-
                     Forms\Components\Select::make('billing_document_id')
-                        ->label('Factura')
+                        ->label('Documento Soporte')
                         ->searchable()
                         ->inlineLabel()
                         ->nullable()
                         ->options(function () {
                             $tenantId = auth()->user()->tenant_id;
-
-                            return \App\Models\Rips\RipsBillingDocument::query()
-                                ->where('tenant_id', $tenantId)
-                                ->orderByDesc('created_at') // Opcional: prioriza recientes
-                                ->limit(100) // o más si deseas
-                                ->get()
-                                ->mapWithKeys(fn ($doc) => [$doc->id => $doc->document_number]);
+                            return \App\Models\Rips\RipsTenantPayerAgreement::where('tenant_id', $tenantId)
+                                ->orderBy('name')
+                                ->pluck('name', 'id');
                         })
                         ->afterStateUpdated(function ($state, callable $set) {
-                            $agreement = null;
-                            if ($state) {
-                                $agreement = \App\Models\Rips\RipsBillingDocument::find($state)?->agreement_id;
-                            }
+                            $agreement = \App\Models\Rips\RipsBillingDocument::find($state)?->agreement_id;
                             $set('agreement_id', $agreement);
                         })
                         ->createOptionForm([
-                            Forms\Components\TextInput::make('document_number')
-                                ->label('Número de Factura')
-                                ->maxLength(30)
+                            Forms\Components\Select::make('type_id')
+                                ->label('Tipo de Documento')
+                                ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
                                 ->required(),
+                            Forms\Components\TextInput::make('document_number')
+                                ->label('Número de Documento')
+                                ->required()
+                                ->maxLength(30),
 
                             Forms\Components\Select::make('agreement_id')
                                 ->label('Convenio')
-                                ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
                                 ->searchable()
+                                ->options(function () {
+                                    $tenantId = auth()->user()->tenant_id;
+                                    return \App\Models\Rips\RipsTenantPayerAgreement::where('tenant_id', $tenantId)
+                                        ->pluck('name', 'id');
+                                })
                                 ->createOptionForm([
-                                    Select::make('payer_id')
-                                        ->label('Pagador')
-                                        ->options(\App\Models\Rips\RipsPayer::pluck('name', 'id'))
-                                        ->searchable()
-                                        //->createOptionForm(RipsPayerMinimalForm::schema())
-                                        ->createOptionUsing(function (array $data) {
-                                            $data['tenant_id'] = auth()->user()->tenant_id;
-                                            return \App\Models\Rips\RipsPayer::create($data)->id;
-                                        })
-                                        ->required(),
                                     Forms\Components\TextInput::make('name')
-                                        ->label('Nombre del convenio')
+                                        ->label('Nombre del Convenio')
                                         ->required(),
                                     Forms\Components\TextInput::make('code')
                                         ->label('Código')
                                         ->required(),
-                                    Forms\Components\Textarea::make('description')
-                                        ->label('Descripción')
-                                        ->maxLength(500),
-                                    Forms\Components\DatePicker::make('start_date')
-                                        ->label('Fecha de inicio')
-                                        ->required(),
-                                    Forms\Components\DatePicker::make('end_date')
-                                        ->label('Fecha de finalización')
-                                        ->afterOrEqual('start_date')
-                                        ->nullable(),
                                 ])
                                 ->createOptionUsing(function (array $data) {
+                                    $data['tenant_id'] = auth()->user()->tenant_id;
                                     return \App\Models\Rips\RipsTenantPayerAgreement::create($data)->id;
                                 })
                                 ->required(),
@@ -174,12 +157,13 @@ class FormService
                         ->createOptionUsing(function (array $data) {
                             return \App\Models\Rips\RipsBillingDocument::create([
                                 'tenant_id' => auth()->user()->tenant_id,
-                                'type_id' => 1, // Tipo factura
+                                'type_id' => $data['type_id'], // Puedes hacerlo dinámico si manejas otros tipos
                                 'document_number' => $data['document_number'],
                                 'agreement_id' => $data['agreement_id'],
                                 'issued_at' => now(),
                             ])->id;
                         }),
+
                     Forms\Components\Toggle::make('requires_fev')
                         ->label('Requiere FEV')
                         ->inlineLabel()
