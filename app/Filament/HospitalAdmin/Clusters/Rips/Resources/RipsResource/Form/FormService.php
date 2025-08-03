@@ -182,9 +182,7 @@ class FormService
                         ->inlineLabel()
                         ->disabled()
                         ->dehydrated(false)
-
                         ->visible(fn ($get) => filled($get('billing_document_id')))
-
                         ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->code . ')')
                         ->afterStateHydrated(function ($component, $state) {
                             $record = $component->getRecord();
@@ -195,44 +193,42 @@ class FormService
                         ->options(function (string $search = null) {
                             $tenantId = Auth::user()->tenant_id;
                             return \App\Models\Rips\RipsTenantPayerAgreement::query()
-                                ->whereHas('payer', function ($query) use ($tenantId) {
-                                    $query->where('tenant_id', $tenantId);
-                                })
+                                ->where('tenant_id', $tenantId)
                                 ->where(function ($query) use ($search) {
-                                    $query->where('document_number', 'like', "%{$search}%");
+                                    $query->where('name', 'like', "%{$search}%")
+                                        ->orWhere('code', 'like', "%{$search}%");
                                 })
                                 ->limit(20)
                                 ->get()
                                 ->mapWithKeys(fn ($agreement) => [$agreement->id => $agreement->name . ' (' . $agreement->code . ')']);
-                        })
+                        }),
 
-                        ,
 
 
 
 
                     
                     Forms\Components\Select::make('template_id')
-    ->label('Usar Plantilla')
-    ->searchable()
-    ->inlineLabel()
-    ->options(function () {
-        $tenantId = auth()->user()->tenant_id;
-        return \App\Models\Rips\RipsPatientServiceTemplate::query()
-            ->where('tenant_id', $tenantId)
-            ->orWhere('is_public', true)
-            ->pluck('name', 'id');
-    })
-    ->live()
-    ->afterStateUpdated(function (  $state, Set $set) {
-        if ($state) {
-            $data = app(\App\Actions\Rips\LoadTemplateToForm::class)($state);
-            
-            $set('consultations', $data['consultations'] ?? []);
-            $set('procedures', $data['procedures'] ?? []);
-        }
-    })
-    ->columnSpan(1),
+                        ->label('Usar Plantilla')
+                        ->searchable()
+                        ->inlineLabel()
+                        ->options(function () {
+                            $tenantId = auth()->user()->tenant_id;
+                            return \App\Models\Rips\RipsPatientServiceTemplate::query()
+                                ->where('tenant_id', $tenantId)
+                                ->orWhere('is_public', true)
+                                ->pluck('name', 'id');
+                        })
+                        ->live()
+                        ->afterStateUpdated(function (  $state, Set $set) {
+                            if ($state) {
+                                $data = app(\App\Actions\Rips\LoadTemplateToForm::class)($state);
+                                
+                                $set('consultations', $data['consultations'] ?? []);
+                                $set('procedures', $data['procedures'] ?? []);
+                            }
+                        })
+                        ->columnSpan(1),
 
 
                     Forms\Components\Toggle::make('save_as_template')
