@@ -20,39 +20,69 @@ use Illuminate\Support\Facades\File;
 
 class RipsGeneratorService
 {
-    public function generateOnlySelected(Collection $patientServices)
-    {
-        // Arrays donde se almacenan los errores detectados
-        $missingServicesByDocument = [];  // Documentos que tienen servicios no seleccionados
-        $missingXmlDocuments = [];       // Facturas que requieren XML pero no lo tienen
+    // 🆕 Aquí guardaremos los IDs incluidos en el JSON
+    public array $includedServiceIds = [];
 
-        // Agrupamos los servicios seleccionados por su factura o nota (billing_document_id)
+    public function getIncludedServiceIds(): array
+    {
+        return $this->includedServiceIds;
+    }
+    //public function generateOnlySelected(Collection $patientServices)
+    /**
+     * Genera el JSON RIPS únicamente con los servicios seleccionados por el usuario.
+     * Este método también realiza validaciones:
+     * - Si faltan servicios en alguna factura o nota, se muestra advertencia.
+     * - Si alguna factura requiere XML FEV y no lo tiene, se detiene el proceso.
+     * Puede funcionar en dos modos:
+     * - 'generar': solo genera el JSON y permite descargarlo.
+     * - 'enviar': genera el JSON para luego enviarlo a la API.
+     *
+     * @param Collection $patientServices Lista de servicios seleccionados.
+     * @param string $modo 'generar' o 'enviar' según el flujo deseado.
+     * @return array|null JSON RIPS generado, o null si hubo alguna validación pendiente.
+     */
+    public function generateOnlySelected(Collection $patientServices, string $modo = 'generar')
+    {
+        // 🧮 Listas para acumular errores detectados durante la validación
+        $missingServicesByDocument = [];  // Facturas o notas donde no se seleccionaron todos los servicios
+        $missingXmlDocuments = [];        // Facturas tipo FEV sin archivo XML obligatorio
+
+        Log::info("🧪 Iniciando validación de servicios seleccionados. Modo: {$modo}");
+
+        // 🗂️ Agrupamos los servicios seleccionados por documento (factura o nota)
         $grouped = $patientServices->groupBy('billing_document_id');
 
-        // Recorremos cada grupo (documento)
+        // 🔍 Recorremos cada grupo (documento) para validar
         foreach ($grouped as $documentId => $selectedServices) {
-            // Traemos TODOS los servicios reales asociados a ese documento
+            // 🔄 Traemos todos los servicios reales asociados a ese documento
             $allServices = RipsPatientService::where('billing_document_id', $documentId)->get();
 
-            // Si el usuario no seleccionó todos los servicios, los guardamos en la lista de faltantes
+            // ❗ Si hay servicios no seleccionados, los guardamos para advertencia
             if ($selectedServices->count() < $allServices->count()) {
                 $missingServicesByDocument[$documentId] = $allServices->diff($selectedServices);
+                Log::warning("⚠️ Servicios faltantes en documento ID {$documentId}");
             }
 
-            // Verificamos si es una factura (type_id = 1) y necesita XML FEV
+            // 📄 Validamos si requiere archivo XML FEV
             $document = \App\Models\Rips\RipsBillingDocument::find($documentId);
-
             if ($document && $document->type_id === 1) {
                 $fullPath = storage_path('app/public/' . $document->xml_path);
 
-                // Si no tiene ruta válida o el archivo no existe, se marca como faltante
                 if (empty($document->xml_path) || !file_exists($fullPath)) {
                     $missingXmlDocuments[] = $document->document_number;
+                    Log::warning("🚫 Falta XML para factura {$document->document_number}");
                 }
             }
         }
 
-        // 🚫 Si hay facturas sin XML obligatorio, se cancela todo y se notifica al usuario
+        if (session('rips_confirmado') === true) {
+            Log::info("✅ Confirmación previa detectada. Se omiten validaciones de servicios faltantes.");
+            session()->forget('rips_confirmado'); // Limpia después de usar
+            Log::info("✅ Validaciones completadas exitosamente. Construyendo JSON RIPS...");
+            return $this->buildRipsFromSelectedServices($patientServices);
+        }
+
+        // 🛑 Si hay facturas sin XML, se cancela todo el proceso y se muestra advertencia
         if (!empty($missingXmlDocuments)) {
             $facturasSinXml = implode(', ', $missingXmlDocuments);
 
@@ -63,18 +93,23 @@ class RipsGeneratorService
                 ->persistent()
                 ->send();
 
+            Log::warning("⛔ Proceso detenido por falta de XML en: {$facturasSinXml}");
             return null;
         }
 
-        // ⚠️ Si hay servicios faltantes por documento, se muestra advertencia y se espera confirmación del usuario
+        // ⚠️ Si hay servicios faltantes, se muestra advertencia y se espera confirmación del usuario
         if (!empty($missingServicesByDocument)) {
-            // Se guarda temporalmente en sesión los servicios seleccionados para usarlos después
+            // 🧠 Guardamos temporalmente en sesión los servicios seleccionados para reusarlos después
             session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
-
-            // Obtenemos los números de factura/nota donde faltan servicios
+            // 🧾 Obtenemos los números de factura/nota donde faltan servicios
             $documentNumbers = \App\Models\Rips\RipsBillingDocument::whereIn('id', array_keys($missingServicesByDocument))
                 ->pluck('document_number')
                 ->implode(', ');
+
+            // 🔁 Elegimos la ruta de confirmación según el modo ('generar' o 'enviar')
+            $url = $modo === 'enviar'
+                ? route('rips.confirmar-envio')
+                : route('rips.confirmar-generacion');
 
             Notification::make()
                 ->title('Servicios faltantes')
@@ -86,7 +121,8 @@ class RipsGeneratorService
                         ->label('Sí, continuar')
                         ->button()
                         ->color('success')
-                        ->url(route('rips.confirmar-generacion')), // Redirige a una ruta para confirmar
+                        ->url($url) // Redirige según el modo
+                        ->close(), // ✅ Cierra el recuadro al hacer clic
                     Action::make('cancelar')
                         ->label('Cancelar')
                         ->button()
@@ -95,12 +131,15 @@ class RipsGeneratorService
                 ])
                 ->send();
 
+            Log::info("⚠️ Advertencia mostrada por servicios faltantes. Esperando confirmación. Modo: {$modo}");
             return null;
         }
 
-        // ✅ Si no hay problemas, se construye el JSON de los servicios seleccionados
+        // ✅ Todo en orden: se construye el JSON RIPS a partir de los servicios seleccionados
+        Log::info("✅ Validaciones completadas exitosamente. Construyendo JSON RIPS...");
         return $this->buildRipsFromSelectedServices($patientServices);
     }
+
 
 
 
@@ -171,7 +210,10 @@ class RipsGeneratorService
                     : null
             ];
         }
+        $this->includedServiceIds = array_unique($this->includedServiceIds);
 
+        // También lo guardamos en sesión para usarlo al enviar
+        session(['rips_servicios_incluidos' => $this->includedServiceIds]);
         return $ripsData;
     }
 
@@ -316,6 +358,8 @@ class RipsGeneratorService
 
         foreach ($services as $service) {
             foreach ($service->consultations as $consulta) {
+                // 🆕 Guardamos el ID del servicio
+                $this->includedServiceIds[] = $service->id;
                 $diagnosticos = $consulta->diagnoses->sortBy('sequence');
                 $diagnosticoPrincipal = $diagnosticos->firstWhere('sequence', 1);
                 //$diagnosticosRelacionados = $diagnosticos->where('sequence', '>', 1)->take(3);
@@ -363,6 +407,8 @@ class RipsGeneratorService
 
         foreach ($services as $service) {
             foreach ($service->procedures as $procedure) {
+                // 🆕 Guardamos el ID del servicio
+                $this->includedServiceIds[] = $service->id;
                 //sdd($procedure);
                 $procedimientos[] = [
                     //'codPrestador' => $service->doctor->rips_provider_code,
@@ -505,4 +551,46 @@ class RipsGeneratorService
     {
         return $this->generateByServices($agreementId, $startDate, $endDate, $conFactura);
     }
+
+    /**
+     * Método auxiliar que genera el JSON desde los servicios guardados en sesión
+     * luego de que el usuario confirma continuar tras advertencia.
+     */
+    public function confirmarGeneracionDesdeSesion(): ?array
+    {
+        $ids = session('rips_servicios_seleccionados', []);
+
+        if (empty($ids)) {
+            Log::warning('⚠️ No hay servicios seleccionados en la sesión (confirmación).');
+            return null;
+        }
+
+        // Cargamos los servicios con sus relaciones necesarias
+        $patientServices = \App\Models\Rips\RipsPatientService::with([
+            'billingDocument',
+            'patient.user',
+            'consultations.diagnoses.cie10',
+            'consultations.cups',
+            'consultations.serviceGroup',
+            'consultations.service',
+            'consultations.technologyPurpose',
+            'consultations.collectionConcept',
+            'procedures.cups',
+            'procedures.cie10',
+            'procedures.surgeryCie10',
+            'procedures.admissionRoute',
+            'procedures.serviceGroup',
+            'procedures.service',
+            'procedures.technologyPurpose',
+            'procedures.collectionConcept',
+            'doctor.user',
+        ])->whereIn('id', $ids)->get();
+
+        // ✅ Marca la sesión como confirmada
+        session(['rips_confirmado' => true]);
+
+        // Genera el JSON a partir de esos servicios
+        return $this->buildRipsFromSelectedServices($patientServices);
+    }
+
 }

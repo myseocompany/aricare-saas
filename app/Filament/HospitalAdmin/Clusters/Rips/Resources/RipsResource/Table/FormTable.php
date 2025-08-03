@@ -263,57 +263,91 @@ SelectFilter::make('convenio')
 ])
 
         ->bulkActions([
-            // Agrupación visual de todas las acciones por lotes
             Tables\Actions\BulkActionGroup::make([
 
-                // ✅ Acción que permite eliminar registros seleccionados desde la tabla
+                // 🗑️ Acción por defecto: Eliminar los servicios seleccionados
                 Tables\Actions\DeleteBulkAction::make(),
 
-                // ✅ Acción que intenta generar el archivo JSON RIPS
-                // Verifica si hay servicios faltantes por documento y pide confirmación
+                // 📦 Acción para generar el JSON RIPS y permitir descarga al usuario
                 Tables\Actions\BulkAction::make('generateRips')
                     ->label('Generar RIPS')
+                    ->icon('heroicon-o-document-text')
+                    ->color('primary')
                     ->action(function ($records) {
+                        Log::info('📦 Acción: Generar RIPS');
                         $service = app(\App\Services\RipsGeneratorService::class);
-                        return $service->generateOnlySelected($records);
+
+                        // Llamamos al método de generación con modo 'generar'
+                        return $service->generateOnlySelected($records, 'generar');
                     }),
 
+                // ✅ Acción que se activa solo si el usuario acepta continuar tras la advertencia
                 Tables\Actions\BulkAction::make('confirmarGeneracionRips')
                     ->action(function () {
-                        Log::info('🚀 Entró a confirmarGeneracionRips desde botón'); 
+                        Log::info('🟢 Confirmación: Generar solo servicios seleccionados');
                         $service = app(\App\Services\RipsGeneratorService::class);
+
+                        // Genera el archivo desde sesión y devuelve el JSON para descargar
                         return $service->confirmarGeneracionDesdeSesion();
                     })
-                    ->hidden(), // Se ejecuta solo por el botón, no aparece visualmente
+                    ->hidden(), // No se muestra como botón, se activa vía JS desde la notificación
 
-
-                // ✅ Acción para generar y enviar RIPS a la API SISPRO
+                // ✈️ Acción para generar el JSON y enviarlo a la API SISPRO
                 Tables\Actions\BulkAction::make('generarYEnviarRips')
                     ->label('Generar y Enviar RIPS')
-                    ->action(function ($records) {
-                        $tenantId = auth()->user()->tenant_id;
-                        app(\App\Services\RipsCoordinatorService::class)
-                            ->enviarDesdeSeleccion($records->all(), $tenantId);
-                    })
-                    ->requiresConfirmation()
-                    ->color('success')
                     ->icon('heroicon-o-paper-airplane')
-                
-                /*Tables\Actions\BulkAction::make('generarYEnviarRips')
-                    ->label('Generar y Enviar RIPS')
-                    ->action(function ($records) {
-                        $tenantId = auth()->user()->tenant_id;
-                        app(\App\Services\RipsCoordinatorService::class)
-                            ->enviarDesdeSeleccion($records->all(), $tenantId);
-                    })
-                    ->modalHeading('Generando y enviando RIPS...')
-                    ->modalContent(view('filament.modals.enviando-spinner'))
-                    ->modalSubmitAction(false) // ❌ Oculta botón "Enviar"
-                    ->modalCancelAction(false) // ❌ Oculta botón "Cancelar"
                     ->color('success')
-                    ->icon('heroicon-o-paper-airplane')*/
+                    ->requiresConfirmation()
+                    ->action(function ($records) {
+                        Log::info('✈️ Acción: Generar y enviar RIPS');
+
+                        $tenantId = auth()->user()->tenant_id;
+                        $service = app(\App\Services\RipsGeneratorService::class);
+
+                        // Generamos el JSON en modo "enviar"
+                        $json = $service->generateOnlySelected($records, 'enviar');
+
+                        if (is_null($json)) {
+                            Log::warning('⚠️ No se generó JSON, proceso de envío detenido.');
+                            return;
+                        }
+
+                        // Usamos los IDs reales incluidos desde sesión
+                        $ids = session('rips_servicios_incluidos', []);
+                        $records = \App\Models\Rips\RipsPatientService::whereIn('id', $ids)->get();
+
+                        app(\App\Services\RipsCoordinatorService::class)
+                            ->enviarDesdeSeleccion($records, $tenantId);
+                    }),
+
+
+                // 🟢 Acción que se ejecuta si el usuario confirma continuar tras advertencia en modo envío
+                Tables\Actions\BulkAction::make('confirmarEnvioRips')
+                    ->action(function () {
+                        Log::info('🟢 Confirmación: Enviar solo servicios seleccionados');
+                        $service = app(\App\Services\RipsGeneratorService::class);
+
+                        $json = $service->confirmarGeneracionDesdeSesion();
+
+                        if (!$json) {
+                            Log::warning('⛔ No se pudo generar el JSON en la confirmación de envío.');
+                            return;
+                        }
+
+                        $tenantId = auth()->user()->tenant_id;
+
+                        // Usamos los IDs reales incluidos desde sesión
+                        $ids = session('rips_servicios_incluidos', []);
+                        $records = \App\Models\Rips\RipsPatientService::whereIn('id', $ids)->get();
+
+                        app(\App\Services\RipsCoordinatorService::class)
+                            ->enviarDesdeSeleccion($records, $tenantId);
+                    })
+                    ->hidden(),
+
             ])
         ]);
+
     }
 }
 

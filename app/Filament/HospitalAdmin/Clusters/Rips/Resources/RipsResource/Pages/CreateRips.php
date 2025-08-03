@@ -17,6 +17,7 @@ use App\Actions\Rips\LoadTemplateToForm;
 use App\Actions\Rips\FormSyncConsultationsAndProcedures;
 use Livewire\Attributes\On;
 
+
 class CreateRips extends CreateRecord
 {
 
@@ -26,7 +27,8 @@ class CreateRips extends CreateRecord
     protected function handleRecordCreation(array $data): Model
     {
         Log::info("CreateRipsPatientService=>", $data);
-        $tenantId = auth()->user()->tenant_id;
+        
+        $tenantId = $user->tenant_id;
         $data['tenant_id'] = $tenantId;
 
         $billingDocument = null;

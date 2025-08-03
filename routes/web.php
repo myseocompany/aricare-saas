@@ -344,6 +344,9 @@ Route::get('/upgrade/database', function () {
 Route::get('/rips/confirmar-generacion', [RipsGeneracionController::class, 'confirmarGeneracion'])
     ->name('rips.confirmar-generacion');
 
+Route::get('/rips/confirmar-envio', [RipsGeneracionController::class, 'confirmarEnvio'])
+    ->name('rips.confirmar-envio');
+
 Route::get('download/temp/rips/{file}', function ($file) {
     $path = 'temp/rips/' . $file;
     $filePath = storage_path('app/' . $path);
