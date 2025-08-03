@@ -121,9 +121,9 @@ class FormService
                         ->nullable()
                         ->options(function () {
                             $tenantId = auth()->user()->tenant_id;
-                            return \App\Models\Rips\RipsTenantPayerAgreement::where('tenant_id', $tenantId)
-                                ->orderBy('name')
-                                ->pluck('name', 'id');
+                            return \App\Models\Rips\RipsBillingDocument::where('tenant_id', $tenantId)
+                                ->orderBy('document_number')
+                                ->pluck('document_number', 'id');
                         })
                         ->afterStateUpdated(function ($state, callable $set) {
                             $agreement = \App\Models\Rips\RipsBillingDocument::find($state)?->agreement_id;
@@ -199,8 +199,7 @@ class FormService
                                     $query->where('tenant_id', $tenantId);
                                 })
                                 ->where(function ($query) use ($search) {
-                                    $query->where('name', 'like', "%{$search}%")
-                                        ->orWhere('code', 'like', "%{$search}%");
+                                    $query->where('document_number', 'like', "%{$search}%");
                                 })
                                 ->limit(20)
                                 ->get()
