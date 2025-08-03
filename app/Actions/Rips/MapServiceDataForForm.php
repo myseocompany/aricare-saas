@@ -46,11 +46,19 @@ class MapServiceDataForForm
                 'copayment_receipt_number' => $consultation->copayment_receipt_number,
                 'service_value' => $consultation->service_value,
                 'copayment_value' => $consultation->copayment_value,
-                'principal_diagnoses' => $consultation->principalDiagnoses->map(fn ($d) => [
-                    'cie10_id' => $d->cie10_id,
-                    'rips_diagnosis_type_id' => $d->rips_diagnosis_type_id,
-                ])->toArray(),
-                'related_diagnoses' => $consultation->relatedDiagnoses->sortBy('sequence')->pluck('cie10_id')->toArray(),
+                'principal_diagnoses' => $consultation->diagnoses
+                    ->where('sequence', 1)
+                    ->map(fn ($d) => [
+                        'cie10_id' => $d->cie10_id,
+                        'rips_diagnosis_type_id' => $d->rips_diagnosis_type_id,
+                    ])
+                    ->values()
+                    ->toArray(),
+                'related_diagnoses' => $consultation->diagnoses
+                    ->where('sequence', '>', 1)
+                    ->map(fn ($d) => $d->cie10_id)
+                    ->values()
+                    ->toArray(),
             ];
         })->toArray();
 
