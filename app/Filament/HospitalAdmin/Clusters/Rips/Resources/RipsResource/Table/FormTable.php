@@ -327,7 +327,8 @@ SelectFilter::make('convenio')
                         Log::info('🟢 Confirmación: Enviar solo servicios seleccionados');
                         $service = app(\App\Services\RipsGeneratorService::class);
 
-                        $json = $service->confirmarGeneracionDesdeSesion();
+                        //$json = $service->confirmarGeneracionDesdeSesion();
+                        $json = $service->confirmarGeneracionDesdeSesion('enviar');
 
                         if (!$json) {
                             Log::warning('⛔ No se pudo generar el JSON en la confirmación de envío.');

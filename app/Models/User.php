@@ -593,7 +593,10 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
     }
     // protected static bool $hasTitleCaseModelLabel = false;
 
-
+    public function ripsGenderType()
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsGenderType::class, 'gender', 'id');
+    }
 
 
 }

@@ -19,17 +19,20 @@ class RipsPatientServiceStatusUpdater
             return;
         }
 
-        if ($fueIncluido) {
-            // Si fue incluido en el envío, se marca según el estado del documento
+        if (is_null($fueIncluido)) {
+        // Modo creación/edición → evaluar si está completo o no
+            $servicio->status_id = $this->datosCompletos($servicio) ? 2 : 1; // 2: Listo, 1: Incompleto
+        } elseif ($fueIncluido === true) {
+            // Fue enviado → evaluar respuesta
             if ($documento->submission_status === 'accepted') {
                 $servicio->status_id = 4; // Aceptado
             } elseif ($documento->submission_status === 'rejected') {
                 $servicio->status_id = 5; // Rechazado
             } else {
-                $servicio->status_id = 2; // Listo (estado intermedio)
+                $servicio->status_id = 2; // Listo
             }
         } else {
-            // Si no fue incluido, se marca como SinEnviar
+            // No fue incluido en el envío → SinEnviar
             $servicio->status_id = 3; // SinEnviar
         }
 

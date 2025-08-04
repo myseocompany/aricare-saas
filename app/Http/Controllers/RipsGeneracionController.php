@@ -54,10 +54,16 @@ class RipsGeneracionController extends Controller
         $nombreArchivo = 'rips_' . now()->format('Ymd_His') . '.json';
         $contenido = json_encode($ripsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
+        // 🧹 Limpieza de sesión
+        session()->forget('rips_confirmado');
+        session()->forget('rips_servicios_seleccionados');
+        session()->forget('rips_servicios_incluidos');
+
         return response($contenido)
             ->header('Content-Type', 'application/json')
             ->header('Content-Disposition', 'attachment; filename="' . $nombreArchivo . '"');
     }
+
 
     /**
      * 📤 Confirmación para ENVIAR el JSON (no descarga)
@@ -100,6 +106,10 @@ class RipsGeneracionController extends Controller
         $tenantId = auth()->user()->tenant_id;
 
         $coordinator->enviarDesdeSeleccion($patientServices, $tenantId);
+        // 🧹 Limpieza de sesión después del envío
+        session()->forget('rips_confirmado');
+        session()->forget('rips_servicios_seleccionados');
+        session()->forget('rips_servicios_incluidos');
 
         return redirect()->back(); // O a donde quieras redirigir después del envío
     }

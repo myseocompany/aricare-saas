@@ -321,7 +321,13 @@ class RipsCoordinatorService
         session()->forget('rips_json_generado');
 
         // Genera el JSON solo con los documentos seleccionados
-        $jsonRips = $this->generatorService->generateOnlySelected(collect($records));
+        $jsonRips = $this->generatorService->generateOnlySelected(collect($records), 'enviar');
+
+        if (!is_array($jsonRips)) {
+            Log::error('⛔ El resultado de generateOnlySelected no es un array. Proceso detenido.');
+            return;
+        }
+        //$jsonRips = $this->generatorService->generateOnlySelected(collect($records));
 
         // Si hay algún error y no se puede generar, detenemos el flujo
         if (is_null($jsonRips)) {

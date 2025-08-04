@@ -43,31 +43,44 @@ class RipsGeneratorService
      */
     public function generateOnlySelected(Collection $patientServices, string $modo = 'generar')
     {
-        // 🧮 Listas para acumular errores detectados durante la validación
-        $missingServicesByDocument = [];  // Facturas o notas donde no se seleccionaron todos los servicios
-        $missingXmlDocuments = [];        // Facturas tipo FEV sin archivo XML obligatorio
-
         Log::info("🧪 Iniciando validación de servicios seleccionados. Modo: {$modo}");
 
-        // 🗂️ Agrupamos los servicios seleccionados por documento (factura o nota)
+        // 🔁 Si ya está confirmado, saltamos validaciones
+        if (session('rips_confirmado') === true) {
+            Log::info("✅ Confirmación previa detectada. Se omiten validaciones de servicios faltantes.");
+            Log::info("🟢 Confirmación detectada, modo: {$modo}. Generación/Envío continua sin advertencias.");
+
+            session()->forget('rips_confirmado');
+
+            // Guardamos otra vez los IDs en sesión para la generación
+            session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
+
+            if ($modo === 'generar') {
+                Log::info("📤 Redirigiendo a descarga directa tras confirmación previa.");
+                return redirect()->to(route('rips.confirmar-generacion'));
+            }
+
+            // Si es modo enviar, construimos y devolvemos el JSON
+            return $this->buildRipsFromSelectedServices($patientServices);
+        }
+
+        // 🧮 Validaciones normales
+        $missingServicesByDocument = [];
+        $missingXmlDocuments = [];
+
         $grouped = $patientServices->groupBy('billing_document_id');
 
-        // 🔍 Recorremos cada grupo (documento) para validar
         foreach ($grouped as $documentId => $selectedServices) {
-            // 🔄 Traemos todos los servicios reales asociados a ese documento
             $allServices = RipsPatientService::where('billing_document_id', $documentId)->get();
 
-            // ❗ Si hay servicios no seleccionados, los guardamos para advertencia
             if ($selectedServices->count() < $allServices->count()) {
                 $missingServicesByDocument[$documentId] = $allServices->diff($selectedServices);
                 Log::warning("⚠️ Servicios faltantes en documento ID {$documentId}");
             }
 
-            // 📄 Validamos si requiere archivo XML FEV
             $document = \App\Models\Rips\RipsBillingDocument::find($documentId);
             if ($document && $document->type_id === 1) {
                 $fullPath = storage_path('app/public/' . $document->xml_path);
-
                 if (empty($document->xml_path) || !file_exists($fullPath)) {
                     $missingXmlDocuments[] = $document->document_number;
                     Log::warning("🚫 Falta XML para factura {$document->document_number}");
@@ -75,17 +88,9 @@ class RipsGeneratorService
             }
         }
 
-        if (session('rips_confirmado') === true) {
-            Log::info("✅ Confirmación previa detectada. Se omiten validaciones de servicios faltantes.");
-            session()->forget('rips_confirmado'); // Limpia después de usar
-            Log::info("✅ Validaciones completadas exitosamente. Construyendo JSON RIPS...");
-            return $this->buildRipsFromSelectedServices($patientServices);
-        }
-
-        // 🛑 Si hay facturas sin XML, se cancela todo el proceso y se muestra advertencia
+        // 🛑 Si hay facturas sin XML, detenemos todo
         if (!empty($missingXmlDocuments)) {
             $facturasSinXml = implode(', ', $missingXmlDocuments);
-
             Notification::make()
                 ->title('Facturas sin archivo XML')
                 ->body("Las siguientes facturas no tienen cargado el XML FEV requerido: <strong>{$facturasSinXml}</strong>. Por favor cárguelos antes de generar el RIPS.")
@@ -97,16 +102,14 @@ class RipsGeneratorService
             return null;
         }
 
-        // ⚠️ Si hay servicios faltantes, se muestra advertencia y se espera confirmación del usuario
+        // ⚠️ Si hay servicios faltantes, pedimos confirmación
         if (!empty($missingServicesByDocument)) {
-            // 🧠 Guardamos temporalmente en sesión los servicios seleccionados para reusarlos después
             session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
-            // 🧾 Obtenemos los números de factura/nota donde faltan servicios
+
             $documentNumbers = \App\Models\Rips\RipsBillingDocument::whereIn('id', array_keys($missingServicesByDocument))
                 ->pluck('document_number')
                 ->implode(', ');
 
-            // 🔁 Elegimos la ruta de confirmación según el modo ('generar' o 'enviar')
             $url = $modo === 'enviar'
                 ? route('rips.confirmar-envio')
                 : route('rips.confirmar-generacion');
@@ -121,8 +124,8 @@ class RipsGeneratorService
                         ->label('Sí, continuar')
                         ->button()
                         ->color('success')
-                        ->url($url) // Redirige según el modo
-                        ->close(), // ✅ Cierra el recuadro al hacer clic
+                        ->url($url)
+                        ->close(),
                     Action::make('cancelar')
                         ->label('Cancelar')
                         ->button()
@@ -135,38 +138,60 @@ class RipsGeneratorService
             return null;
         }
 
-        // ✅ Todo en orden: se construye el JSON RIPS a partir de los servicios seleccionados
-        Log::info("✅ Validaciones completadas exitosamente. Construyendo JSON RIPS...");
+        // ✅ Si todo está bien desde el inicio (sin advertencias)
+        session(['rips_confirmado' => true]);
+        session(['rips_servicios_seleccionados' => $patientServices->pluck('id')->toArray()]);
+
+        if ($modo === 'generar') {
+            Log::info("📤 Redirigiendo a descarga directa del JSON generado (todo en orden)");
+            return redirect()->to(route('rips.confirmar-generacion'));
+        }
+
         return $this->buildRipsFromSelectedServices($patientServices);
     }
 
 
 
 
-
-
     public function buildRipsFromSelectedServices(Collection $patientServices)
     {
+        Log::info('🟢 Iniciando generación de RIPS desde servicios seleccionados', [
+            'total_servicios' => $patientServices->count(),
+        ]);
+
         $ripsData = []; // Aquí se guardará el JSON final
 
         // Agrupamos los servicios seleccionados por documento (factura o nota)
         $grouped = $patientServices->groupBy('billing_document_id');
+        Log::info('📦 Servicios agrupados por documento', [
+            'documentos_encontrados' => $grouped->keys()->all(),
+        ]);
 
-        // Recorremos cada factura o nota
         foreach ($grouped as $documentId => $services) {
-            // Cargamos el documento completo, incluyendo servicios, paciente y usuario
-            $document = \App\Models\Rips\RipsBillingDocument::with('patientServices.patient.user')->find($documentId);
-            if (!$document) continue;
+            Log::info("🔍 Procesando documento ID: {$documentId}", [
+                'total_servicios' => $services->count(),
+            ]);
 
-            // Obtenemos el número de identificación del proveedor desde la tabla tenants
+            $document = \App\Models\Rips\RipsBillingDocument::with('patientServices.patient.user')->find($documentId);
+
+            if (!$document) {
+                Log::warning("⚠️ Documento no encontrado: {$documentId}");
+                continue;
+            }
+
             $tenantDocumentNumber = DB::table('tenants')
                 ->where('id', $document->tenant_id)
                 ->value('document_number');
 
-            // Armamos la cabecera del documento según si es factura o nota
+            Log::info("🏢 Documento cargado", [
+                'document_number' => $document->document_number,
+                'type_id' => $document->type_id,
+                'tenant_document_number' => $tenantDocumentNumber,
+            ]);
+
             $documentData = $document->type_id === 1
                 ? [
-                    'numDocumentoIdObligado'=> $tenantDocumentNumber,
+                    'numDocumentoIdObligado' => $tenantDocumentNumber,
                     'numFactura' => $document->document_number ?? null,
                     'tipoNota' => null,
                     'numNota' => null,
@@ -178,44 +203,65 @@ class RipsGeneratorService
                     'numNota' => $document->document_number ?? null,
                 ];
 
-            // Estructura principal del JSON para este documento
             $ripsItem = array_merge($documentData, ['usuarios' => []]);
 
-            // Agrupamos los servicios por paciente (por si hay más de uno en el documento)
             $servicesByPatient = $services->groupBy('patient_id');
+            Log::info("👥 Servicios agrupados por paciente", [
+                'pacientes' => $servicesByPatient->keys()->all(),
+            ]);
 
             foreach ($servicesByPatient as $patientId => $groupedServices) {
-                // Obtenemos el paciente desde el primer servicio
                 $patient = $groupedServices->first()->patient;
-
-                // Transformamos los datos del paciente a formato RIPS
                 $usuario = $this->mapPatientToRips($patient, $groupedServices);
                 $usuario['consecutivo'] = count($ripsItem['usuarios']) + 1;
 
-                // Procesamos los servicios médicos del paciente
-                $usuario['servicios'] = $this->processServices($groupedServices, $document->tenant);
+                Log::info("🧑 Procesando paciente", [
+                    'id' => $patientId,
+                    'nombre' => $patient->full_name ?? 'Desconocido',
+                    'consecutivo' => $usuario['consecutivo'],
+                ]);
 
-                // Agregamos al JSON
+                $usuario['servicios'] = $this->processServices($groupedServices, $document->tenant);
                 $ripsItem['usuarios'][] = $usuario;
             }
 
-            // Armamos la ruta completa del XML si aplica
             $fullPath = storage_path('app/public/' . $document->xml_path);
+            $xmlBase64 = null;
 
-            // Estructura final del documento RIPS, incluyendo el XML FEV codificado (si existe)
+            if ($document->type_id === 1 && $fullPath && file_exists($fullPath)) {
+                $xmlBase64 = base64_encode(file_get_contents($fullPath));
+                Log::info("📄 XML FEV encontrado y codificado", [
+                    'ruta' => $fullPath,
+                    'tamaño' => strlen($xmlBase64) . ' bytes',
+                ]);
+            } else {
+                Log::warning("📄 XML no encontrado o no requerido", [
+                    'ruta' => $fullPath,
+                    'requerido' => $document->type_id === 1,
+                ]);
+            }
+
             $ripsData[] = [
                 'rips' => $ripsItem,
-                'xmlFevFile' => $document->type_id === 1 && $fullPath && file_exists($fullPath)
-                    ? base64_encode(file_get_contents($fullPath))
-                    : null
+                'xmlFevFile' => $xmlBase64,
             ];
         }
+
         $this->includedServiceIds = array_unique($this->includedServiceIds);
 
-        // También lo guardamos en sesión para usarlo al enviar
+        Log::info('✅ Servicios incluidos en el JSON final', [
+            'includedServiceIds' => $this->includedServiceIds,
+        ]);
+
         session(['rips_servicios_incluidos' => $this->includedServiceIds]);
+
+        Log::info('🏁 Generación de RIPS finalizada', [
+            'documentos_generados' => count($ripsData),
+        ]);
+
         return $ripsData;
     }
+
 
 
 
@@ -324,7 +370,8 @@ class RipsGeneratorService
             //'tipoUsuario' => $patient-> ripsUserType->id ?? '',
             'tipoUsuario' => str_pad((string) ($patient->ripsUserType->id ?? ''), 2, '0', STR_PAD_LEFT),
             'fechaNacimiento' => $patient->birth_date,
-            'codSexo' => $patient->sex_code,
+            'codSexo' => $patient->patientUser->ripsGenderType->code ?? '',
+            //'codSexo' => $patient->sex_code,
             //'codPaisResidencia' => $patient->residenceCountry->code ?? '',
             'codPaisResidencia' => (string) ($patient->residenceCountry->code ?? ''),
             //'codMunicipioResidencia' => $patient->ripsMunicipality->code ?? '',
@@ -556,7 +603,7 @@ class RipsGeneratorService
      * Método auxiliar que genera el JSON desde los servicios guardados en sesión
      * luego de que el usuario confirma continuar tras advertencia.
      */
-    public function confirmarGeneracionDesdeSesion(): ?array
+    public function confirmarGeneracionDesdeSesion(string $modo = 'generar'): ?array
     {
         $ids = session('rips_servicios_seleccionados', []);
 
@@ -590,7 +637,9 @@ class RipsGeneratorService
         session(['rips_confirmado' => true]);
 
         // Genera el JSON a partir de esos servicios
-        return $this->buildRipsFromSelectedServices($patientServices);
+        //return $this->buildRipsFromSelectedServices($patientServices);
+        // ✅ Ahora respetamos el modo y reutilizamos toda la lógica
+        return $this->generateOnlySelected($patientServices, $modo);
     }
 
 }
