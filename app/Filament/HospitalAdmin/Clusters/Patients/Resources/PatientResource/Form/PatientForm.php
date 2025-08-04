@@ -68,10 +68,10 @@ class PatientForm
                     ->required()
                     ->options($genderOptions)
                     ->columns(count($genderOptions)),
-                DatePicker::make('dob')
+                DatePicker::make('dob') // Cambiar de 'user.dob' a simplemente 'dob'
+                    ->label(__('messages.user.dob') . ':')
                     ->native(true)
                     ->maxDate(now())
-                    ->label(__('messages.user.dob') . ':'),
             ])->columns(2),
             Fieldset::make('Detalles de residencia')->schema([
                 Group::make()->schema([
