@@ -55,17 +55,15 @@ class CreateRips extends CreateRecord
         return $record;
     }
 
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-            // Combina fecha y hora en un solo campo datetime
-        $data['service_datetime'] = $data['service_date'] . ' ' . $data['service_time'];
+protected function mutateFormDataBeforeCreate(array $data): array
+{
+    $data['service_datetime'] = $data['service_date'] . ' ' . $data['service_time'];
+    unset($data['service_date'], $data['service_time']);
 
-        // Puedes eliminar los campos separados si no se necesitan en la BD
-        unset($data['service_date'], $data['service_time']);
-
+    if (!empty($data['consultations'])) {
         foreach ($data['consultations'] as &$consultation) {
             $diagnoses = [];
-            //Log::info('CONSULTATION CON DIAGNOSES', $consultation['diagnoses']);
+
             if (!empty($consultation['principal_diagnoses'])) {
                 foreach ($consultation['principal_diagnoses'] as $diagnosis) {
                     $diagnosis['sequence'] = 1;
@@ -83,15 +81,15 @@ class CreateRips extends CreateRecord
                 }
             }
 
-            $diagnosesData = $consultation['diagnoses'] ?? [];
-
-            // Eliminamos estos campos temporales, no existen en la DB
-            unset($consultation['principal_diagnoses']);
-            unset($consultation['related_diagnoses']);
+            $consultation['diagnoses'] = $diagnoses;
+            unset($consultation['principal_diagnoses'], $consultation['related_diagnoses']);
         }
-        Log::info('FINAL FORM DATA', $data);
-        return $data;
     }
+
+    Log::info('FINAL FORM DATA', $data);
+    return $data;
+}
+
 
     protected function getRedirectUrl(): string
     {
