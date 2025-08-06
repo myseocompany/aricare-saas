@@ -296,7 +296,7 @@ Tables\Columns\TextColumn::make('service_datetime')
                     ->label('Generar y Enviar RIPS')
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
-                    ->requiresConfirmation()
+                    //->requiresConfirmation()
                     ->action(function ($records) {
                         Log::info('✈️ Acción: Generar y enviar RIPS');
 
@@ -342,7 +342,7 @@ Tables\Columns\TextColumn::make('service_datetime')
 
                         app(\App\Services\RipsCoordinatorService::class)
                             ->enviarDesdeSeleccion($records, $tenantId);
-                    })
+                  })
                     ->hidden(),
 
             ])

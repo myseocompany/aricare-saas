@@ -3,13 +3,15 @@
 namespace App\Services;
 
 use App\Models\Rips\RipsPatientService;
+use Illuminate\Support\Facades\Log;
 
 class RipsPatientServiceStatusUpdater
 {
     /**
      * Evalúa y actualiza el estado de un servicio.
      */
-    public function actualizarEstado(RipsPatientService $servicio, bool $fueIncluido = false): void
+    //public function actualizarEstado(RipsPatientService $servicio, bool $fueIncluido = false): void
+    public function actualizarEstado(RipsPatientService $servicio, ?bool $fueIncluido = null): void
     {
         $documento = $servicio->billingDocument;
 
@@ -64,9 +66,40 @@ class RipsPatientServiceStatusUpdater
     /**
      * Evalúa si el servicio tiene los datos mínimos completos
      */
+    
     private function datosCompletos(RipsPatientService $servicio): bool
     {
-        // Valida campos claves que debe tener un servicio para considerarse completo
-        return $servicio->patient_id && $servicio->cups_code && $servicio->service_datetime;
+
+        Log::info('🔍 Validando datos del servicio', [
+            'patient_id' => $servicio->patient_id,
+            'service_datetime' => $servicio->service_datetime,
+        ]);
+        // Validación base: paciente, código CUPS y fecha del servicio
+        if (!($servicio->patient_id && $servicio->service_datetime)) {
+            return false;
+        }
+
+        // Validar el documento asociado
+        $documento = $servicio->billingDocument;
+
+        if (!$documento) {
+            Log::warning("❌ El servicio [ID {$servicio->id}] no tiene documento asociado.");
+            return false;
+        }
+
+        Log::info("📄 Documento asociado encontrado", [
+            'document_id' => $documento->id,
+            'document_number' => $documento->document_number,
+            'type_id' => $documento->type_id,
+            'xml_path' => $documento->xml_path,
+        ]);
+
+        if ($documento->type_id === 1 && empty($documento->xml_path)) {
+            Log::warning("❌ Documento tipo factura SIN XML: ID {$documento->id}");
+            return false;
+        }
+
+        Log::info("✅ Servicio [ID {$servicio->id}] tiene todos los datos completos.");
+        return true;
     }
 }
