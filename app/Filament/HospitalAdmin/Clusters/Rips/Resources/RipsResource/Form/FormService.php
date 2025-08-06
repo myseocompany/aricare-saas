@@ -129,38 +129,39 @@ class FormService
                             $agreement = \App\Models\Rips\RipsBillingDocument::find($state)?->agreement_id;
                             $set('agreement_id', $agreement);
                         })
-                        ->createOptionForm([
-                            Forms\Components\Select::make('type_id')
-                                ->label('Tipo de Documento')
-                                ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
-                                ->required(),
-                            Forms\Components\TextInput::make('document_number')
-                                ->label('Número de Documento')
-                                ->required()
-                                ->maxLength(30),
+                        ->createOptionForm(function (Forms\Get $get){
+        $requiresFev = $get('requires_fev'); // ← leer del formulario principal
+        return [
+            Forms\Components\Select::make('type_id')
+                ->label('Tipo de Documento Soporte')
+                ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
+                ->default($requiresFev ? 1 : 2)
+                ->disabled()
+                ->required(),
 
-                            Forms\Components\Select::make('agreement_id')
-                                ->label('Convenio')
-                                ->searchable()
-                                ->options(function () {
-                                    $tenantId = auth()->user()->tenant_id;
-                                    return \App\Models\Rips\RipsTenantPayerAgreement::where('tenant_id', $tenantId)
-                                        ->pluck('name', 'id');
-                                })
-                                ->createOptionForm([
-                                    Forms\Components\TextInput::make('name')
-                                        ->label('Nombre del Convenio')
-                                        ->required(),
-                                    Forms\Components\TextInput::make('code')
-                                        ->label('Código')
-                                        ->required(),
-                                ])
-                                ->createOptionUsing(function (array $data) {
-                                    $data['tenant_id'] = auth()->user()->tenant_id;
-                                    return \App\Models\Rips\RipsTenantPayerAgreement::create($data)->id;
-                                })
-                                ->required(),
-                        ])
+            Forms\Components\TextInput::make('document_number')
+                ->label('Número de Documento')
+                ->required()
+                ->maxLength(30),
+
+            Forms\Components\Select::make('agreement_id')
+                ->label('Convenio')
+                ->searchable()
+                ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
+                ->required(),
+                    // 📂 Campo para subir XML (opcional)
+        Forms\Components\FileUpload::make('xml_path')
+            ->label('Archivo XML (opcional)')
+            ->disk('public')
+            ->directory(fn ($get) => 
+                auth()->user()->tenant_id . '/' . ($get('agreement_id') ?? 'sin_convenio')
+            )
+            ->visibility('public')
+            ->preserveFilenames()
+            ->acceptedFileTypes(['text/xml','application/xml'])
+            ->downloadable(),
+        ];
+                            })
                         ->createOptionUsing(function (array $data) {
                             return \App\Models\Rips\RipsBillingDocument::create([
                                 'tenant_id' => auth()->user()->tenant_id,
@@ -198,7 +199,7 @@ class FormService
                                     $query->where('name', 'like', "%{$search}%")
                                         ->orWhere('code', 'like', "%{$search}%");
                                 })
-                                ->limit(20)
+                                ->limit(100)
                                 ->get()
                                 ->mapWithKeys(fn ($agreement) => [$agreement->id => $agreement->name . ' (' . $agreement->code . ')']);
                         }),
