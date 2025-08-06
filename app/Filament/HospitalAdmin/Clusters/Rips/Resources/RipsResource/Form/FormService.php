@@ -24,6 +24,7 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use App\Models\Department;
 use App\Models\DoctorDepartment;
+use App\Models\Rips\RipsBillingDocument;
 
 use App\Actions\Rips\LoadTemplateToForm;
 
@@ -114,14 +115,24 @@ class FormService
                         ->inlineLabel()
                         ->default(now()->format('H:i'))
                         ->required(),
+                    Forms\Components\Toggle::make('requires_fev')
+                        ->label('Requiere FEV')
+                        ->inlineLabel()
+                        ->reactive()
+                        ->required(),   
                     Forms\Components\Select::make('billing_document_id')
                         ->label('Documento Soporte')
                         ->searchable()
                         ->inlineLabel()
                         ->nullable()
-                        ->options(function () {
+                        ->options(function (Forms\Get $get) {
                             $tenantId = auth()->user()->tenant_id;
+                            $requiresFev = $get('requires_fev');
+
                             return \App\Models\Rips\RipsBillingDocument::where('tenant_id', $tenantId)
+                                ->whereHas('type', function ($query) use ($requiresFev) {
+                                    $query->where('type_id', $requiresFev ? 1 : 2); // tipo 1 si FEV, tipo 2 si no
+                                })
                                 ->orderBy('document_number')
                                 ->pluck('document_number', 'id');
                         })
@@ -130,37 +141,39 @@ class FormService
                             $set('agreement_id', $agreement);
                         })
                         ->createOptionForm(function (Forms\Get $get){
-        $requiresFev = $get('requires_fev'); // ← leer del formulario principal
-        return [
-            Forms\Components\Select::make('type_id')
-                ->label('Tipo de Documento Soporte')
-                ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
-                ->default($requiresFev ? 1 : 2)
-                ->disabled()
-                ->required(),
+                                $requiresFev = $get('requires_fev'); // ← leer del formulario principal
+                                return [
+                                    Forms\Components\Select::make('type_id')
+                                        ->label('Tipo de Documento Soporte')
+                                        ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
+                                        ->default($requiresFev ? 1 : 2)
+                                        ->disabled()
+                                        ->required(),
 
-            Forms\Components\TextInput::make('document_number')
-                ->label('Número de Documento')
-                ->required()
-                ->maxLength(30),
+                                    Forms\Components\TextInput::make('document_number')
+                                        ->label('Número de Documento')
+                                        ->required()
+                                        ->maxLength(30),
 
-            Forms\Components\Select::make('agreement_id')
-                ->label('Convenio')
-                ->searchable()
-                ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
-                ->required(),
-                    // 📂 Campo para subir XML (opcional)
-        Forms\Components\FileUpload::make('xml_path')
-            ->label('Archivo XML (opcional)')
-            ->disk('public')
-            ->directory(fn ($get) => 
-                auth()->user()->tenant_id . '/' . ($get('agreement_id') ?? 'sin_convenio')
-            )
-            ->visibility('public')
-            ->preserveFilenames()
-            ->acceptedFileTypes(['text/xml','application/xml'])
-            ->downloadable(),
-        ];
+                                    Forms\Components\Select::make('agreement_id')
+                                        ->label('Convenio')
+                                        ->searchable()
+                                        ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
+                                        ->required(),
+                                            // 📂 Campo para subir XML (opcional)
+                                Forms\Components\FileUpload::make('xml_path')
+                                    ->label('Archivo XML (opcional)')
+                                    ->disk('public')
+                                    ->directory(fn ($get) => 
+                                        auth()->user()->tenant_id . '/' . ($get('agreement_id') ?? 'sin_convenio')
+                                    )
+                                    ->visibility('public')
+                                    ->preserveFilenames()
+                                    ->acceptedFileTypes(['text/xml','application/xml'])
+                                    ->downloadable()
+                                    ->visible($requiresFev)
+                                    ->required($requiresFev),
+                                ];
                             })
                         ->createOptionUsing(function (array $data) {
                             return \App\Models\Rips\RipsBillingDocument::create([
@@ -172,10 +185,7 @@ class FormService
                             ])->id;
                         }),
 
-                    Forms\Components\Toggle::make('requires_fev')
-                        ->label('Requiere FEV')
-                        ->inlineLabel()
-                        ->required(),    
+ 
 
                     Forms\Components\Select::make('agreement_id')
                         ->label('Convenio / Contrato')

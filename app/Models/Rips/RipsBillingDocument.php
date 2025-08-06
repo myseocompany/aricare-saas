@@ -4,6 +4,7 @@ namespace App\Models\Rips;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Rips\RipsBillingDocumentType;
 use App\Models\Tenant;
 
 class RipsBillingDocument extends Model
@@ -49,6 +50,11 @@ class RipsBillingDocument extends Model
     public function tenant()
     {
         return $this->belongsTo(Tenant::class, 'tenant_id');
+    }
+
+    public function type()
+    {
+        return $this->belongsTo(RipsBillingDocumentType::class, 'type_id');
     }
 
 }
