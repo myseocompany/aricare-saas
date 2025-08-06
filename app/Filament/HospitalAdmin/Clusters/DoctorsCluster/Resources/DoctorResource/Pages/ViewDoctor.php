@@ -191,6 +191,8 @@ class ViewDoctor extends ViewRecord
             'appointments.doctor.doctorUser',
             'appointments.patient.patientUser',
             'appointments.department',
+            'ripsPatients.patientUser',
+
         ])->findOrFail($doctorId);
         $data['appointments'] = $data['doctorData']->appointments;
 

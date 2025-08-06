@@ -2,6 +2,7 @@
 
 namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Pages;
 
+use Illuminate\Support\Facades\Auth;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 use Filament\Tables\Actions\ViewAction;
@@ -62,9 +63,6 @@ protected function getTableActions(): array
             }),
     ];
 }
-    protected function getTableQuery(): Builder
-    {
-        return parent::getTableQuery()->orderByDesc('id');
-    }
+
 
 }

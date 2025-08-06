@@ -4,6 +4,8 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources;
 use Illuminate\Support\Facades\Log;
 use App\Helpers\RipsFormatter;
 
+use Illuminate\Support\Facades\Auth;
+
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\Pages;
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsResource\RelationManagers;
@@ -82,17 +84,10 @@ class RipsResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()
-            ->with([
-                'billingDocument',
-                'consultations.diagnoses',
-                'procedures',
-            ])
-            ->orderByDesc('service_datetime')
-            ->withCount(['consultations', 'procedures']);
-    }
+
+
+
+
 
     protected function mutateFormDataBeforeFill(array $data): array
     {
@@ -113,14 +108,29 @@ class RipsResource extends Resource
     {
         // Combina fecha y hora en un solo campo datetime
         $data['service_datetime'] = $data['service_date'] . ' ' . $data['service_time'];
-        dd($data);
-
+        
         // Puedes eliminar los campos separados si no se necesitan en la BD
         unset($data['service_date'], $data['service_time']);
 
         return $data;
     }
 
+public static function getEloquentQuery(): Builder
+{
+    dd([
+        'user' => Auth::user(),
+        'tenant_id' => Auth::user()?->tenant_id,
+    ]);
+
+    return parent::getEloquentQuery()
+        ->where('tenant_id', Auth::user()->tenant_id)
+        ->with([
+            'billingDocument',
+            'consultations.diagnoses',
+            'procedures',
+        ])
+        ->orderByDesc('id');
+}
 
 
 }

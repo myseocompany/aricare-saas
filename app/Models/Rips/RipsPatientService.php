@@ -6,6 +6,8 @@ use App\Models\Patient;
 use App\Models\Doctor;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class RipsPatientService extends Model
 {
@@ -56,6 +58,14 @@ class RipsPatientService extends Model
     }
     
     
+    protected static function booted()
+    {
+        static::addGlobalScope('tenant', function (Builder $builder) {
+            if (Auth::check()) {
+                $builder->where('tenant_id', Auth::user()->tenant_id);
+            }
+        });
+    }
 
 
 }

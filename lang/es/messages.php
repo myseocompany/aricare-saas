@@ -3192,6 +3192,14 @@ return [
             'title' => 'Plantilla de Servicios al Paciente',
             'title_plural' => 'Plantillas de Servicios al Paciente',
         ],
+        'tenant' => [
+            'title' => 'Datos del Hospital / IPS',
+            'title_plural' => 'Configuración del Hospital / IPS',
+            'rips_idsispro' => 'Usuario SISPRO',
+            'rips_passispro' => 'Contraseña SISPRO',
+            'rips_identification_type_id' => 'Tipo de Documento',
+            'rips_identification_number' => 'Número de Documento',
+        ],
     ],
 
     

@@ -13,10 +13,17 @@ class Tenant extends Model
         'hospital_name',
         'document_number',
         'document_type',
+        'is_billing_enabled',
         'provider_code',
+        'tax_identifier',
+        'sispro_username',
         'rips_idsispro',
         'rips_passispro',
-        // Agrega más campos si lo necesitas
+        'sispro_password',
+        'location_code',
+        'data',
+        'rips_identification_type_id',
+        'rips_identification_number',
     ];
 
     public $incrementing = false; // porque el ID es varchar

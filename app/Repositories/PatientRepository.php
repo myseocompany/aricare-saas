@@ -50,11 +50,116 @@ class PatientRepository extends BaseRepository
         return Patient::class;
     }
 
-    // SQLSTATE[HY000]: General error: 1364 Field 'password' doesn't have a default value (Connection: mysql, SQL: insert into `users` (`first_name`, `last_name`, `email`, `dob`, `phone`, `gender`, `status`, `blood_group`, `city`, `facebook_url`, `twitter_url`, `instagram_url`, `linkedIn_url`, `department_id`, `language`, `updated_at`, `created_at`) values (Illiana, Stanley, pynecajez@mailinator.com, 2009-06-14, 079944 37176, 1, 1, ?, Ipsum ab non nihil , https://www.kowu.info, https://www.ceqovu.co.uk, https://www.fetexykym.com, https://www.wen.net, 3, ar, 2024-10-30 05:24:47, 2024-10-30 05:24:47))
-
-
-
     public function store(array $input, bool $mail = true)
+{
+    try {
+        // Department por defecto para pacientes
+        $departmentId = Department::where('name', 'Patient')->value('id') ?? 3;
+
+        // Password y email por defecto si no se envían
+        if (empty($input['password'])) {
+            $generatedPassword = Str::random(10);
+            $input['password'] = Hash::make($generatedPassword);
+            $input['plain_password'] = $generatedPassword;
+        } else {
+            $input['password'] = Hash::make($input['password']);
+        }
+
+        if (empty($input['email'])) {
+            $input['email'] = 'paciente_' . uniqid() . '@fakeemail.local';
+        }
+
+        // Idioma por defecto
+        if (!empty(getSuperAdminSettingValue()['default_language']->value)) {
+            $input['language'] = getSuperAdminSettingValue()['default_language']->value;
+        }
+
+        $tenantId = $input['tenant_id'] ?? getLoggedInUser()?->tenant_id;
+
+        // ==========================
+        // 1️⃣ Datos para USERS
+        // ==========================
+        $userData = [
+            'first_name'                  => $input['first_name'] ?? '',
+            'last_name'                   => $input['last_name'] ?? '',
+            'email'                       => $input['email'],
+            'password'                    => $input['password'],
+            'department_id'               => $departmentId,
+            'gender'                      => isset($input['gender']) ? (int) $input['gender'] : null,
+            'tenant_id'                   => $tenantId,
+            'status'                      => $input['status'] ?? 1,
+            'language'                    => $input['language'] ?? 'es',
+            'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
+            'rips_identification_number'  => $input['rips_identification_number'] ?? null,
+        ];
+
+        $user = User::create($userData);
+
+        if ($mail) {
+            $user->sendEmailVerificationNotification();
+        }
+
+        // ==========================
+        // 2️⃣ Campos personalizados
+        // ==========================
+        $jsonFields = [];
+        foreach ($input as $key => $value) {
+            if (strpos($key, 'field') === 0) {
+                $jsonFields[$key] = $value;
+            }
+        }
+
+        // ==========================
+        // 3️⃣ Datos para PATIENTS
+        // ==========================
+        $patientData = [
+            'user_id'             => $user->id,
+            'tenant_id'           => $tenantId,
+            'patient_unique_id'   => strtoupper(Patient::generateUniquePatientId()),
+            'custom_field'        => !empty($jsonFields) ? json_encode($jsonFields) : null,
+            'record_number'       => $input['record_number'] ?? null,
+            'affiliate_number'    => $input['affiliate_number'] ?? null,
+            'template_id'         => $input['template_id'] ?? null,
+            'type_id'              => $input['type_id'] ?? null,
+            'birth_date'           => $input['dob'] ?? null,
+            'rips_country_id'      => $input['rips_country_id'] ?? null,
+            'rips_department_id'   => $input['rips_department_id'] ?? null,
+            'rips_municipality_id' => $input['rips_municipality_id'] ?? null,
+            'zone_code'            => $input['zone_code'] ?? null,
+            'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
+        ];
+
+        $patient = Patient::create($patientData);
+
+        // ==========================
+        // 4️⃣ Dirección
+        // ==========================
+        if (!empty($address = Address::prepareAddressArray($input))) {
+            Address::create(array_merge($address, [
+                'owner_id'   => $patient->id,
+                'owner_type' => Patient::class,
+            ]));
+        }
+
+        // ==========================
+        // 5️⃣ Rol y relación en User
+        // ==========================
+        $user->update([
+            'owner_id'   => $patient->id,
+            'owner_type' => Patient::class,
+        ]);
+        $user->assignRole($departmentId);
+
+        return $user;
+
+    } catch (Exception $e) {
+        \Log::error('Excepción al crear paciente', ['exception' => $e]);
+        throw new \RuntimeException('Error creando el paciente: ' . $e->getMessage(), previous: $e);
+    }
+}
+
+
+    public function store2(array $input, bool $mail = true)
     {
         try {
             // $input['phone'] = preparePhoneNumber($input, 'phone');
@@ -191,7 +296,7 @@ class PatientRepository extends BaseRepository
         return $user;
     }
 
-    public function update($patient, $input)
+    public function update2($patient, $input)
     {
         try {
             unset($input['password']);
@@ -233,6 +338,85 @@ class PatientRepository extends BaseRepository
 
         return $patient;
     }
+
+    public function update($patient, $input)
+{
+    try {
+        unset($input['password']); // No actualizar password aquí
+
+        // ==========================
+        // 1️⃣ Campos personalizados
+        // ==========================
+        $jsonFields = [];
+        foreach ($input as $key => $value) {
+            if (strpos($key, 'field') === 0) {
+                $jsonFields[$key] = $value;
+            }
+        }
+
+        /** @var User $user */
+        $user = User::findOrFail($patient->user_id);
+
+        // ==========================
+        // 2️⃣ Datos para USERS
+        // ==========================
+        $userData = [
+            'first_name'                  => $input['first_name'] ?? $user->first_name,
+            'last_name'                   => $input['last_name'] ?? $user->last_name,
+            'email'                       => $input['email'] ?? $user->email,
+            'gender'                      => isset($input['gender']) ? (int) $input['gender'] : $user->gender,
+            'tenant_id'                   => $input['tenant_id'] ?? $user->tenant_id,
+            'status'                      => $input['status'] ?? $user->status,
+            'language'                    => $input['language'] ?? $user->language,
+            'rips_identification_type_id' => $input['rips_identification_type_id'] ?? $user->rips_identification_type_id,
+            'rips_identification_number'  => $input['rips_identification_number'] ?? $user->rips_identification_number,
+        ];
+        $user->update($userData);
+
+        // ==========================
+        // 3️⃣ Datos para PATIENTS
+        // ==========================
+        $patientData = [
+            'custom_field'        => !empty($jsonFields) ? json_encode($jsonFields) : $patient->custom_field,
+            'record_number'       => $input['record_number'] ?? $patient->record_number,
+            'affiliate_number'    => $input['affiliate_number'] ?? $patient->affiliate_number,
+            'template_id'         => $input['template_id'] ?? $patient->template_id,
+            'type_id'              => $input['type_id'] ?? $patient->type_id,
+            'birth_date'           => $input['dob'] ?? $patient->birth_date,
+            'rips_country_id'      => $input['rips_country_id'] ?? $patient->rips_country_id,
+            'rips_department_id'   => $input['rips_department_id'] ?? $patient->rips_department_id,
+            'rips_municipality_id' => $input['rips_municipality_id'] ?? $patient->rips_municipality_id,
+            'zone_code'            => $input['zone_code'] ?? $patient->zone_code,
+            'country_of_origin_id' => $input['country_of_origin_id'] ?? $patient->country_of_origin_id,
+        ];
+        $patient->update($patientData);
+
+        // ==========================
+        // 4️⃣ Dirección
+        // ==========================
+        if (!empty($patient->address)) {
+            if (empty($address = Address::prepareAddressArray($input))) {
+                $patient->address->delete();
+            } else {
+                $patient->address->update($address);
+            }
+        } elseif (!empty($address = Address::prepareAddressArray($input))) {
+            Address::create(array_merge($address, [
+                'owner_id'   => $patient->id,
+                'owner_type' => Patient::class,
+            ]));
+        }
+
+    } catch (Exception $e) {
+        FilamentNotification::make()
+            ->title($e->getMessage())
+            ->danger()
+            ->send();
+    }
+
+    return $patient;
+}
+
 
     public function getPatients()
     {

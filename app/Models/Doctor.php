@@ -228,4 +228,22 @@ class Doctor extends Model implements HasMedia
             'description' => $this->description ?? __('messages.common.n/a'),
         ];
     }
+
+    public function ripsServices()
+{
+    return $this->hasMany(\App\Models\Rips\RipsPatientService::class, 'doctor_id');
+}
+
+public function ripsPatients()
+{
+    return $this->hasManyThrough(
+        \App\Models\Patient::class,
+        \App\Models\Rips\RipsPatientService::class,
+        'doctor_id',   // Foreign key en RipsPatientService
+        'id',          // Foreign key en Patient
+        'id',          // Local key en Doctor
+        'patient_id'   // Local key en RipsPatientService
+    );
+}
+
 }

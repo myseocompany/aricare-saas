@@ -324,6 +324,7 @@ class DoctorResource extends Resource
             'appointments.doctor.doctorUser',
             'appointments.patient.patientUser',
             'appointments.department',
+            'ripsPatients.patientUser',
         ])->findOrFail($doctorId);
         $data['appointments'] = $data['doctorData']->appointments;
 
