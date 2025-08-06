@@ -126,20 +126,34 @@ class DoctorResource extends Resource
                         return $record->user->email;
                     })
                     ->searchable(['first_name', 'last_name', 'email']),
-                Tables\Columns\TextColumn::make('specialist')
-                    ->label(__('messages.doctor.specialist'))
-                    ->searchable()
-                    ->sortable(),
-                TextColumn::make('user.qualification')
-                    ->label(__('messages.user.qualification'))
-                    ->sortable()
-                    ->hidden(function () {
-                        if (auth()->user()->hasRole(['Admin'])) {
-                            return false;
-                        }
-                        return true;
-                    })
-                    ->default(__('messages.common.n/a')),
+                    TextColumn::make('user.rips_identification_type_id')
+                        ->label('Tipo de documento')
+                        ->formatStateUsing(fn($state) =>
+                            \App\Models\Rips\RipsIdentificationType::find($state)->name ?? 'N/A'
+                        )
+                        ->sortable()
+                        ->searchable(),
+
+                    TextColumn::make('user.rips_identification_number')
+                        ->label('Número de documento')
+                        ->sortable()
+                        ->searchable(),
+                    /*
+                    Tables\Columns\TextColumn::make('specialist')
+                        ->label(__('messages.doctor.specialist'))
+                        ->searchable()
+                        ->sortable(),
+                    TextColumn::make('user.qualification')
+                        ->label(__('messages.user.qualification'))
+                        ->sortable()
+                        ->hidden(function () {
+                            if (auth()->user()->hasRole(['Admin'])) {
+                                return false;
+                            }
+                            return true;
+                        })
+                        ->default(__('messages.common.n/a')),
+                        */
                 // TextColumn::make('user.status')
                 // ->hidden(function (){
                 //     if(auth()->user()->hasRole(['Doctor']))

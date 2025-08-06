@@ -1,10 +1,7 @@
 <?php
 
-    namespace App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource\Form;
+namespace App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource\Form;
 
-    use App\Filament\HospitalAdmin\Clusters\DoctorsCluster\Resources\DoctorResource;
-
-use Filament\Forms;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -15,41 +12,49 @@ use App\Models\DoctorDepartment;
 
 class DoctorMinimalForm
 {
-
-
     public static function schema(): array
     {
         return [
             Section::make()
                 ->schema([
-                    Hidden::make('owner_type')
-                        ->default('App\\Models\\Doctor'),
+                    Hidden::make('owner_type')->default('App\\Models\\Doctor'),
 
+                    // Nombre
                     TextInput::make('first_name')
-                        ->required()
-                        ->label(__('messages.user.first_name')),
-                    
-                    TextInput::make('last_name')
-                        ->required()
-                        ->label(__('messages.user.last_name')),
+                        ->label(__('messages.user.first_name'))
+                        ->required(),
 
-                   Select::make('rips_identification_type_id')
-                        ->required()
+                    // Apellido
+                    TextInput::make('last_name')
+                        ->label(__('messages.user.last_name'))
+                        ->required(),
+
+                    // Tipo de documento
+                    Select::make('rips_identification_type_id')
                         ->label(__('messages.user.identification_type'))
-                        ->options(function () {
-                            return RipsIdentificationType::whereIn('id', function ($query) {
+                        ->options(
+                            \App\Models\Rips\RipsIdentificationType::whereIn('id', function ($query) {
                                 $query->select('identification_type_id')
                                     ->from('rips_model_identification_types')
                                     ->where('model_type', 'App\\Models\\Doctor');
-                            })->pluck('name', 'id');
-                        }),
+                            })
+                            ->orderBy('name')
+                            ->pluck('name', 'id')
+                            ->toArray()
+                        )->required()
+                        ->native(false)
+                        ->searchable()
+                        ->preload()
+                        ->placeholder('Seleccione tipo de documento'),
 
 
+
+                    // Número de documento
                     TextInput::make('rips_identification_number')
-                        ->required()
-                        ->label(__('messages.user.identification_number')),
+                        ->label(__('messages.user.identification_number'))
+                        ->required(),
 
-                    // Campos ocultos requeridos
+                    // Campos ocultos User
                     Hidden::make('status')->default(User::ACTIVE),
                     Hidden::make('gender')->default(0),
                     Hidden::make('dob')->default('1980-01-01'),
@@ -63,11 +68,12 @@ class DoctorMinimalForm
                     Hidden::make('language')->default('es'),
                     Hidden::make('hospital_name')->default(''),
                     Hidden::make('tenant_id')->default(fn () => getLoggedInUser()->tenant_id),
+
+                    // Campos propios Doctor
                     Hidden::make('appointment_charge')->default(0),
                     Hidden::make('doctor_department_id')
                         ->default(function () {
                             $tenantId = getLoggedInUser()->tenant_id;
-
                             $department = DoctorDepartment::where('tenant_id', $tenantId)->first();
 
                             if (!$department) {
@@ -82,9 +88,6 @@ class DoctorMinimalForm
                         }),
                     Hidden::make('specialist')->default('General'),
                     Hidden::make('description')->default(''),
-
-
-
                 ])
                 ->columns(2),
         ];

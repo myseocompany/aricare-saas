@@ -95,10 +95,12 @@ class ViewDoctor extends ViewRecord
                     ->tabs([
                         Tabs\Tab::make(__('messages.overview'))
                             ->schema([
+                                /*
                                 TextEntry::make('user.designation')
                                     ->label(__('messages.user.designation') . ':')
                                     ->getStateUsing(fn($record) => $record->user->designation ?? __('messages.common.n/a')),
-                                PhoneEntry::make('user.phone')
+                                
+                                    PhoneEntry::make('user.phone')
                                     ->default(__('messages.common.n/a'))
                                     ->formatStateUsing(function ($state, $record) {
                                         if (str_starts_with($state, '+') && strlen($state) > 4) {
@@ -135,7 +137,16 @@ class ViewDoctor extends ViewRecord
                                 TextEntry::make('user.gender')
                                     ->label(__('messages.user.gender') . ':')
                                     ->getStateUsing(fn($record) => $record->user->gender == 0 ? __('messages.user.male') : __('messages.user.female')),
-                                TextEntry::make('created_at')
+                                */
+                            TextEntry::make('user.rips_identification_type_id')
+                                ->label('Tipo de documento')
+                                ->formatStateUsing(fn($state) =>
+                                    \App\Models\Rips\RipsIdentificationType::find($state)->name ?? 'N/A'
+                                ),
+
+                            TextEntry::make('user.rips_identification_number')
+                                ->label('Número de identificación'),
+                                    TextEntry::make('created_at')
                                     ->label(__('messages.common.created_at') . ':')
                                     ->getStateUsing(fn($record) => $record->user->created_at->diffForHumans()),
                                 TextEntry::make('updated_at')
