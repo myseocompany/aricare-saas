@@ -246,15 +246,39 @@ class PatientResource extends Resource
                     ->searchable()
                     ->sortable(),
     
-                TextColumn::make('ripsIdentificationType.name')
+                // Tipo de documento
+                TextColumn::make('userIdentificationType.name')
                     ->label('Tipo de documento')
-                    ->searchable()
-                    ->sortable(),
-    
-                TextColumn::make('document_number')
+                    ->sortable(query: function (Builder $query, string $direction) {
+                        $query->orderBy(
+                            \App\Models\Rips\RipsIdentificationType::select('name')
+                                ->whereColumn('rips_identification_types.id', 'users.rips_identification_type_id'),
+                            $direction
+                        );
+                    })
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('userIdentificationType', function (Builder $q) use ($search) {
+                            $q->where('name', 'like', "%{$search}%");
+                        });
+                    }),
+
+                // Número de documento
+                TextColumn::make('user.rips_identification_number')
                     ->label('Número de documento')
-                    ->searchable()
-                    ->sortable(),
+                    ->sortable(query: function (Builder $query, string $direction) {
+                        $query->orderBy(
+                            User::select('rips_identification_number')
+                                ->whereColumn('users.id', 'patients.user_id'),
+                            $direction
+                        );
+                    })
+                    ->searchable(query: function (Builder $query, string $search) {
+                        $query->whereHas('user', function (Builder $q) use ($search) {
+                            $q->where('rips_identification_number', 'like', "%{$search}%");
+                        });
+                    }),
+
+
     
 
     

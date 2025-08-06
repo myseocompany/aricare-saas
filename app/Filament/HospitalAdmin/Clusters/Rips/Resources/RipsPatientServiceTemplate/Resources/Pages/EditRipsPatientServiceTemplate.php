@@ -3,7 +3,6 @@
 namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPatientServiceTemplate\Resources\Pages;
 
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsPatientServiceTemplate\Resources\RipsPatientServiceTemplateResource;
-
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 
@@ -16,5 +15,10 @@ class EditRipsPatientServiceTemplate extends EditRecord
         return [
             Actions\DeleteAction::make(),
         ];
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
     }
 }

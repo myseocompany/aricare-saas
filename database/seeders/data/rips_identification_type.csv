@@ -1,11 +1,17 @@
 codigo, nombre
-AS,Adulto sin identificacion
+RC,Registro civil
+TI,Tarjeta de Identidad
 CC,Cedula de Ciudadania
-CD,Carnet Diplomatico
 CE,Cedula de Extranjeria
+PA,Pasaporte
+PE,Permiso Especial de Permanencia
+PT,Permiso por protección temporal
+SC,Salvoconducto
+SI,Sin identificación
+AS,Adulto sin identificacion
+CD,Carnet Diplomatico
 CN,Certificado de nacido vivo
 DE,Documento extranjero
 MS,Menor sin identificacion
 NI,Número de identificación tributario NIT
 NV,Certificado nacido vivo
-PA,Pasaporte

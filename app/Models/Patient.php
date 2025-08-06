@@ -347,5 +347,17 @@ return self::with('user')
             : '';
     }
 
+    public function userIdentificationType()
+    {
+        return $this->hasOneThrough(
+            \App\Models\Rips\RipsIdentificationType::class,
+            User::class,
+            'id', // Local key on users
+            'id', // Local key on rips_identification_types
+            'user_id', // Foreign key on patients
+            'rips_identification_type_id' // Foreign key on users
+        );
+    }
+
 
 }

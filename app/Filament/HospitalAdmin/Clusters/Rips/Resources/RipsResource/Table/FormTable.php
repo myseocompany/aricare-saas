@@ -184,19 +184,17 @@ Tables\Columns\TextColumn::make('service_datetime')
                     default    => null,
                 };
             }),*/
-SelectFilter::make('convenio')
-    ->label('Convenio')
-    ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
-    ->query(function (Builder $query, $state) {
-        $value = is_array($state) ? $state['value'] ?? null : $state;
+        SelectFilter::make('convenio')
+            ->label('Convenio')
+            ->options(fn () => \App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id')->toArray())
+            ->query(function (Builder $query, $state) {
+                $value = is_array($state) ? $state['value'] ?? null : $state;
 
-        if (!empty($value)) {
-            $query->whereHas('billingDocument', fn ($q) => $q->where('agreement_id', $value));
-        }
-    })
-
-
-,
+                if (!empty($value)) {
+                    $query->whereHas('billingDocument', fn ($q) => $q->where('agreement_id', $value));
+                }
+            })
+        ,
 
         DateRangeFilter::make('service_datetime')
             ->label('Fecha de Servicio')
@@ -206,26 +204,27 @@ SelectFilter::make('convenio')
                 }
                 return null;
             }),
+            Filter::make('document_number')
+                ->label('Número de Factura')
+                ->form([
+                    TextInput::make('value')
+                        ->label('Número de Factura')
+                        ->placeholder('Buscar...')
+                        ->default(null),
+                ])
+                ->query(function (Builder $query, array $data) {
+                    if (filled($data['value'])) {
+                        $query->whereHas('billingDocument', fn ($q) => 
+                            $q->where('document_number', $data['value'])
 
-    
+                        );
+                    }
+                })
+                ->indicateUsing(fn (array $data) => filled($data['value'] ?? null) 
+                    ? 'Factura: ' . $data['value'] 
+                    : null),
 
 
-
-        Filter::make('document_number')
-            ->form([
-                TextInput::make('document_number')->label('Número de Factura'),
-            ])
-            ->query(function (Builder $query, array $data) {
-                if (!empty($data['document_number'])) {
-                    $query->whereHas('billingDocument', function ($q) use ($data) {
-                        $q->where('document_number', 'like', '%' . $data['document_number'] . '%');
-                    });
-                }
-            })
-
-        ->indicator(function (array $data): ?string {
-            return !empty($data['document_number']) ? 'Factura: ' . $data['document_number'] : null;
-        }),
 
         SelectFilter::make('patient_id')
             ->label('Paciente')
