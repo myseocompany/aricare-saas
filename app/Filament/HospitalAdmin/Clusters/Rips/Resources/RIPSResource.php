@@ -117,10 +117,6 @@ class RipsResource extends Resource
 
 public static function getEloquentQuery(): Builder
 {
-    dd([
-        'user' => Auth::user(),
-        'tenant_id' => Auth::user()?->tenant_id,
-    ]);
 
     return parent::getEloquentQuery()
         ->where('tenant_id', Auth::user()->tenant_id)
