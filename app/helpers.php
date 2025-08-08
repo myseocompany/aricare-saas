@@ -103,6 +103,8 @@ if (!function_exists('getBillPaymentType')) {
         $paystack = getPaymentCredentials('paystack_enable');
         $razorpay = getPaymentCredentials('razorpay_enable');
         $paypal = getPaymentCredentials('paypal_enable');
+        $wompi = getPaymentCredentials('wompi_enable');
+            
 
         if (!empty($stripe) && $stripe) {
             $billPaymentTypes[0] = 'Stripe';
@@ -125,6 +127,10 @@ if (!function_exists('getBillPaymentType')) {
 
         if (!empty($paypal) && $paypal) {
             $billPaymentTypes[6] = 'Paypal';
+        }
+        
+        if (!empty($wompi) && $wompi) {
+            $billPaymentTypes[7] = 'Wompi';
         }
 
         $billPaymentTypes[2] = 'Cash';
