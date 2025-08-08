@@ -44,7 +44,7 @@ class EditRipsBillingDocument extends EditRecord
         $documento = $this->record;
 
         // ✅ Actualizamos su estado y el de los servicios asociados
-        app(RipsBillingDocumentStatusUpdater::class)->actualizarEstado($documento);
+        app(RipsBillingDocumentStatusUpdater::class)->updateStatus($documento);
     }
 
     protected function getRedirectUrl(): string

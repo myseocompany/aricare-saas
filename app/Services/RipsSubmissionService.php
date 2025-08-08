@@ -1,84 +1,95 @@
 <?php
 
+/****************************************************************/
+/* Module: RIPS Submission Service                              */
+/* Author: Julian                                               */
+/* Date: 2025-08-07                                             */
+/* Description: Submits a single RIPS package (invoice or note) */
+/*              to the SISPRO API and returns the processed     */
+/*              response.                                       */
+/****************************************************************/
+
 namespace App\Services;
 
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class RipsSubmissionService
 {
     /**
-     * URL base de la API a la cual se enviarán los RIPS.
-     * Asegúrate de colocar esta URL en tu archivo .env y configurarla correctamente.
+     * Base API URL for SISPRO.
+     * Make sure it's configured in services.rips_api.url (env).
      */
     protected string $baseUrl;
 
     /**
-     * Token de autenticación para la API.
+     * Bearer token for the API.
      */
     protected string $token;
 
     /**
-     * Constructor que inicializa el servicio con la URL y token.
+     * Initialize with token and config url.
      */
     public function __construct(string $token)
     {
-        $this->baseUrl = config('services.rips_api.url'); // Usa una variable de entorno
+        $this->baseUrl = (string) config('services.rips_api.url');
         $this->token = $token;
     }
 
     /**
-     * Envía una sola factura RIPS a la API y obtiene la respuesta.
+     * Submit a single RIPS payload (invoice or note) to the API and return the response.
      *
-     * @param array $ripsData JSON generado para una sola factura.
-     * @param bool $conFactura Indica si el RIPS incluye factura (true) o es una nota (false).
-     * @return array Respuesta procesada de la API.
+     * @param array $ripsData RIPS JSON for a single billing document.
+     * @param bool  $withInvoice True = invoice (CargarFevRips), False = note (CargarRipsSinFactura).
+     * @return array{success:bool, response:array|null, message?:string}
      */
-    public function enviarFactura(array $ripsData, bool $conFactura): array
+    public function submitDocument(array $ripsData, bool $withInvoice): array
     {
-        Log::debug('RECIBIDO en enviarFactura()', [
-            'conFactura' => $conFactura,
-            'numFactura' => $ripsData['rips']['numFactura'] ?? null,
-            'numNota' => $ripsData['rips']['numNota'] ?? null,
-            'json' => $ripsData,
-        ]);
-        // Determinar la URL de envío según si es con o sin factura
-        $endpoint = $conFactura ? '/PaquetesFevRips/CargarFevRips' : '/PaquetesFevRips/CargarRipsSinFactura';
-        $url = $this->baseUrl . $endpoint;
+        if (app()->environment('local')) {
+            Log::debug('Received in submitDocument()', [
+                'withInvoice' => $withInvoice,
+                'numFactura' => $ripsData['rips']['numFactura'] ?? null,
+                'numNota' => $ripsData['rips']['numNota'] ?? null,
+                // Avoid logging the full payload in prod; only in local for debugging.
+                'payload_keys' => array_keys($ripsData),
+            ]);
+        }
 
-        // Si no es con factura, adaptamos el JSON como nota (numNota y tipoNota)
-        if (!$conFactura) {
-            // Usamos el que esté presente, dándole prioridad al numFactura si está
-            $numeroOriginal = $ripsData['rips']['numFactura'] ?? $ripsData['rips']['numNota'] ?? null;
+        // Decide endpoint based on invoice/note
+        $endpoint = $withInvoice
+            ? '/PaquetesFevRips/CargarFevRips'
+            : '/PaquetesFevRips/CargarRipsSinFactura';
 
-            $ripsData['rips']['numNota'] = $numeroOriginal;
+        $url = rtrim($this->baseUrl, '/') . $endpoint;
+
+        // If it's a note, adapt JSON (numNota/tipoNota) and nullify numFactura
+        if (!$withInvoice) {
+            $originalNumber = $ripsData['rips']['numFactura'] ?? ($ripsData['rips']['numNota'] ?? null);
+            $ripsData['rips']['numNota'] = $originalNumber;
             $ripsData['rips']['tipoNota'] = 'RS';
             $ripsData['rips']['numFactura'] = null;
         }
 
-
-        // Eliminamos 'idRelacion' si existe, porque no se debe enviar
+        // Remove idRelacion if present (should not be sent)
         unset($ripsData['rips']['idRelacion']);
 
-        Log::debug('ANTES DE POST FINAL a SISPRO', [
-            'endpoint' => $url,
-            'numFactura' => $ripsData['rips']['numFactura'] ?? null,
-            'numNota' => $ripsData['rips']['numNota'] ?? null,
-            'tipoNota' => $ripsData['rips']['tipoNota'] ?? null,
-            'json_final' => $ripsData,
-        ]);
+        if (app()->environment('local')) {
+            Log::debug('Before POST to SISPRO', [
+                'endpoint' => $url,
+                'numFactura' => $ripsData['rips']['numFactura'] ?? null,
+                'numNota' => $ripsData['rips']['numNota'] ?? null,
+                'tipoNota' => $ripsData['rips']['tipoNota'] ?? null,
+            ]);
+        }
 
-        
-        $response = Http::withoutVerifying() // Ignora validación SSL (solo en entornos de prueba)
+        $response = Http::withoutVerifying() // ignore local SSL issues
             ->withToken($this->token)
             ->acceptJson()
             ->timeout(60)
             ->post($url, $ripsData);
 
-        // Manejo de errores si la API no responde correctamente
         if ($response->failed()) {
-            Log::error('Error al enviar RIPS', [
+            Log::error('RIPS submission failed', [
                 'status' => $response->status(),
                 'body' => $response->body(),
                 'numFactura' => $ripsData['rips']['numFactura'] ?? null,
@@ -87,15 +98,14 @@ class RipsSubmissionService
 
             return [
                 'success' => false,
-                'message' => 'Error de comunicación con la API',
-                'response' => $response->json()
+                'message' => 'API communication error',
+                'response' => $response->json(),
             ];
         }
 
-        // Retornamos la respuesta en formato arreglo
         return [
             'success' => true,
-            'response' => $response->json()
+            'response' => $response->json(),
         ];
     }
 }

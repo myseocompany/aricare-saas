@@ -58,7 +58,7 @@ class EditRips extends EditRecord
         app(FormSyncConsultationsAndProcedures::class)($record, $data);
 
         // ✅ Actualiza automáticamente el estado del servicio
-        app(RipsPatientServiceStatusUpdater::class)->actualizarEstado($record);
+        app(RipsPatientServiceStatusUpdater::class)->updateStatus($record);
 
         return $record;
     }

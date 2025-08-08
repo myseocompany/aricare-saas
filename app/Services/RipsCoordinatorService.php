@@ -1,30 +1,38 @@
 <?php
 
+/****************************************************************/
+/* Module: RIPS Coordinator Service                             */
+/* Author: Julian                                               */
+/* Date: 2025-08-07                                             */
+/* Description: Orchestrates the full RIPS flow: generate JSON, */
+/*              obtain token, submit each billing document,     */
+/*              persist API responses, update DB statuses, and  */
+/*              notify the user with a summary.                 */
+/****************************************************************/
+
 namespace App\Services;
 
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Database\Eloquent\Collection;
-use Filament\Notifications\Notification;
-use App\Services\RipsTokenService;
-use App\Services\RipsGeneratorService;
-use App\Services\RipsSubmissionService;
 use App\Models\Rips\RipsBillingDocument;
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class RipsCoordinatorService
 {
-    // Servicios que se inyectan en el constructor
+    /** Services injected via constructor */
     protected RipsGeneratorService $generatorService;
     protected RipsTokenService $tokenService;
+
+    /** Built on demand once token is available */
     protected RipsSubmissionService $submissionService;
 
     /**
-     * Constructor del coordinador.
-     * Recibe los servicios necesarios para:
-     * - generar el JSON RIPS,
-     * - obtener el token de autenticación,
-     * - enviar el RIPS (se crea en tiempo de ejecución).
+     * Constructor.
+     *
+     * @param RipsGeneratorService $generatorService
+     * @param RipsTokenService $tokenService
      */
     public function __construct(
         RipsGeneratorService $generatorService,
@@ -35,13 +43,13 @@ class RipsCoordinatorService
     }
 
     /**
-     * Procesa y envía automáticamente los documentos RIPS (facturas o notas),
-     * agrupados por tipo, dentro de un rango de fechas.
+     * Process and submit RIPS billing documents (invoices and notes) grouped by type,
+     * within the given date range.
      */
-    public function procesarYEnviarRips(string $tenantId, int $agreementId, string $startDate, string $endDate): void
+    public function processAndSubmitRips(string $tenantId, int $agreementId, string $startDate, string $endDate): void
     {
-        // Busca todos los documentos de ese tenant, convenio y fechas
-        $documentos = RipsBillingDocument::where('tenant_id', $tenantId)
+        // Fetch all billing documents for tenant, agreement and date range
+        $documents = RipsBillingDocument::where('tenant_id', $tenantId)
             ->where('agreement_id', $agreementId)
             ->whereBetween('issued_at', [
                 Carbon::parse($startDate)->startOfDay(),
@@ -49,27 +57,27 @@ class RipsCoordinatorService
             ])
             ->get();
 
-        // Agrupa por tipo de documento: factura (1) o nota (cualquier otro)
-        $agrupadosPorTipo = $documentos->groupBy(fn($doc) => $doc->type_id == 1 ? 'factura' : 'nota');
+        // Group by type: invoice (1) or note (others)
+        $groupedByType = $documents->groupBy(fn ($doc) => $doc->type_id === 1 ? 'invoice' : 'note');
 
-        // Procesa facturas (si existen)
-        if ($agrupadosPorTipo->has('factura')) {
-            $this->procesarYEnviarGrupo($tenantId, $agreementId, $startDate, $endDate, true);
+        // Process invoices (if any)
+        if ($groupedByType->has('invoice')) {
+            $this->processAndSubmitGroup($tenantId, $agreementId, $startDate, $endDate, true);
         }
 
-        // Procesa notas (si existen)
-        if ($agrupadosPorTipo->has('nota')) {
-            $this->procesarYEnviarGrupo($tenantId, $agreementId, $startDate, $endDate, false);
+        // Process notes (if any)
+        if ($groupedByType->has('note')) {
+            $this->processAndSubmitGroup($tenantId, $agreementId, $startDate, $endDate, false);
         }
     }
 
     /**
-     * Procesa y envía un grupo completo de facturas o notas.
+     * Process and submit a full group of documents (invoices or notes).
      */
-    protected function procesarYEnviarGrupo(string $tenantId, int $agreementId, string $startDate, string $endDate, bool $conFactura): void
+    protected function processAndSubmitGroup(string $tenantId, int $agreementId, string $startDate, string $endDate, bool $withInvoice): void
     {
-        // Intenta obtener el token para ese tenant
-        $token = $this->tokenService->obtenerToken($tenantId);
+        // Obtain token for this tenant
+        $token = $this->tokenService->getToken($tenantId);
 
         if (!$token) {
             Notification::make()
@@ -81,10 +89,10 @@ class RipsCoordinatorService
             return;
         }
 
-        // Genera el JSON RIPS para el grupo
-        $facturas = $this->generatorService->previsualizarRipsPorFactura($agreementId, $startDate, $endDate, $conFactura);
+        // Generate RIPS JSON for the group
+        $documentsPayload = $this->generatorService->previsualizarRipsPorFactura($agreementId, $startDate, $endDate, $withInvoice);
 
-        if (empty($facturas)) {
+        if (empty($documentsPayload)) {
             Notification::make()
                 ->title('Sin resultados')
                 ->body('No se encontraron datos RIPS.')
@@ -94,59 +102,59 @@ class RipsCoordinatorService
             return;
         }
 
-        // Instancia el servicio de envío con el token
+        // Build submission service with the obtained token
         $this->submissionService = new RipsSubmissionService($token);
 
-        $resultados = [];
+        $results = [];
 
-        // Recorre cada factura o nota y la envía individualmente
-        foreach ($facturas as $index => $factura) {
-            $numero = $factura['rips']['numFactura'] ?? $factura['rips']['numNota'] ?? 'documento_' . $index;
+        // Submit each document individually
+        foreach ($documentsPayload as $index => $docPayload) {
+            $number = $docPayload['rips']['numFactura'] ?? $docPayload['rips']['numNota'] ?? ('documento_' . $index);
 
-            // Verifica si ya fue aceptada anteriormente
-            $documento = RipsBillingDocument::where('tenant_id', $tenantId)
-                ->where('document_number', $numero)
+            // Skip if already accepted
+            $document = RipsBillingDocument::where('tenant_id', $tenantId)
+                ->where('document_number', $number)
                 ->first();
 
-            if ($documento?->submission_status === 'accepted') {
-                continue; // No se reenvía si ya fue aceptado
+            if ($document?->submission_status === 'accepted') {
+                continue;
             }
 
-            // Envía el documento a SISPRO
-            $respuesta = $this->submissionService->enviarFactura($factura, $conFactura);
+            // Submit to SISPRO
+            $response = $this->submissionService->submitDocument($docPayload, $withInvoice);
 
-            // Guarda el archivo de respuesta como respaldo
-            $filename = "respuesta_rips_{$numero}_" . now()->format('Ymd_His') . '.json';
-            Storage::put("respuestas/{$filename}", json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+            // Persist response file as a backup
+            $filename = "respuesta_rips_{$number}_" . now()->format('Ymd_His') . '.json';
+            Storage::disk('public')->put("respuestas/{$filename}", json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-            // Determina el estado (accepted, rejected o pending)
-            $estado = 'pending';
-            if (isset($respuesta['response']['ResultState'])) {
-                $estado = $respuesta['response']['ResultState'] === true ? 'accepted' : 'rejected';
+            // Determine status (accepted, rejected or pending)
+            $status = 'pending';
+            if (isset($response['response']['ResultState'])) {
+                $status = $response['response']['ResultState'] === true ? 'accepted' : 'rejected';
             }
 
-            // Actualiza el estado en base de datos
-            if ($documento) {
-                $documento->update(['submission_status' => $estado]);
+            // Update DB status
+            if ($document) {
+                $document->update(['submission_status' => $status]);
             }
 
-            // Guarda el resultado para la notificación
-            $resultados[] = [
-                'factura' => $numero,
-                'success' => $respuesta['success'],
-                'respuesta' => $respuesta['response'],
-                'archivo' => $filename,
+            // Store result for the summary
+            $results[] = [
+                'document' => $number,
+                'success' => $response['success'],
+                'response' => $response['response'],
+                'file' => $filename,
             ];
         }
 
-        // Construye notificación resumen para el usuario
-        $errores = collect($resultados)->where('success', false)->count();
-        $exitos = collect($resultados)->where('success', true)->count();
+        // Build summary notification
+        $errors = collect($results)->where('success', false)->count();
+        $success = collect($results)->where('success', true)->count();
 
-        $body = "Facturas exitosas: {$exitos}<br>Errores: {$errores}<br><br>";
-        $body .= collect($resultados)->map(function ($r) {
-            return "<strong>{$r['factura']}</strong>: <a href='" . asset("storage/respuestas/{$r['archivo']}") . "' target='_blank'>Ver respuesta</a>";
-        })->implode("<br>");
+        $body = "Facturas exitosas: {$success}<br>Errores: {$errors}<br><br>";
+        $body .= collect($results)->map(function ($r) {
+            return "<strong>{$r['document']}</strong>: <a href='" . asset("storage/respuestas/{$r['file']}") . "' target='_blank'>Ver respuesta</a>";
+        })->implode('<br>');
 
         Notification::make()
             ->title('Resultado del envío de RIPS')
@@ -157,18 +165,23 @@ class RipsCoordinatorService
     }
 
     /**
-     * Procesa y envía un grupo específico de facturas (ya generadas),
-     * ideal para envío manual desde selección del usuario.
+     * Manual flow when the user selects specific documents in the table:
+     * - Generate JSON using only selected documents (mode: 'enviar').
+     * - Submit each one, skipping already accepted ones.
+     * - Update document and service statuses accordingly.
      */
-    public function procesarYEnviarGrupoManual(string $tenantId, int $agreementId, string $startDate, string $endDate, bool $conFactura, array $facturas): void
+    public function processAndSubmitGroupManual(string $tenantId, int $agreementId, string $startDate, string $endDate, bool $withInvoice, array $documentsPayload): void
     {
-        Log::info("🚀 Iniciando proceso de envío manual de RIPS para el tenant {$tenantId}");
+        if (app()->environment('local')) {
+            Log::info("Starting manual RIPS submission for tenant {$tenantId}");
+        }
 
-        // 🔐 Intenta obtener el token de autenticación desde SISPRO para este tenant
-        $token = $this->tokenService->obtenerToken($tenantId);
-        Log::info("🔐 Token obtenido para tenant {$tenantId}: " . ($token ? 'SÍ' : 'NO'));
+        // Obtain auth token
+        $token = $this->tokenService->getToken($tenantId);
+        if (app()->environment('local')) {
+            Log::info("Token obtained for tenant {$tenantId}: " . ($token ? 'YES' : 'NO'));
+        }
 
-        // ⚠️ Si no obtiene token, muestra una notificación de error y detiene todo
         if (!$token) {
             Notification::make()
                 ->title('Error de autenticación')
@@ -176,210 +189,181 @@ class RipsCoordinatorService
                 ->danger()
                 ->persistent()
                 ->send();
-                Log::error("❌ No se pudo obtener token para el tenant {$tenantId}. Se detiene el proceso.");
+
+            Log::error("Token not obtained for tenant {$tenantId}. Aborting process.");
             return;
         }
 
-        // 🛠️ Preparamos el servicio que se encargará de enviar los RIPS con ese token
+        // Build submission service
         $this->submissionService = new RipsSubmissionService($token);
 
-        // 🗃️ Aquí se irán guardando los resultados del envío de cada factura
-        $resultados = [];
+        $results = [];
         $includedIds = session('rips_servicios_incluidos', []);
-        // ✅ Recorremos cada factura que fue generada en el JSON
-        foreach ($facturas as $index => $factura) {
-            // 🧾 Obtenemos el número del documento (factura o nota)
-            $numero = $factura['rips']['numFactura'] ?? $factura['rips']['numNota'] ?? 'documento_' . $index;
-            Log::info("📄 Procesando documento: {$numero}");
 
-            // 🔎 Buscamos ese documento en la base de datos
-            $documento = RipsBillingDocument::where('tenant_id', $tenantId)
-                ->where('document_number', $numero)
+        foreach ($documentsPayload as $index => $docPayload) {
+            $number = $docPayload['rips']['numFactura'] ?? $docPayload['rips']['numNota'] ?? ('documento_' . $index);
+            if (app()->environment('local')) {
+                Log::info("Processing document: {$number}");
+            }
+
+            $document = RipsBillingDocument::where('tenant_id', $tenantId)
+                ->where('document_number', $number)
                 ->first();
-            if (!$documento) {
-                Log::warning("⚠️ Documento no encontrado en BD: {$numero}");
+
+            if (!$document) {
+                Log::warning("Document not found in DB: {$number}");
             }
 
-            Log::info("📤 Enviando documento {$numero} a SISPRO...");
-            // 🚀 Enviamos el documento a la API SISPRO (puede ser factura o nota)
-            $respuesta = $this->submissionService->enviarFactura($factura, $conFactura);
-            Log::info("📥 Respuesta recibida para {$numero}", ['respuesta' => $respuesta]);
-
-            // 💾 Guardamos una copia de la respuesta en el disco (respaldo)
-            $filename = "respuesta_rips_{$numero}_" . now()->format('Ymd_His') . '.json';
-            //Storage::put("respuestas/{$filename}", json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-            Storage::disk('public')->put("respuestas/{$filename}", json_encode($respuesta, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-
-            Log::info("💾 Respuesta guardada en: respuestas/{$filename}");
-
-            // 📌 Evaluamos el estado del envío según la respuesta de la API
-            $estado = 'pending'; // por defecto
-            if (isset($respuesta['response']['ResultState'])) {
-                $estado = $respuesta['response']['ResultState'] === true ? 'accepted' : 'rejected';
+            if (app()->environment('local')) {
+                Log::info("Submitting document {$number} to SISPRO...");
             }
-            Log::info("📌 Estado del envío para {$numero}: {$estado}");
+            $response = $this->submissionService->submitDocument($docPayload, $withInvoice);
 
+            if (app()->environment('local')) {
+                Log::info("Response received for {$number}", ['response' => $response]);
+            }
 
-            // 📝 Actualizamos el estado del documento en la base de datos
-            if ($documento) {
-                $documento->update(['submission_status' => $estado]);
-                Log::info("✅ Estado actualizado en documento: {$numero}");
-                // 🔁 Recorremos todos los servicios asociados a este documento
-                $servicioUpdater = app(\App\Services\RipsPatientServiceStatusUpdater::class);
-                /*foreach ($documento->patientServices as $servicio) {
-                    // 📌 Verificamos si este servicio fue incluido en el JSON enviado
-                    if ($this->servicioIncluidoEnFactura($servicio, $factura)) {
-                        Log::info("🔄 Servicio {$servicio->id} incluido en el JSON enviado, actualizando estado...");
-                        // ✅ Se envió, actualizamos con el resultado (aceptado o rechazado)
-                        $servicioUpdater->actualizarEstado($servicio, $estado);
-                    } else {
-                        Log::info("🕘 Servicio {$servicio->id} NO fue enviado, se marca como SinEnviar.");
-                        // ❗ No se envió (no fue seleccionado) => se marca como SinEnviar
-                        $servicio->status_id = 3; // SinEnviar
-                        $servicio->save();
+            $filename = "respuesta_rips_{$number}_" . now()->format('Ymd_His') . '.json';
+            Storage::disk('public')->put("respuestas/{$filename}", json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+            $status = 'pending';
+            if (isset($response['response']['ResultState'])) {
+                $status = $response['response']['ResultState'] === true ? 'accepted' : 'rejected';
+            }
+            if (app()->environment('local')) {
+                Log::info("Submission status for {$number}: {$status}");
+            }
+
+            if ($document) {
+                $document->update(['submission_status' => $status]);
+
+                // Update each related service status
+                $serviceUpdater = app(RipsPatientServiceStatusUpdater::class);
+                foreach ($document->patientServices as $service) {
+                    $included = in_array($service->id, $includedIds, true);
+                    if (app()->environment('local')) {
+                        Log::info("Service {$service->id} included in submission: " . ($included ? 'YES' : 'NO'));
                     }
-                }*/
-
-                foreach ($documento->patientServices as $servicio) {
-                    $fueIncluido = in_array($servicio->id, $includedIds);
-                    Log::info("🧾 Servicio {$servicio->id} → Incluido en envío: " . ($fueIncluido ? 'SÍ' : 'NO'));
-                    $servicioUpdater->actualizarEstado($servicio, $fueIncluido);
+                    $serviceUpdater->updateStatus($service, $included);
                 }
-
-
-
             }
 
-            // 📊 Guardamos el resultado de esta factura para mostrar en la notificación final
-            $resultados[] = [
-                'factura' => $numero,
-                'success' => $respuesta['success'],
-                'respuesta' => $respuesta['response'],
-                'archivo' => $filename,
+            $results[] = [
+                'document' => $number,
+                'success' => $response['success'],
+                'response' => $response['response'],
+                'file' => $filename,
             ];
         }
 
-        // 📈 Contamos cuántas fueron exitosas y cuántas fallaron
-        $errores = collect($resultados)->where('success', false)->count();
-        $exitos = collect($resultados)->where('success', true)->count();
+        $errors = collect($results)->where('success', false)->count();
+        $success = collect($results)->where('success', true)->count();
 
-        // 📝 Construimos el mensaje del resumen para el usuario
-        $body = "Facturas exitosas: {$exitos}<br>Errores: {$errores}<br><br>";
-        $body .= collect($resultados)->map(function ($r) {
-            return "<strong>{$r['factura']}</strong>: <a href='" . asset("storage/respuestas/{$r['archivo']}") . "' target='_blank'>Ver respuesta</a>";
-        })->implode("<br>");
+        $body = "Facturas exitosas: {$success}<br>Errores: {$errors}<br><br>";
+        $body .= collect($results)->map(function ($r) {
+            return "<strong>{$r['document']}</strong>: <a href='" . asset("storage/respuestas/{$r['file']}") . "' target='_blank'>Ver respuesta</a>";
+        })->implode('<br>');
 
-        // 📢 Mostramos la notificación resumen con enlaces a cada respuesta
         Notification::make()
             ->title('Resultado del envío de RIPS')
             ->body($body)
             ->success()
             ->persistent()
             ->send();
-        Log::info("📢 Proceso finalizado. Exitosos: {$exitos}, Errores: {$errores}");
+
+        if (app()->environment('local')) {
+            Log::info("Manual submission finished. Success: {$success}, Errors: {$errors}");
+        }
+
+        // Cleanup session
         session()->forget('rips_servicios_incluidos');
         session()->forget('rips_servicios_seleccionados');
         session()->forget('rips_confirmado');
-
     }
 
     /**
-     * 🔍 Verifica si un servicio RIPS (consulta o procedimiento) fue incluido
-     * en el JSON de una factura enviada a SISPRO.
-     *
-     * Esto es útil para saber si un servicio fue realmente enviado o no,
-     * ya que una factura puede tener varios servicios, pero quizás solo se seleccionaron algunos.
-     *
-     * @param  mixed  $servicio El servicio RIPS (consulta o procedimiento) que queremos verificar.
-     * @param  array  $factura  El JSON completo de la factura enviada (incluye listas de consultas y procedimientos).
-     * @return bool             Devuelve true si el servicio sí está incluido en esa factura.
+     * Full flow when the user selects records from a table:
+     * - Generate JSON only for selected records (mode 'enviar').
+     * - Submit one by one, skipping already accepted documents.
      */
-    protected function servicioIncluidoEnFactura($servicio, $factura): bool
+    public function submitFromSelection(EloquentCollection $records, string $tenantId): void
     {
-        // ✅ Recorremos la lista de consultas del JSON (si existen), y extraemos solo los ID
-        $idsConsultas = collect($factura['consultas'] ?? [])->pluck('id');
+        if (app()->environment('local')) {
+            Log::info("Starting RIPS submission from selection. Tenant: {$tenantId}");
+        }
 
-        // ✅ Recorremos la lista de procedimientos del JSON (si existen), y extraemos solo los ID
-        $idsProcedimientos = collect($factura['procedimientos'] ?? [])->pluck('id');
-
-        // 🧠 Si el ID del servicio que estamos evaluando aparece en cualquiera de las dos listas, retornamos true
-        return $idsConsultas->contains($servicio->id) || $idsProcedimientos->contains($servicio->id);
-    }
-
-
-
-    /**
-     * Flujo completo cuando el usuario selecciona manualmente documentos desde la tabla.
-     * - Genera el JSON solo con los seleccionados.
-     * - Envía uno por uno, solo si no están aceptados.
-     */
-    public function enviarDesdeSeleccion(Collection  $records, string $tenantId): void
-    {
-        Log::info('🚀 Iniciando envío de RIPS desde selección. Tenant: ' . $tenantId);
-
-        // Limpia la sesión por si quedó un JSON anterior
+        // Clear leftover session data
         session()->forget('rips_json_generado');
 
-        // Genera el JSON solo con los documentos seleccionados
+        // Generate JSON for selected documents (returns array or null)
         $jsonRips = $this->generatorService->generateOnlySelected(collect($records), 'enviar');
 
         if (!is_array($jsonRips)) {
-            Log::error('⛔ El resultado de generateOnlySelected no es un array. Proceso detenido.');
+            Log::error('generateOnlySelected did not return an array. Aborting.');
             return;
         }
-        //$jsonRips = $this->generatorService->generateOnlySelected(collect($records));
 
-        // Si hay algún error y no se puede generar, detenemos el flujo
         if (is_null($jsonRips)) {
-            Log::warning('⚠️ No se generó el JSON. Proceso detenido.');
+            Log::warning('No JSON generated. Aborting.');
             return;
         }
 
-        // Procesa y envía cada documento por separado
-        foreach ($jsonRips as $factura) {
-            $numero = $factura['rips']['numFactura'] ?? $factura['rips']['numNota'] ?? 'documento';
-            Log::info("📦 Procesando documento: {$numero}");
-            $documento = RipsBillingDocument::where('tenant_id', $tenantId)
-                ->where('document_number', $numero)
+        foreach ($jsonRips as $docPayload) {
+            $number = $docPayload['rips']['numFactura'] ?? $docPayload['rips']['numNota'] ?? 'documento';
+
+            if (app()->environment('local')) {
+                Log::info("Processing document: {$number}");
+            }
+
+            $document = RipsBillingDocument::where('tenant_id', $tenantId)
+                ->where('document_number', $number)
                 ->first();
 
-            if (!$documento) {
-                Log::error("❌ Documento no encontrado para número: {$numero}");
+            if (!$document) {
+                Log::error("Document not found for number: {$number}");
                 continue;
             }
 
-            if (!$documento->agreement_id) {
-                Log::error("❌ Documento sin convenio: {$numero}");
-                continue;
-            }
-            if ($documento->submission_status === 'accepted') {
-                Log::info("✅ Documento ya aceptado. Se omite: {$numero}");
+            if (!$document->agreement_id) {
+                Log::error("Document without agreement: {$number}");
                 continue;
             }
 
+            if ($document->submission_status === 'accepted') {
+                if (app()->environment('local')) {
+                    Log::info("Document already accepted. Skipping: {$number}");
+                }
+                continue;
+            }
 
-            $start = optional($documento->patientServices)->pluck('service_datetime')->filter()->min();
-            $end = optional($documento->patientServices)->pluck('service_datetime')->filter()->max();
+            $start = optional($document->patientServices)->pluck('service_datetime')->filter()->min();
+            $end = optional($document->patientServices)->pluck('service_datetime')->filter()->max();
 
             if (!$start || !$end) {
-                Log::warning("⚠️ Fechas inválidas para documento: {$numero}");
+                Log::warning("Invalid dates for document: {$number}");
                 continue;
             }
-            Log::info("📤 Enviando documento {$numero} desde {$start} hasta {$end}");
 
-            // Envía el documento usando el grupo manual
-            $this->procesarYEnviarGrupoManual(
+            if (app()->environment('local')) {
+                Log::info("Submitting document {$number} from {$start} to {$end}");
+            }
+
+            // Submit using the manual-group method to reuse flow
+            $this->processAndSubmitGroupManual(
                 tenantId: $tenantId,
-                agreementId: $documento->agreement_id,
+                agreementId: $document->agreement_id,
                 startDate: Carbon::parse($start)->format('Y-m-d'),
                 endDate: Carbon::parse($end)->format('Y-m-d'),
-                conFactura: $documento->type_id === 1,
-                facturas: [$factura]
+                withInvoice: $document->type_id === 1,
+                documentsPayload: [$docPayload]
             );
         }
 
-        // Limpia la sesión nuevamente al finalizar
+        // Cleanup session again
         session()->forget('rips_json_generado');
-        Log::info('🏁 Finalizó envío de documentos RIPS seleccionados.');
+
+        if (app()->environment('local')) {
+            Log::info('Finished submission for selected RIPS documents.');
+        }
     }
 }

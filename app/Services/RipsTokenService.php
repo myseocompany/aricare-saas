@@ -1,75 +1,102 @@
 <?php
 
+/****************************************************************/
+/* Module: RIPS Token Service                                   */
+/* Author: Julian                                               */
+/* Date: 2025-08-07                                             */
+/* Description: Retrieves an authentication token from the      */
+/*              SISPRO API using tenant credentials.            */
+/****************************************************************/
+
 namespace App\Services;
 
+use App\Models\Tenant;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use App\Models\Tenant;
 
 class RipsTokenService
 {
     /**
-     * Obtiene el token de autenticación desde la API SISPRO.
+     * Get the SISPRO authentication token for a given tenant.
      *
-     * @param string $tenantId ID del tenant (UUID).
-     * @return string|null Token obtenido desde la API o null si falla.
+     * @param string $tenantId Tenant UUID.
+     * @return string|null Token string or null on failure.
      */
-    public function obtenerToken(string $tenantId): ?string
+    public function getToken(string $tenantId): ?string
     {
-        // Buscar los datos necesarios en la tabla tenants
+        // Load tenant credentials
         $tenant = Tenant::find($tenantId);
-        Log::info("Tenant encontrado:", ['tenant_id' => $tenantId, 'tenant' => $tenant]);
+
+        if (app()->environment('local')) {
+            Log::info('Tenant loaded for RIPS token request', [
+                'tenant_id' => $tenantId,
+                'exists' => (bool) $tenant,
+            ]);
+        }
 
         if (!$tenant) {
-            Log::error("No se encontró el tenant con ID: {$tenantId}");
+            Log::error("Tenant not found", ['tenant_id' => $tenantId]);
             return null;
         }
 
-        // Validar que todos los campos necesarios estén presentes
-        if (
-            empty($tenant->document_type) ||
-            empty($tenant->rips_idsispro) ||
-            empty($tenant->document_number) ||
-            empty($tenant->rips_passispro)
-        ) {
-            Log::error("Campos incompletos para autenticación RIPS en tenant ID: {$tenantId}", [
-                'document_type' => $tenant->document_type, 
-                'rips_idsispro' => $tenant->rips_idsispro, 
-                'document_number' => $tenant->document_number,
-                'rips_passispro' => $tenant->rips_passispro,
+        // Validate required fields (avoid logging secrets)
+        $missing = [];
+        if (empty($tenant->document_type))   { $missing[] = 'document_type'; }
+        if (empty($tenant->rips_idsispro))   { $missing[] = 'rips_idsispro'; }
+        if (empty($tenant->document_number)) { $missing[] = 'document_number'; }
+        if (empty($tenant->rips_passispro))  { $missing[] = 'rips_passispro'; } // see note below
+
+        if (!empty($missing)) {
+            Log::error('Missing RIPS auth fields for tenant', [
+                'tenant_id' => $tenantId,
+                'missing' => $missing,
             ]);
             return null;
         }
 
-        // Construir el cuerpo del JSON que espera la API SISPRO
+        // Build request payload (do not log password)
         $payload = [
             'persona' => [
                 'identificacion' => [
-                    'tipo' => $tenant->document_type,
+                    'tipo'   => $tenant->document_type,
                     'numero' => $tenant->rips_idsispro,
-                ]
+                ],
             ],
-            'nit' => $tenant->document_number,
+            'nit'   => $tenant->document_number,
             'clave' => $tenant->rips_passispro,
         ];
 
+        $baseUrl = rtrim((string) config('services.rips_api.url'), '/');
+        $url = $baseUrl . '/auth/LoginSISPRO';
+
         try {
-            Log::info('Enviando solicitud de token a SISPRO', [
-                'url' => config('services.rips_api.url') . '/auth/LoginSISPRO',
-                'payload' => $payload
-            ]);
-            $response = Http::withoutVerifying() // Para ignorar errores de SSL locales
+            if (app()->environment('local')) {
+                Log::info('Requesting SISPRO token', [
+                    'url' => $url,
+                    // Never log secrets; show only non-sensitive keys
+                    'payload_keys' => [
+                        'persona.identificacion.tipo' => (bool) $tenant->document_type,
+                        'persona.identificacion.numero' => (bool) $tenant->rips_idsispro,
+                        'nit' => (bool) $tenant->document_number,
+                        'clave_present' => !empty($tenant->rips_passispro),
+                    ],
+                ]);
+            }
+
+            $response = Http::withoutVerifying() // ignore local SSL issues
                 ->timeout(30)
                 ->acceptJson()
-                ->post(config('services.rips_api.url') . '/auth/LoginSISPRO', $payload);
+                ->post($url, $payload);
 
-            Log::info('Respuesta cruda del servidor SISPRO', [
-                'status' => $response->status(),
-                'body' => $response->body()
-            ]);
+            if (app()->environment('local')) {
+                Log::info('SISPRO token raw response', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
 
             if (!$response->successful()) {
-                Log::error('Error al obtener token RIPS', [
+                Log::error('Failed to obtain RIPS token', [
                     'status' => $response->status(),
                     'body' => $response->body(),
                 ]);
@@ -78,8 +105,9 @@ class RipsTokenService
 
             $data = $response->json();
             return $data['token'] ?? null;
-        } catch (\Exception $e) {
-            Log::error('Excepción al obtener token RIPS', [
+        } catch (\Throwable $e) {
+            Log::error('Exception while obtaining RIPS token', [
+                'tenant_id' => $tenantId,
                 'error' => $e->getMessage(),
             ]);
             return null;
