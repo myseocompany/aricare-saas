@@ -19,7 +19,7 @@ class CreateRipsBillingDocument extends CreateRecord
         $documento = static::getModel()::create($data);
 
         // 📌 Evaluamos su estado y el de sus servicios (esto ya los actualiza a ambos)
-        app(RipsBillingDocumentStatusUpdater::class)->actualizarEstado($documento);
+        app(RipsBillingDocumentStatusUpdater::class)->updateStatus($documento);
 
         return $documento;
     }

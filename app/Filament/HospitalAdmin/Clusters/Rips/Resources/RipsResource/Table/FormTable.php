@@ -316,7 +316,7 @@ Tables\Columns\TextColumn::make('service_datetime')
                         $records = \App\Models\Rips\RipsPatientService::whereIn('id', $ids)->get();
 
                         app(\App\Services\RipsCoordinatorService::class)
-                            ->enviarDesdeSeleccion($records, $tenantId);
+                            ->submitFromSelection($records, $tenantId);
                     }),
 
 
@@ -341,7 +341,7 @@ Tables\Columns\TextColumn::make('service_datetime')
                         $records = \App\Models\Rips\RipsPatientService::whereIn('id', $ids)->get();
 
                         app(\App\Services\RipsCoordinatorService::class)
-                            ->enviarDesdeSeleccion($records, $tenantId);
+                            ->submitFromSelection($records, $tenantId);
                   })
                     ->hidden(),
 

@@ -49,7 +49,7 @@ class CreateRips extends CreateRecord
             $record->save();
         }
         // ✅ Llama aquí al servicio que actualiza el estado automáticamente
-        app(RipsPatientServiceStatusUpdater::class)->actualizarEstado($record);
+        app(RipsPatientServiceStatusUpdater::class)->updateStatus($record);
         app(FormSyncConsultationsAndProcedures::class)($record, $data);
 
         return $record;
