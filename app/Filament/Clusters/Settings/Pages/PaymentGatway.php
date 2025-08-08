@@ -13,6 +13,7 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Pages\SubNavigationPosition;
 use Illuminate\Support\Arr;
+use Filament\Forms\Get;
 
 class PaymentGatway extends Page
 {
@@ -36,7 +37,17 @@ class PaymentGatway extends Page
 
     public function mount()
     {
-        $keys = ['stripe_enable', 'stripe_key', 'stripe_secret', 'paypal_enable', 'paypal_key', 'paypal_secret', 'razorpay_enable', 'razorpay_key', 'razorpay_secret', 'paystack_enable', 'paystack_key', 'paystack_secret', 'phonepe_enable', 'phonepe_merchant_id', 'phonepe_merchant_user_id', 'phonepe_env', 'phonepe_salt_key', 'phonepe_salt_index', 'phonepe_merchant_transaction_id', 'flutterwave_enable', 'flutterwave_key', 'flutterwave_secret'];
+        $keys = [
+            'stripe_enable','stripe_key','stripe_secret',
+            'paypal_enable','paypal_key','paypal_secret',
+            'razorpay_enable','razorpay_key','razorpay_secret',
+            'paystack_enable','paystack_key','paystack_secret',
+            'phonepe_enable','phonepe_merchant_id','phonepe_merchant_user_id','phonepe_env',
+            'phonepe_salt_key','phonepe_salt_index','phonepe_merchant_transaction_id',
+            'flutterwave_enable','flutterwave_key','flutterwave_secret',
+            // ---- Wompi ----
+            'wompi_enable','wompi_public_key','wompi_private_key','wompi_events_secret','wompi_env'
+        ];
         $settingsData = SuperAdminSetting::select('key', 'value')->whereIn('key', $keys)->get()->keyBy('key')->toArray();
         $this->form->fill($settingsData + ['manual_payment_enabled' => ['value' => true]]);
     }
@@ -50,6 +61,40 @@ class PaymentGatway extends Page
             ->schema([
                 Section::make()
                     ->schema([
+                        // Wompi
+                        Toggle::make('wompi_enable.value')
+    ->live()
+    ->label('Wompi:'),
+
+Group::make()
+    ->schema([
+        TextInput::make('wompi_env.value')
+            ->label('Ambiente (test|prod)')
+            ->placeholder('test o prod')
+            ->helperText('Usa "test" para pruebas y "prod" para producción.')
+            ->requiredIf('wompi_enable.value', true),
+
+        TextInput::make('wompi_public_key.value')
+            ->label('Public Key')
+            ->placeholder('pub_test_xxx / pub_prod_xxx')
+            ->requiredIf('wompi_enable.value', true),
+
+        TextInput::make('wompi_private_key.value')
+            ->label('Private Key')
+            ->password()
+            ->revealable()
+            ->requiredIf('wompi_enable.value', true),
+
+        TextInput::make('wompi_events_secret.value')
+            ->label('Events Secret (Webhooks)')
+            ->password()
+            ->revealable()
+            ->helperText('Se usa para verificar la firma de los eventos.')
+            ->requiredIf('wompi_enable.value', true),
+    ])
+    ->columns(2)
+    ->visible(fn (Get $get) => (bool) $get('wompi_enable.value')),
+                        // Fin Wompi
                         Toggle::make('stripe_enable.value')
                             ->live()
                             ->label(__('messages.setting.stripe') . ':'),
