@@ -1,29 +1,39 @@
 <?php
 
+/****************************************************************/
+/* Module: RIPS Generation Controller                            */
+/* Author: Julian                                               */
+/* Date: 2025-08-08                                             */
+/* Description: Confirms RIPS JSON generation (download) and    */
+/*              submission (send to SISPRO) flows.              */
+/****************************************************************/
+
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Services\RipsGeneratorService;
-use App\Services\RipsCoordinatorService;
 use App\Models\Rips\RipsPatientService;
+use App\Services\RipsCoordinatorService;
+use App\Services\RipsGeneratorService;
 use Illuminate\Support\Facades\Log;
-use Filament\Notifications\Notification;
 
 class RipsGeneracionController extends Controller
 {
     /**
-     * 🧾 Confirmación para GENERAR el JSON (descargar)
+     * Confirm JSON generation (download) for selected services stored in session.
+     * Session flags used:
+     * - rips_confirmado
+     * - rips_servicios_seleccionados
+     * - rips_servicios_incluidos (cleared after building JSON)
      */
     public function confirmarGeneracion()
     {
-        Log::info('📥 Ejecutando ruta /rips/confirmar-generacion');
+        if (app()->environment('local')) {
+            Log::info('GET /rips/confirmar-generacion');
+        }
 
-        // ✅ Marca que el usuario confirmó la advertencia
+        // Mark that user confirmed the warning step
         session(['rips_confirmado' => true]);
 
         $ids = session('rips_servicios_seleccionados', []);
-        Log::info('📦 IDs en sesión: ', $ids);
-
         if (empty($ids)) {
             abort(404, 'No hay servicios seleccionados.');
         }
@@ -48,36 +58,34 @@ class RipsGeneracionController extends Controller
             'doctor.user',
         ])->whereIn('id', $ids)->get();
 
-        $service = app(RipsGeneratorService::class);
+        $service  = app(RipsGeneratorService::class);
         $ripsData = $service->buildRipsFromSelectedServices($patientServices);
 
-        $nombreArchivo = 'rips_' . now()->format('Ymd_His') . '.json';
-        $contenido = json_encode($ripsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        $filename = 'rips_' . now()->format('Ymd_His') . '.json';
+        $content  = json_encode($ripsData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
 
-        // 🧹 Limpieza de sesión
-        session()->forget('rips_confirmado');
-        session()->forget('rips_servicios_seleccionados');
-        session()->forget('rips_servicios_incluidos');
+        // Cleanup session
+        session()->forget(['rips_confirmado', 'rips_servicios_seleccionados', 'rips_servicios_incluidos']);
 
-        return response($contenido)
+        return response($content)
             ->header('Content-Type', 'application/json')
-            ->header('Content-Disposition', 'attachment; filename="' . $nombreArchivo . '"');
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
-
     /**
-     * 📤 Confirmación para ENVIAR el JSON (no descarga)
+     * Confirm JSON submission (send) for selected services stored in session.
+     * It does not download; it delegates to the coordinator to submit.
      */
     public function confirmarEnvio()
     {
-        Log::info('📥 Ejecutando ruta /rips/confirmar-envio');
+        if (app()->environment('local')) {
+            Log::info('GET /rips/confirmar-envio');
+        }
 
-        // ✅ Marca que el usuario confirmó la advertencia
+        // Mark that user confirmed the warning step
         session(['rips_confirmado' => true]);
 
         $ids = session('rips_servicios_seleccionados', []);
-        Log::info('📦 IDs en sesión para envío: ', $ids);
-
         if (empty($ids)) {
             abort(404, 'No hay servicios seleccionados para enviar.');
         }
@@ -103,14 +111,13 @@ class RipsGeneracionController extends Controller
         ])->whereIn('id', $ids)->get();
 
         $coordinator = app(RipsCoordinatorService::class);
-        $tenantId = auth()->user()->tenant_id;
+        $tenantId    = auth()->user()->tenant_id;
 
-        $coordinator->enviarDesdeSeleccion($patientServices, $tenantId);
-        // 🧹 Limpieza de sesión después del envío
-        session()->forget('rips_confirmado');
-        session()->forget('rips_servicios_seleccionados');
-        session()->forget('rips_servicios_incluidos');
+        $coordinator->submitFromSelection($patientServices, $tenantId);
 
-        return redirect()->back(); // O a donde quieras redirigir después del envío
+        // Cleanup session
+        session()->forget(['rips_confirmado', 'rips_servicios_seleccionados', 'rips_servicios_incluidos']);
+
+        return redirect()->back();
     }
 }
