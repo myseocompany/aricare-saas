@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Plan;
-use App\Models\Module;
 use App\Models\Transaction;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
-use App\Models\PaymentSetting;
 use App\Models\SubscriptionPlan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use Srmklive\PayPal\Services\PayPal;
 use Bancolombia\Wompi;
 
 use Filament\Notifications\Notification;
@@ -22,7 +18,6 @@ class WompiController extends Controller
 {
     public function purchase(Request $request)
     {
-
         try {
             $plan = json_decode($request->plan);
 
@@ -31,51 +26,34 @@ class WompiController extends Controller
                 'plan_id' => $plan->id,
             ];
 
-            // if ($plan->currency->code != null && ! in_array(strtoupper($plan->currency->code), self::getPayPalSupportedCurrencies())) {
-            //     Notification::make()
-            //         ->danger()
-            //         ->title(__('messages.subscription.this_currency_is_not_supported'))
-            //         ->send();
-
-            //     return redirect()->back();
-            // }
-
             session(['data' => $data]);
 
-            $mode = getSuperAdminSettingKeyValue('paypal_mode');
-            $clientId = getSuperAdminSettingKeyValue('paypal_key');
-            $clientSecret = getSuperAdminSettingKeyValue('paypal_secret');
+            $publicKey = getSuperAdminSettingKeyValue('wompi_public_key');
+            $privateKey = getSuperAdminSettingKeyValue('wompi_private_key');
+            $env = getSuperAdminSettingKeyValue('wompi_env');
 
-            config([
-                'paypal.mode' => $mode,
-                'paypal.sandbox.client_id' => $clientId,
-                'paypal.sandbox.client_secret' => $clientSecret,
-                'paypal.live.client_id' => $clientId,
-                'paypal.live.client_secret' => $clientSecret,
-            ]);
+            $reference = uniqid('wompi_');
 
-            $provider = new PayPal();
-            $provider->getAccessToken();
-
-            $data = [
-                'intent' => 'CAPTURE',
-                'purchase_units' => [
-                    [
-                        'reference_id' => $plan->id,
-                        'amount' => [
-                            'value' => $plan->payable_amount,
-                            // 'currency_code' => $plan->currency->code,
-                            'currency_code' => "USD",
-                        ],
-                    ],
-                ],
-                'application_context' => [
-                    'cancel_url' => route('paypal.failed') . '?error=subscription_failed',
-                    'return_url' => route('paypal.success'),
-                ],
+            $transactionData = [
+                'amount_in_cents'   => (int) ($plan->payable_amount * 100),
+                'currency'          => strtoupper($plan->currency->code ?? 'COP'),
+                'customer_email'    => Auth::user()->email,
+                'reference'         => $reference,
+                'redirect_url'      => route('wompi.success'),
             ];
-            $order = $provider->createOrder($data);
-            return redirect($order['links'][1]['href']);
+
+            $transaction = Wompi::createTransaction($transactionData, $privateKey, $env, $publicKey);
+
+            if (isset($transaction['data']['redirect_url'])) {
+                return redirect($transaction['data']['redirect_url']);
+            }
+
+            Notification::make()
+                ->danger()
+                ->title(__('messages.payment.payment_failed'))
+                ->send();
+
+            return redirect(route('filament.hospitalAdmin.pages.subscription-plans'));
         } catch (\Exception $e) {
             Notification::make()
                 ->danger()
@@ -85,50 +63,45 @@ class WompiController extends Controller
             return redirect(route('filament.hospitalAdmin.pages.subscription-plans'));
         }
     }
+
     public function success(Request $request)
     {
-
-        // dd($request->all()); //token and payer id
+        $payload = $request->all();
         $data = session('data');
         $plan = SubscriptionPlan::find($data['plan_id']);
-        $mode = getSuperAdminSettingKeyValue('paypal_mode');
-        $clientId = getSuperAdminSettingKeyValue('paypal_key');
-        $clientSecret = getSuperAdminSettingKeyValue('paypal_secret');
 
+        $eventSecret = getSuperAdminSettingKeyValue('wompi_events_secret');
+        $providedSignature = $request->header('X-Signature') ?? ($payload['signature'] ?? null);
 
-        config([
-            'paypal.mode' => $mode,
-            'paypal.sandbox.client_id' => $clientId,
-            'paypal.sandbox.client_secret' => $clientSecret,
-            'paypal.live.client_id' => $clientId,
-            'paypal.live.client_secret' => $clientSecret,
-        ]);
+        $calculatedSignature = hash_hmac('sha256', json_encode($payload['data'] ?? $payload), $eventSecret);
 
-        $provider = new PayPal();
-
-        $provider->getAccessToken();
-        $token = $request->get('token');
-        $response = $provider->capturePaymentOrder($token);
-
-        if (isset($response['purchase_units'][0]['payments']['captures'][0]['amount']['value'])) {
-            $subscriptionAmount = $response['purchase_units'][0]['payments']['captures'][0]['amount']['value'];
+        if (! $providedSignature || ! hash_equals($calculatedSignature, $providedSignature)) {
+            return $this->failed($request);
         }
-        try {
 
+        $transactionData = $payload['data']['transaction'] ?? $payload;
+        $status = $transactionData['status'] ?? null;
+        $amount = isset($transactionData['amount_in_cents']) ? ($transactionData['amount_in_cents'] / 100) : 0;
+
+        if ($status !== 'APPROVED') {
+            return $this->failed($request);
+        }
+
+        try {
             DB::beginTransaction();
 
             $transaction = Transaction::create([
-                'transaction_id' => $response['id'],
-                'payment_type' => Transaction::TYPE_PAYPAL,
-                'amount' => $subscriptionAmount,
-                'status' => Subscription::ACTIVE,
-                'user_id' => $data['user_id'],
-                'meta' => json_encode($response),
+                'transaction_id' => $transactionData['id'] ?? '',
+                'payment_type'   => Transaction::TYPE_WOMPI,
+                'amount'         => $amount,
+                'status'         => Subscription::ACTIVE,
+                'user_id'        => $data['user_id'],
+                'meta'           => json_encode($payload),
             ]);
 
             $planData['plan'] = $plan->toArray();
             $planData['user_id'] = $data['user_id'];
-            $planData['payment_type'] = Subscription::TYPE_PAYPAL;
+            $planData['payment_type'] = Subscription::TYPE_WOMPI;
             $planData['transaction_id'] = $transaction->id;
 
             $subscription = CreateSubscription::run($planData);
@@ -148,6 +121,8 @@ class WompiController extends Controller
             DB::rollBack();
             throw $ex;
         }
+
+        return redirect(route('filament.hospitalAdmin.pages.subscription-plans'));
     }
 
     public function failed(Request $request)
@@ -156,6 +131,7 @@ class WompiController extends Controller
             ->danger()
             ->title(__('messages.payment.payment_failed'))
             ->send();
-        return  redirect(route('filament.hospitalAdmin.pages.subscription-plans'));
+
+        return redirect(route('filament.hospitalAdmin.pages.subscription-plans'));
     }
 }
