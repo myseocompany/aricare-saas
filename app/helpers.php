@@ -1007,6 +1007,7 @@ if (!function_exists('getSuperAdminPaymentTypes')) {
         $phonePe = getSuperAdminPaymentCredentials('phonepe_enable');
         $paypal = getSuperAdminPaymentCredentials('paypal_enable');
         $flutterWave = getSuperAdminPaymentCredentials('flutterwave_enable');
+        $wompi = getSuperAdminPaymentCredentials('wompi_enable');
 
         $paymentTypeArray[4] = 'Manual';
 
@@ -1027,6 +1028,9 @@ if (!function_exists('getSuperAdminPaymentTypes')) {
         }
         if (!empty($flutterWave)) {
             $paymentTypeArray[8] = 'FlutterWave';
+        }
+        if (!empty($wompi)) {
+            $paymentTypeArray[9] = 'Wompi';
         }
 
         return $paymentTypeArray;
