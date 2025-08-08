@@ -6,7 +6,7 @@ use Filament\Clusters\Cluster;
 
 class Patients extends Cluster
 {
-    protected static ?string $navigationIcon = 'fas-user-injured';
+    protected static ?string $navigationIcon = 'fas-user';
 
     protected static ?int $navigationSort = 20;
     
