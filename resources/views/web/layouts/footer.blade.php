@@ -13,7 +13,7 @@
                     </div>
                     <div class="col-lg-10">
                         <p class="d-block text-white">
-                            {!! $hospitalSettingValue['about_us']['value'] !!}
+                            <!-- !! $hospitalSettingValue['about_us']['value'] !! -->
                         </p>
                     </div>
                 </div>
