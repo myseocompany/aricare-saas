@@ -185,35 +185,29 @@ class FormService
                             ])->id;
                         }),
 
- 
+                    /*
 
-                    Forms\Components\Select::make('agreement_id')
-                        ->label('Convenio / Contrato')
-                        ->searchable()
+                    Forms\Components\Placeholder::make('agreement_label')
+                        ->label('Convenio')
                         ->inlineLabel()
-                        ->disabled()
-                        ->dehydrated(false)
-                        ->visible(fn ($get) => filled($get('billing_document_id')))
-                        ->getOptionLabelFromRecordUsing(fn ($record) => $record->name . ' (' . $record->code . ')')
-                        ->afterStateHydrated(function ($component, $state) {
-                            $record = $component->getRecord();
-                            if ($record) {
-                                $component->state($record->billingDocument?->agreement_id);
+                        ->content(function (Forms\Get $get) {
+                            $billingDocumentId = $get('billing_document_id');
+                            if (! $billingDocumentId) {
+                                return '—';
                             }
-                        })
-                        ->options(function (string $search = null) {
-                            $tenantId = Auth::user()->tenant_id;
-                            return \App\Models\Rips\RipsTenantPayerAgreement::query()
-                                ->where('tenant_id', $tenantId)
-                                ->where(function ($query) use ($search) {
-                                    $query->where('name', 'like', "%{$search}%")
-                                        ->orWhere('code', 'like', "%{$search}%");
-                                })
-                                ->limit(100)
-                                ->get()
-                                ->mapWithKeys(fn ($agreement) => [$agreement->id => $agreement->name . ' (' . $agreement->code . ')']);
-                        }),
 
+                            $doc = \App\Models\Rips\RipsBillingDocument::query()
+                                ->with('agreement:id,name,code')
+                                ->find($billingDocumentId);
+
+                            if (! $doc || ! $doc->agreement) {
+                                return '—';
+                            }
+
+                            return "{$doc->agreement->name} ({$doc->agreement->code})";
+                        })
+                        ->visible(fn (Forms\Get $get) => filled($get('billing_document_id'))),
+*/
 
 
 
