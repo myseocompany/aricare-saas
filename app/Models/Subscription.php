@@ -60,6 +60,8 @@ class Subscription extends Model
 
     const TYPE_FLUTTERWAVE = 8;
 
+    const TYPE_WOMPI = 9;
+
     const EXPIRED = 0;
 
     const NOT_EXPIRED = 1;
@@ -72,6 +74,7 @@ class Subscription extends Model
         self::TYPE_CASH => 'Manual',
         self::TYPE_PAYTM => 'Paytm',
         self::TYPE_PAYSTACK => 'Paystack',
+        self::TYPE_WOMPI => 'Wompi',
     ];
 
     const STATUS_ARR = [
@@ -96,6 +99,7 @@ class Subscription extends Model
         self::TYPE_PAYSTACK => 'Paystack',
         self::TYPE_PHONEPE => 'PhonePe',
         self::TYPE_FLUTTERWAVE => 'FlutterWave',
+        self::TYPE_WOMPI => 'Wompi',
     ];
 
     const MONTH = 'Month';

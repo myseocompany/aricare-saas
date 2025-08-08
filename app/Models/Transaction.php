@@ -89,7 +89,9 @@ class Transaction extends Model implements HasMedia
 
     const TYPE_FLUTTERWAVE = 8;
 
-    const ALL = 9;
+    const TYPE_WOMPI = 9;
+
+    const ALL = 10;
 
     const APPROVED = 1;
 
@@ -102,6 +104,7 @@ class Transaction extends Model implements HasMedia
         self::TYPE_CASH => 'Manual',
         self::TYPE_PAYTM => 'Paytm',
         self::TYPE_PAYSTACK => 'Paystack',
+        self::TYPE_WOMPI => 'Wompi',
     ];
 
     const PAYMENT_TYPES_FILTER = [
@@ -114,6 +117,7 @@ class Transaction extends Model implements HasMedia
         self::TYPE_PAYSTACK => 'Paystack',
         self::TYPE_PHONEPE => 'PhonePe',
         self::TYPE_FLUTTERWAVE => 'FlutterWave',
+        self::TYPE_WOMPI => 'Wompi',
     ];
 
     public function user(): BelongsTo
