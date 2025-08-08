@@ -148,6 +148,7 @@ class FormService
                                         ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
                                         ->default($requiresFev ? 1 : 2)
                                         ->disabled()
+                                        ->dehydrated(true)
                                         ->required(),
 
                                     Forms\Components\TextInput::make('document_number')
@@ -171,8 +172,7 @@ class FormService
                                     ->preserveFilenames()
                                     ->acceptedFileTypes(['text/xml','application/xml'])
                                     ->downloadable()
-                                    ->visible($requiresFev)
-                                    ->required($requiresFev),
+                                    ->visible($requiresFev),
                                 ];
                             })
                         ->createOptionUsing(function (array $data) {
