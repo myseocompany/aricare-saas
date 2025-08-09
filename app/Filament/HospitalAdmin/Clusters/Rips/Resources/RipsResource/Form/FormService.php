@@ -172,7 +172,8 @@ class FormService
                                     ->preserveFilenames()
                                     ->acceptedFileTypes(['text/xml','application/xml'])
                                     ->downloadable()
-                                    ->visible($requiresFev),
+                                    ->visible($requiresFev)
+                                    ->dehydrated(true),
                                 ];
                             })
                         ->createOptionUsing(function (array $data) {
@@ -182,6 +183,7 @@ class FormService
                                 'document_number' => $data['document_number'],
                                 'agreement_id' => $data['agreement_id'],
                                 'issued_at' => now(),
+                                'xml_path'         => $data['xml_path'] ?? null, 
                             ])->id;
                         }),
 
