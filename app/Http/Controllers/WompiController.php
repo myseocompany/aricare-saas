@@ -17,6 +17,8 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Bancolombia\Wompi;
 use Bancolombia\RestClient;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+
 
 class WompiController extends Controller
 {
@@ -102,56 +104,81 @@ return redirect("https://checkout.wompi.co/l/{$result->data->id}");
 
     public function success(Request $request)
 {
+    // 0) Traer datos de la compra guardados antes de redirigir
     $data = session('data');
-    if (!$data) return $this->failed($request);
+    if (!$data || empty($data['plan_id']) || empty($data['user_id'])) {
+        Log::warning('Wompi success sin session data');
+        return $this->failed($request);
+    }
 
-    $plan = SubscriptionPlan::find($data['plan_id']);
-
-    Wompi::initialize([
-        'public_key'        => getSuperAdminSettingKeyValue('wompi_public_key'),
-        'private_key'       => getSuperAdminSettingKeyValue('wompi_private_key'),
-        'private_event_key' => getSuperAdminSettingKeyValue('wompi_events_secret'),
-    ]);
-
+    // 1) Asegurar que viene el ID de transacción
     $transactionId = $request->query('id');
     if (!$transactionId) {
-        \Log::warning('Wompi redirect sin id', ['query' => $request->query()]);
+        Log::warning('Wompi redirect sin id', ['query' => $request->query()]);
         return $this->failed($request);
     }
 
-    $trxResp = Wompi::transaction($transactionId); // o el método equivalente del wrapper
-    if (!$trxResp || empty($trxResp->data)) {
-        \Log::warning('Wompi transaction vacía', ['resp' => $trxResp]);
-        return $this->failed($request);
+    // 2) Consultar la transacción en Wompi
+    $trxResp = Wompi::transaction($transactionId);
+
+    // 3) Normalizar la respuesta si viene como string JSON
+    if (is_string($trxResp)) {
+        $decoded = json_decode($trxResp);
+        if (json_last_error() === JSON_ERROR_NONE) {
+            $trxResp = $decoded;
+        } else {
+            Log::error('Wompi transaction JSON inválido', [
+                'raw'   => substr($trxResp, 0, 500),
+                'error' => json_last_error_msg(),
+            ]);
+            return $this->failed($request);
+        }
     }
 
-    $trx = $trxResp->data;
+    // 4) Validar estructura y estado
+    $trx = $trxResp->data ?? null;
+    if (!is_object($trx)) {
+        Log::warning('Wompi transaction vacía o inesperada', ['resp' => $trxResp]);
+        return $this->failed($request);
+    }
     if (($trx->status ?? null) !== 'APPROVED') {
+        Log::info('Wompi transaction no APPROVED', ['status' => $trx->status ?? null]);
         return $this->failed($request);
     }
 
-    $amount = (int)($trx->amount_in_cents ?? 0) / 100;
+    // 5) Calcular monto seguro
+    $amountInCents = (int) ($trx->amount_in_cents ?? 0);
+    $amount        = (int) round($amountInCents / 100);
 
+    // 6) Cargar plan
+    $plan = SubscriptionPlan::find($data['plan_id']);
+    if (!$plan) {
+        Log::error('Plan no encontrado', ['plan_id' => $data['plan_id']]);
+        return $this->failed($request);
+    }
+
+    // 7) Persistir transacción y crear suscripción
     try {
         DB::beginTransaction();
 
         $transaction = Transaction::create([
-            'transaction_id' => $trx->id ?? '',
-            'payment_type'   => Transaction::TYPE_WOMPI,
+            'transaction_id' => (string) ($trx->id ?? ''),
+            'payment_type'   => Transaction::TYPE_WOMPI,   // asegúrate que exista la constante
             'amount'         => $amount,
-            'status'         => Subscription::ACTIVE,
+            'status'         => Subscription::ACTIVE,       // o el status que uses para pagos
             'user_id'        => $data['user_id'],
-            'meta'           => json_encode($trxResp),
+            'meta'           => json_encode($trxResp, JSON_UNESCAPED_UNICODE),
         ]);
 
         $payload = [
             'plan'           => $plan->toArray(),
             'user_id'        => $data['user_id'],
-            'payment_type'   => Subscription::TYPE_WOMPI,
+            'payment_type'   => Subscription::TYPE_WOMPI,  // si usas esta constante, que exista
             'transaction_id' => $transaction->id,
         ];
 
         $subscription = CreateSubscription::run($payload);
+
         DB::commit();
 
         if ($subscription) {
@@ -161,14 +188,15 @@ return redirect("https://checkout.wompi.co/l/{$result->data->id}");
                 ->title(getLoggedInUser()->first_name . ' ' . __('messages.new_change.subscribed_success'))
                 ->send();
         }
-
-    } catch (HttpException $ex) {
+    } catch (\Throwable $ex) {
         DB::rollBack();
-        throw $ex;
+        Log::error('Error creando suscripción tras Wompi', ['e' => $ex]);
+        return $this->failed($request);
     }
 
     return redirect()->route('filament.hospitalAdmin.pages.subscription-plans');
 }
+
 
 
     public function failed(Request $request)
