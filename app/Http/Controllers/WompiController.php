@@ -63,6 +63,7 @@ public function purchase(Request $request)
             'customer_email'   => Auth::user()->email,
         ];
 
+        dd($payload);
         $result = $client->post('/payment-links', $payload);
 
         // Log completo para depurar

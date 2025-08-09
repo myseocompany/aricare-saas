@@ -3195,6 +3195,7 @@ return [
         'tenant' => [
             'title' => 'Datos del Hospital / IPS',
             'title_plural' => 'Configuración del Hospital / IPS',
+            'rips_provider_code' => 'Código de Proveedor',
             'rips_idsispro' => 'Usuario SISPRO',
             'rips_passispro' => 'Contraseña SISPRO',
             'rips_identification_type_id' => 'Tipo de Documento',

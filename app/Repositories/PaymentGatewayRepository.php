@@ -34,7 +34,9 @@ class PaymentGatewayRepository extends BaseRepository
     public function PaymentGateway(array $input): void
     {
         $inputArr = Arr::except($input, ['_token']);
-
+        if (! isset($inputArr['wompi_enable'])) {
+            $inputArr = Arr::add($inputArr, 'wompi_enable', 0);
+        }
         if (! isset($inputArr['stripe_enable'])) {
             $inputArr = Arr::add($inputArr, 'stripe_enable', 0);
         }

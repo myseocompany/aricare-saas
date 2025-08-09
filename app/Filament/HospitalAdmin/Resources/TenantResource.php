@@ -31,6 +31,14 @@ class TenantResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('rips_provider_code')
+                    ->label(__('messages.rips.tenant.rips_provider_code'))
+                    ->placeholder('12 dígitos del REPS (sin guiones)')
+                    ->maxLength(12)
+                    ->numeric()
+                    ->rule('digits:12') // exactamente 12 dígitos
+                    ->helperText('Código de habilitación del prestador inscrito en el REPS.')
+                    ->required(), // quítalo si no quieres forzarlo
                 Forms\Components\TextInput::make('rips_idsispro')
                     ->label(__('messages.rips.tenant.rips_idsispro'))
                     ->maxLength(50),

@@ -24,6 +24,7 @@ class Tenant extends Model
         'data',
         'rips_identification_type_id',
         'rips_identification_number',
+        'rips_provider_code'
     ];
 
     public $incrementing = false; // porque el ID es varchar

@@ -56,3 +56,6 @@ php artisan migrate --path=database/migrations/2025_07_31_054557_add_tenant_id_t
 php artisan migrate --path=database/migrations/2025_05_17_162325_add_document_fields_to_users_table.php
 
 php artisan migrate --path=database/migrations/2025_08_06_065046_add_identification_type_to_tenants_table.php
+
+
+php artisan migrate --path=database/migrations/2025_08_09_095315_add_rips_provider_code_to_tenants_table.php
