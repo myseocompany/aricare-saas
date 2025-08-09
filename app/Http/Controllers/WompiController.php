@@ -63,7 +63,11 @@ public function purchase(Request $request)
             'description'      => 'Suscripción ' . ($plan->name ?? 'Plan'),
             'single_use'       => true,
             'collect_shipping' => false,
-            'redirect_url'     => route('wompi.success'),
+            'redirect_url' => route('wompi.success', [
+                'plan' => $plan->id,
+                // opcional si lo necesitas:
+                'uid'  => Auth::id(),
+            ]),
         ];
 
 \Log::info('Wompi keys', [
@@ -107,28 +111,36 @@ return redirect("https://checkout.wompi.co/l/{$result->data->id}");
 
     //http://127.0.0.1:8000/wompi-success?id=1127623-1754757775-30907&env=test
     // 0) Traer datos de la compra guardados antes de redirigir
-    $data = session('data');
-    if (!$data || empty($data['plan_id']) || empty($data['user_id'])) {
-        Log::warning('Wompi success sin session data');
+    // 0) Tomar plan_id y user_id primero de la URL y como fallback de session
+    $planId = (int) $request->query('plan', 0);
+    $userId = (int) $request->query('uid', 0);
+
+    $data = session('data', []);
+    $planId = $planId ?: ($data['plan_id'] ?? 0);
+    $userId = $userId ?: ($data['user_id'] ?? 0);
+
+    if (!$planId || !$userId) {
+        Log::warning('Wompi success sin contexto de compra', [
+            'qs' => $request->query(), 'session' => $data
+        ]);
         return $this->failed($request);
     }
 
-    // 1) Asegurar que viene el ID de transacción
     $transactionId = $request->query('id');
     if (!$transactionId) {
         Log::warning('Wompi redirect sin id', ['query' => $request->query()]);
         return $this->failed($request);
     }
 
-            $publicKey    = getSuperAdminSettingKeyValue('wompi_public_key');
-        $privateKey   = getSuperAdminSettingKeyValue('wompi_private_key');
-        $eventsSecret = getSuperAdminSettingKeyValue('wompi_events_secret');
+    $publicKey    = getSuperAdminSettingKeyValue('wompi_public_key');
+    $privateKey   = getSuperAdminSettingKeyValue('wompi_private_key');
+    $eventsSecret = getSuperAdminSettingKeyValue('wompi_events_secret');
 
-        \Bancolombia\Wompi::initialize([
-            'public_key'        => $publicKey,
-            'private_key'       => $privateKey,
-            'private_event_key' => $eventsSecret,
-        ]);
+    \Bancolombia\Wompi::initialize([
+        'public_key'        => $publicKey,
+        'private_key'       => $privateKey,
+        'private_event_key' => $eventsSecret,
+    ]);
 
     
     // 2) Consultar la transacción en Wompi
