@@ -47,6 +47,7 @@ use App\Http\Controllers\SubscriptionPricingPlanController;
 use App\Http\Controllers\Web\AppointmentController as WebAppointmentController;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\RipsGeneracionController;
+use App\Http\Controllers\WompiController;
 
 
 use Illuminate\Support\Facades\Storage;
@@ -149,6 +150,10 @@ Route::middleware('auth', 'verified', 'xss', 'checkUserStatus', 'role:Admin')->g
 
 Route::get('purchase-subscription-flutterwave', [SubscriptionController::class, 'flutterWavePayment'])->name('purchase.subscription.flutterwave');
 Route::get('purchase-subscription-flutterwave-success', [SubscriptionController::class, 'flutterWavePaymentSuccess'])->name('purchase.subscription.flutterwave.success');
+
+Route::post('purchase-wompi', [WompiController::class, 'purchase'])->name('wompi.purchase');
+Route::get('wompi-success', [WompiController::class, 'success'])->name('wompi.success');
+Route::get('wompi-failed', [WompiController::class, 'failed'])->name('wompi.failed');
 
 Route::middleware('role:Admin|Patient|Doctor|Receptionist|Nurse')->group(function () {
     Route::resource('appointments', AppointmentController::class);
