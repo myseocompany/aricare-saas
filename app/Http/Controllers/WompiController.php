@@ -63,28 +63,27 @@ public function purchase(Request $request)
             'customer_email'   => Auth::user()->email,
         ];
 
-  $result = $client->post('/payment_links', $payload);
+        $result = $client->post('/payment-links', $payload);
 
-// Log completo para depurar
-\Log::channel('daily')->info('Wompi /payment_links', ['result' => $result]);
+        // Log completo para depurar
+        \Log::channel('daily')->info('Wompi /payment-links', ['result' => $result]);
 
-// Mensaje claro para el usuario (si viene error)
-if (!isset($result->data->id)) {
-    $msg = $result->error->messages[0]->text
-        ?? $result->error->reason
-        ?? (is_string($result) ? $result : json_encode($result));
+        // Mensaje claro para el usuario (si viene error)
+        if (!$result || !isset($result->data->id)) {
+            $msg = '';
+            if (is_object($result) && isset($result->error)) {
+                $msg = $result->error->messages[0]->text
+                    ?? $result->error->reason;
+            }
+            if (!$msg) {
+                $msg = is_string($result) ? $result : json_encode($result);
+            }
 
-    Notification::make()->danger()->title($msg ?: 'Error creando link de pago')->send();
-    return redirect()->route('filament.hospitalAdmin.pages.subscription-plans');
-}
+            Notification::make()->danger()->title($msg ?: 'Error creando link de pago')->send();
+            return redirect()->route('filament.hospitalAdmin.pages.subscription-plans');
+        }
 
-return redirect("https://checkout.wompi.co/l/{$result->data->id}");
-
-
-        // Si llegamos acá, la API devolvió error. Muéstralo y no intentes leer ->data
-        $msg = $result->error->reason ?? $result->error->messages[0]->text ?? 'Error creando link de pago';
-        Notification::make()->danger()->title($msg)->send();
-        return redirect()->route('filament.hospitalAdmin.pages.subscription-plans');
+        return redirect("https://checkout.wompi.co/l/{$result->data->id}");
 
     } catch (\Throwable $e) {
         \Log::error('Wompi exception', ['e' => $e]);
