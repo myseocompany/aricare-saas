@@ -59,3 +59,5 @@ php artisan migrate --path=database/migrations/2025_08_06_065046_add_identificat
 
 
 php artisan migrate --path=database/migrations/2025_08_09_095315_add_rips_provider_code_to_tenants_table.php
+
+php artisan migrate --path=database/migrations/2025_08_09_124111_create_payment_types_and_migrate_transactions.php

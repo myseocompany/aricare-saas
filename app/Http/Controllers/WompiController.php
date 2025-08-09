@@ -1,5 +1,7 @@
 <?php
+// http://127.0.0.1:8000/wompi-success?plan=2&uid=83&id=1127623-1754759978-66016&env=test
 
+    
 namespace App\Http\Controllers;
 
 use App\Models\Transaction;
@@ -109,9 +111,10 @@ return redirect("https://checkout.wompi.co/l/{$result->data->id}");
     public function success(Request $request)
 {
 
-    //http://127.0.0.1:8000/wompi-success?id=1127623-1754757775-30907&env=test
     // 0) Traer datos de la compra guardados antes de redirigir
     // 0) Tomar plan_id y user_id primero de la URL y como fallback de session
+
+    
     $planId = (int) $request->query('plan', 0);
     $userId = (int) $request->query('uid', 0);
 
@@ -125,7 +128,7 @@ return redirect("https://checkout.wompi.co/l/{$result->data->id}");
         ]);
         return $this->failed($request);
     }
-
+   
     $transactionId = $request->query('id');
     if (!$transactionId) {
         Log::warning('Wompi redirect sin id', ['query' => $request->query()]);
@@ -142,10 +145,10 @@ return redirect("https://checkout.wompi.co/l/{$result->data->id}");
         'private_event_key' => $eventsSecret,
     ]);
 
-    
+     
     // 2) Consultar la transacción en Wompi
-    $trxResp = Wompi::transaction($transactionId);
-
+    $trxResp = Wompi::transaction_find_by_id($transactionId);
+    
     // 3) Normalizar la respuesta si viene como string JSON
     if (is_string($trxResp)) {
         $decoded = json_decode($trxResp);

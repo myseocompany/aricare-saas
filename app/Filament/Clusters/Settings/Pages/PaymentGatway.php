@@ -51,7 +51,7 @@ class PaymentGatway extends Page
             'phonepe_salt_key','phonepe_salt_index','phonepe_merchant_transaction_id',
             'flutterwave_enable','flutterwave_key','flutterwave_secret',
             // ---- Wompi ----
-            'wompi_enable','wompi_public_key','wompi_private_key','wompi_events_secret','wompi_env'
+            'wompi_enable','wompi_public_key','wompi_private_key','wompi_events_secret', 'wompi_integrity_secret','wompi_env'
         ];
         $settingsData = SuperAdminSetting::select('key', 'value')->whereIn('key', $keys)->get()->keyBy('key')->toArray();
         $this->form->fill($settingsData + ['manual_payment_enabled' => ['value' => true]]);
@@ -96,7 +96,7 @@ Group::make()
             ->revealable()
             ->helperText('Se usa para verificar la firma de los eventos.')
             ->requiredIf('wompi_enable.value', true),
-        TextInput::make('wompi_integrity_key.value')
+        TextInput::make('wompi_integrity_secret.value')
             ->label('Integridad (Secret)')
             ->password()
             ->revealable()
