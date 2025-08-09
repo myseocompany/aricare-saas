@@ -75,6 +75,7 @@ class ChoosePaymentType extends Page implements HasForms
         }
         $query = SuperAdminSetting::pluck('value', 'key')->toArray();
         $manualPaymentGuide = $query['manual_instruction'] ?? null;
+        $wompiEndpoint = route('wompi.purchase');
 
         $transction = Transaction::where('user_id', getLoggedInUserId())
             ->where('payment_type', Transaction::TYPE_CASH)
@@ -96,7 +97,7 @@ class ChoosePaymentType extends Page implements HasForms
         }
 
 
-        return compact('plan', 'currentActivePlan', 'manualPaymentGuide');
+        return compact('plan', 'currentActivePlan', 'manualPaymentGuide', 'wompiEndpoint');
     }
 
 
