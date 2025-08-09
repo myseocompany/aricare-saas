@@ -90,7 +90,7 @@ Group::make()
             ->requiredIf('wompi_enable.value', true),
 
         TextInput::make('wompi_events_secret.value')
-            ->label('Events Secret (Webhooks)')
+            ->label('Events Secret (Webhooks):')
             ->password()
             ->revealable()
             ->helperText('Se usa para verificar la firma de los eventos.')

@@ -91,6 +91,12 @@ Group::make()
             ->revealable()
             ->helperText('Se usa para verificar la firma de los eventos.')
             ->requiredIf('wompi_enable.value', true),
+        TextInput::make('wompi_integrity_key.value')
+            ->label('Integridad (Secret)')
+            ->password()
+            ->revealable()
+            ->helperText('Se usa para verificar la integridad del checkout/pagos.')
+            ->requiredIf('wompi_enable.value', true),
     ])
     ->columns(2)
     ->visible(fn (Get $get) => (bool) $get('wompi_enable.value')),
