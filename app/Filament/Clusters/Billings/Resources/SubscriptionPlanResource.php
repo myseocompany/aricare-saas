@@ -76,6 +76,8 @@ class SubscriptionPlanResource extends Resource
                                 2 => __('messages.year'),
                             ])
                             ->label(__('messages.subscription_plans.plan_type') . ':')
+                            
+                            
                             ->required()
                             ->validationMessages([
                                 'required' => __('messages.fields.the') . ' ' . __('messages.subscription_plans.plan_type') . ' ' . __('messages.fields.required'),
@@ -129,6 +131,7 @@ class SubscriptionPlanResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('frequency')
                     ->label(__('messages.subscription_plans.plan_type'))
+                    
                     ->formatStateUsing(function (SubscriptionPlan $record) {
                         if ($record->frequency == 1) {
                             return __('messages.month');

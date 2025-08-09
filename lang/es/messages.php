@@ -3203,6 +3203,9 @@ return [
         ],
     ],
 
-    
+    'plan_frequency'=> [
+        '1' => 'Mensual',
+        '2' => 'Anual',
+    ],
     
 ];
