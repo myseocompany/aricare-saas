@@ -47,7 +47,7 @@ class PaymentGatway extends Page
             'phonepe_salt_key','phonepe_salt_index','phonepe_merchant_transaction_id',
             'flutterwave_enable','flutterwave_key','flutterwave_secret',
             // ---- Wompi ----
-            'wompi_enable','wompi_public_key','wompi_private_key','wompi_events_secret','wompi_env', 'integrity_key'
+            'wompi_enable','wompi_public_key','wompi_private_key','wompi_events_secret','wompi_env', 'wompi_integrity_key'
         ];
     
         $settingsData = SuperAdminSetting::select('key', 'value')->whereIn('key', $keys)->get()->keyBy('key')->toArray();
@@ -94,6 +94,13 @@ Group::make()
             ->password()
             ->revealable()
             ->helperText('Se usa para verificar la firma de los eventos.')
+            ->requiredIf('wompi_enable.value', true),
+
+        TextInput::make('wompi_integrity_key.value')
+            ->label('Integridad (Secret)')
+            ->password()
+            ->revealable()
+            ->helperText('Se usa para verificar la integridad del checkout/pagos.')
             ->requiredIf('wompi_enable.value', true),
     ])
     ->columns(2)
