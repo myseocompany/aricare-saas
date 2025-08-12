@@ -453,7 +453,7 @@ class RipsGeneratorService
                 $diagnosticosRelacionados = $diagnosticos->where('sequence', '>', 1)->take(3)->values();
 
                 $consultas[] = [
-                    'codPrestador' => $tenant->provider_code,
+                    'codPrestador' => $tenant->rips_provider_code,
                     'fechaInicioAtencion' => \Carbon\Carbon::parse($service->service_datetime)->format('Y-m-d H:i'),
                     'codConsulta' => $consulta->cups->code ?? '',
                     'modalidadGrupoServicioTecSal' => str_pad((string) ($consulta->serviceGroupMode->id ?? ''), 2, '0', STR_PAD_LEFT),
@@ -493,7 +493,7 @@ class RipsGeneratorService
                 $this->includedServiceIds[] = $service->id;
 
                 $procedimientos[] = [
-                    'codPrestador' => $tenant->provider_code,
+                    'codPrestador' => $tenant->rips_provider_code,
                     'fechaInicioAtencion' => \Carbon\Carbon::parse($service->service_datetime)->format('Y-m-d H:i'),
                     'idMIPRES' => $procedure->mipres_id ?? '',
                     'numAutorizacion' => $procedure->authorization_number ?? '',
