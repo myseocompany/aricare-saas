@@ -16,6 +16,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
+use Illuminate\Support\Facades\Auth;
 
 use Filament\Pages\SubNavigationPosition;
 
@@ -79,6 +80,12 @@ class RipsTenantPayerAgreementResource extends Resource
             'create' => Pages\CreateRipsTenantPayerAgreement::route('/create'),
             'edit' => Pages\EditRipsTenantPayerAgreement::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('tenant_id', Auth::user()->tenant_id);
     }
 
     public static function getModelLabel(): string
