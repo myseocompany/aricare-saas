@@ -76,12 +76,17 @@ class RipsBillingDocumentResource extends Resource
                     ->label(__('messages.rips.billingdocument.type_id'))
                     ->options(\App\Models\Rips\RipsBillingDocumentType::pluck('name', 'id'))
                     ->searchable()
-                    ->required(),
+                    ->required()
+                    ->afterStateUpdated(function ($state, callable $set) {
+                        $set('document_number', static::getNextDocumentNumber($state));
+                    }),
 
                 Forms\Components\TextInput::make('document_number')
                     ->label(__('messages.rips.billingdocument.document_number'))
                     ->required()
-                    ->maxLength(30),
+                    ->maxLength(30)
+                    ->default(fn (callable $get) => static::getNextDocumentNumber($get('type_id')))
+                    ->helperText(fn (callable $get) => $get('type_id') ? 'Sugerido: '.static::getNextDocumentNumber($get('type_id')) : null),
                 Forms\Components\DateTimePicker::make('issued_at')
                     ->label(__('messages.rips.billingdocument.issued_at'))
                     ->required(),
@@ -243,7 +248,33 @@ class RipsBillingDocumentResource extends Resource
         return __('messages.rips.billingdocument.title_plural');
     }
 
+    protected static function getNextDocumentNumber(?int $typeId = null): string
+    {
+        if (! $typeId) {
+            return '';
+        }
 
-    
+        $tenantId = Auth::user()->tenant_id;
+        $lastNumber = RipsBillingDocument::where('tenant_id', $tenantId)
+            ->where('type_id', $typeId)
+            ->orderByDesc('id')
+            ->value('document_number');
 
+        if (! $lastNumber) {
+            return '1';
+        }
+
+        if (preg_match('/(\d+)$/', $lastNumber, $matches)) {
+            $number = $matches[1];
+            $prefix = substr($lastNumber, 0, -strlen($number));
+            $next = (int) $number + 1;
+            return $prefix . str_pad((string) $next, strlen($number), '0', STR_PAD_LEFT);
+        }
+
+        if (is_numeric($lastNumber)) {
+            return (string) ((int) $lastNumber + 1);
+        }
+
+        return $lastNumber . '-1';
+    }
 }
