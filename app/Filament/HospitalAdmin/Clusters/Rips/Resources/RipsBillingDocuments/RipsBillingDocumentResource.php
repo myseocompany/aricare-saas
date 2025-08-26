@@ -7,6 +7,7 @@ namespace App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocument
 //use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RIPSResource;
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
 use App\Models\Rips\RipsBillingDocument;
+use App\Models\Rips\RipsTenantPayerAgreement;
 
 use App\Filament\HospitalAdmin\Clusters\Rips\Resources\RipsBillingDocuments\RipsBillingDocumentResource\Pages;
 
@@ -53,9 +54,9 @@ class RipsBillingDocumentResource extends Resource
                     ->required(),
                 Select::make('agreement_id')
                     ->label(__('messages.rips.billingdocument.agreement_id'))
-                    ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
                     ->searchable(false) // para mostrar todos de una vez
                     ->preload()         // muy importante: carga todos sin escribir
+                    
                     ->createOptionForm([
                         Forms\Components\TextInput::make('name')
                             ->label('Nombre del convenio')
@@ -65,12 +66,17 @@ class RipsBillingDocumentResource extends Resource
                             ->maxLength(50),
                         Forms\Components\Hidden::make('tenant_id')
                             ->default(fn () => Auth::user()->tenant_id)
+
                             ->required(),
                     ])
                     ->createOptionUsing(function (array $data) {
                         return \App\Models\Rips\RipsTenantPayerAgreement::create($data)->id;
                     })
-                    ->required(),
+                    ->required()
+                    ->options(function () {
+                        return RipsTenantPayerAgreement::where('tenant_id', Auth::user()->tenant_id)
+                            ->pluck('name', 'id');
+                    }),
 
                 Forms\Components\Select::make('type_id')
                     ->label(__('messages.rips.billingdocument.type_id'))
@@ -248,6 +254,12 @@ class RipsBillingDocumentResource extends Resource
         return __('messages.rips.billingdocument.title_plural');
     }
 
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('tenant_id', Auth::user()->tenant_id);
+    }
     protected static function getNextDocumentNumber(?int $typeId = null): string
     {
         if (! $typeId) {

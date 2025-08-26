@@ -25,6 +25,7 @@ use App\Models\Doctor;
 use App\Models\Department;
 use App\Models\DoctorDepartment;
 use App\Models\Rips\RipsBillingDocument;
+use App\Models\Rips\RipsTenantPayerAgreement;
 
 use App\Actions\Rips\LoadTemplateToForm;
 
@@ -159,8 +160,11 @@ class FormService
                                     Forms\Components\Select::make('agreement_id')
                                         ->label('Convenio')
                                         ->searchable()
-                                        ->options(\App\Models\Rips\RipsTenantPayerAgreement::pluck('name', 'id'))
-                                        ->required(),
+                                        ->required()
+                                        ->options(function () {
+                                            return RipsTenantPayerAgreement::where('tenant_id', Auth::user()->tenant_id)
+                                                ->pluck('name', 'id');
+                                        }),
                                             // 📂 Campo para subir XML (opcional)
                                 Forms\Components\FileUpload::make('xml_path')
                                     ->label('Archivo XML (opcional)')

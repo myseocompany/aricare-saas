@@ -28,4 +28,6 @@ class CreateRipsBillingDocument extends CreateRecord
     {
         return static::getResource()::getUrl('index');
     }
+
+
 }

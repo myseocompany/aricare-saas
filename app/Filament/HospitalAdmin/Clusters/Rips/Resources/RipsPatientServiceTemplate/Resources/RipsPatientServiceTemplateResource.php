@@ -18,6 +18,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Pages\SubNavigationPosition;
+use Illuminate\Support\Facades\Auth;
 
 use App\Filament\HospitalAdmin\Clusters\RipsCluster;
 
@@ -102,5 +103,12 @@ class RipsPatientServiceTemplateResource extends Resource
     {
         return __('messages.rips.patientservicetemplate.title_plural');
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()
+            ->where('tenant_id', Auth::user()->tenant_id);
+    }
+
 
 }
