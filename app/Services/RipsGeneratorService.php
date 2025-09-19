@@ -208,7 +208,7 @@ class RipsGeneratorService
 
             $tenantDocumentNumber = DB::table('tenants')
                 ->where('id', $document->tenant_id)
-                ->value('document_number');
+                ->value('rips_identification_number');
 
             if (app()->environment('local')) {
                 Log::info('Billing document loaded', [

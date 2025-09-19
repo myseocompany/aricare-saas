@@ -89,6 +89,24 @@ class RipsCoordinatorService
             return;
         }
 
+        // Modo solo autenticación
+        if (env('RIPS_AUTH_ONLY', false)) {
+            if (app()->environment('local')) {
+                Log::info('RIPS_AUTH_ONLY: Token OK, deteniendo flujo tras autenticación.', [
+                    'tenant' => $tenantId,
+                ]);
+            }
+
+            Notification::make()
+                ->title('Autenticación SISPRO')
+                ->body('✅ Token obtenido correctamente. (Modo solo autenticación activo)')
+                ->success()
+                ->persistent()
+                ->send();
+
+            return; // 👈 No genera JSON ni envía nada
+        }
+
         // Generate RIPS JSON for the group
         $documentsPayload = $this->generatorService->previsualizarRipsPorFactura($agreementId, $startDate, $endDate, $withInvoice);
 
@@ -141,8 +159,8 @@ class RipsCoordinatorService
             // Store result for the summary
             $results[] = [
                 'document' => $number,
-                'success' => $response['success'],
-                'response' => $response['response'],
+                'success' => $response['success'] ?? false,
+                'response' => $response['response'] ?? null,
                 'file' => $filename,
             ];
         }
@@ -194,6 +212,24 @@ class RipsCoordinatorService
             return;
         }
 
+        // Modo solo autenticación (NO limpiar sesión aquí)
+        if (env('RIPS_AUTH_ONLY', false)) {
+            if (app()->environment('local')) {
+                Log::info('RIPS_AUTH_ONLY (manual): Token OK, deteniendo flujo tras autenticación.', [
+                    'tenant' => $tenantId,
+                ]);
+            }
+
+            Notification::make()
+                ->title('Autenticación SISPRO')
+                ->body('✅ Token obtenido correctamente. (Modo solo autenticación activo)')
+                ->success()
+                ->persistent()
+                ->send();
+
+            return; // 👈 No envía nada
+        }
+
         // Build submission service
         $this->submissionService = new RipsSubmissionService($token);
 
@@ -235,12 +271,16 @@ class RipsCoordinatorService
             }
 
             if ($document) {
+                // Actualiza estado del documento
                 $document->update(['submission_status' => $status]);
 
-                // Update each related service status
+                // Actualiza estado de CADA servicio relacionado
                 $serviceUpdater = app(RipsPatientServiceStatusUpdater::class);
                 foreach ($document->patientServices as $service) {
-                    $included = in_array($service->id, $includedIds, true);
+                    // Incluido = está en la lista y pertenece a ESTE documento
+                    $included = in_array($service->id, $includedIds, true)
+                        && (int)$service->billing_document_id === (int)$document->id;
+
                     if (app()->environment('local')) {
                         Log::info("Service {$service->id} included in submission: " . ($included ? 'YES' : 'NO'));
                     }
@@ -250,8 +290,8 @@ class RipsCoordinatorService
 
             $results[] = [
                 'document' => $number,
-                'success' => $response['success'],
-                'response' => $response['response'],
+                'success' => $response['success'] ?? false,
+                'response' => $response['response'] ?? null,
                 'file' => $filename,
             ];
         }
@@ -275,10 +315,7 @@ class RipsCoordinatorService
             Log::info("Manual submission finished. Success: {$success}, Errors: {$errors}");
         }
 
-        // Cleanup session
-        session()->forget('rips_servicios_incluidos');
-        session()->forget('rips_servicios_seleccionados');
-        session()->forget('rips_confirmado');
+        // 👉 NO limpiar sesión aquí. La limpieza se hace una sola vez al final de submitFromSelection()
     }
 
     /**
@@ -292,7 +329,7 @@ class RipsCoordinatorService
             Log::info("Starting RIPS submission from selection. Tenant: {$tenantId}");
         }
 
-        // Clear leftover session data
+        // Clear leftover session data (solo rips_json_generado aquí)
         session()->forget('rips_json_generado');
 
         // Generate JSON for selected documents (returns array or null)
@@ -359,7 +396,10 @@ class RipsCoordinatorService
             );
         }
 
-        // Cleanup session again
+        // ✅ Limpieza de sesión SOLO UNA VEZ, al final
+        session()->forget('rips_servicios_incluidos');
+        session()->forget('rips_servicios_seleccionados');
+        session()->forget('rips_confirmado');
         session()->forget('rips_json_generado');
 
         if (app()->environment('local')) {

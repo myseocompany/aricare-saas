@@ -11,6 +11,7 @@
 namespace App\Services;
 
 use App\Models\Tenant;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -39,11 +40,18 @@ class RipsTokenService
             return null;
         }
 
+        $typeCode = null;
+        if (!empty($tenant->rips_identification_type_id)) {
+            $typeCode = DB::table('rips_identification_types')
+                ->where('id', $tenant->rips_identification_type_id)
+                ->value('code');
+        }
+
         // Validate required fields (avoid logging secrets)
         $missing = [];
-        if (empty($tenant->document_type))   { $missing[] = 'document_type'; }
+        if (empty($typeCode))   { $missing[] = 'rips_identification_type_id (code)'; }
         if (empty($tenant->rips_idsispro))   { $missing[] = 'rips_idsispro'; }
-        if (empty($tenant->document_number)) { $missing[] = 'document_number'; }
+        if (empty($tenant->rips_identification_number)) { $missing[] = 'rips_identification_number'; }
         if (empty($tenant->rips_passispro))  { $missing[] = 'rips_passispro'; } // see note below
 
         if (!empty($missing)) {
@@ -58,11 +66,11 @@ class RipsTokenService
         $payload = [
             'persona' => [
                 'identificacion' => [
-                    'tipo'   => $tenant->document_type,
+                    'tipo'   => $typeCode,
                     'numero' => $tenant->rips_idsispro,
                 ],
             ],
-            'nit'   => $tenant->document_number,
+            'nit'   => $tenant->rips_identification_number,
             'clave' => $tenant->rips_passispro,
         ];
 
@@ -75,9 +83,9 @@ class RipsTokenService
                     'url' => $url,
                     // Never log secrets; show only non-sensitive keys
                     'payload_keys' => [
-                        'persona.identificacion.tipo' => (bool) $tenant->document_type,
+                        'persona.identificacion.tipo' => (bool) $typeCode,
                         'persona.identificacion.numero' => (bool) $tenant->rips_idsispro,
-                        'nit' => (bool) $tenant->document_number,
+                        'nit' => (bool) $tenant->rips_identification_number,
                         'clave_present' => !empty($tenant->rips_passispro),
                     ],
                 ]);

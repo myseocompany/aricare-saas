@@ -3,11 +3,10 @@
 /****************************************************************/
 /* Module: RIPS Patient Service Status Updater                  */
 /* Author: Julian                                               */
-/* Date: 2025-08-07                                             */
-/* Description: Evaluates and updates the status (status_id)    */
-/*              of a RIPS patient service based on completeness,*/
-/*              inclusion in a submission, and billing response */
-/*              (accepted/rejected).                            */
+/* Date: 2025-08-07 (revisado)                                  */
+/* Description: Evalúa y actualiza el status_id de un servicio  */
+/*              según integridad, inclusión en el envío y       */
+/*              resultado del documento (aceptado/rechazado).   */
 /****************************************************************/
 
 namespace App\Services;
@@ -17,89 +16,108 @@ use Illuminate\Support\Facades\Log;
 
 class RipsPatientServiceStatusUpdater
 {
+    // Mapa de estados (asegúrate que existan en rips_statuses)
+    private const STATUS_INCOMPLETO = 1;
+    private const STATUS_LISTO      = 2;
+    private const STATUS_SIN_ENVIAR = 3;
+    private const STATUS_ACEPTADO   = 4;
+    private const STATUS_RECHAZADO  = 5;
+
     /**
-     * Evaluate and update a service status.
+     * Evalúa y actualiza el estado del servicio.
      *
-     * Behavior by $included flag:
-     * - null: creation/update mode → sets 'Listo' (2) if complete, otherwise 'Incompleto' (1).
-     * - true: service was included in a submission → maps billing document result:
-     *         'accepted' → 'Aceptado' (4), 'rejected' → 'Rechazado' (5), otherwise 'Listo' (2).
-     * - false: service not included in submission → 'SinEnviar' (3).
-     *
-     * Domain status_id map:
-     * 1 = Incompleto, 2 = Listo, 3 = SinEnviar, 4 = Aceptado, 5 = Rechazado
+     * Comportamiento por $included:
+     * - null  -> modo creación/edición → 'Listo' si tiene mínimos, si no 'Incompleto'.
+     * - true  -> fue incluido en el envío → mapea el resultado del documento:
+     *            'accepted/Aceptado' → 'Aceptado', 'rejected/Rechazado' → 'Rechazado',
+     *            en otro caso → 'Listo'.
+     * - false -> no fue incluido en el envío → 'SinEnviar'.
      */
     public function updateStatus(RipsPatientService $service, ?bool $included = null): void
     {
         $document = $service->billingDocument;
 
-        // No billing document linked → Incompleto
+        // Sin documento de cobro → Incompleto
         if (!$document) {
-            $service->status_id = 1; // Incompleto
-            $service->save();
+            $this->persistIfChanged($service, self::STATUS_INCOMPLETO);
             return;
         }
 
         if (is_null($included)) {
-            // Creation/edition mode → evaluate completeness
-            $service->status_id = $this->hasMinimumData($service) ? 2 : 1; // 2: Listo, 1: Incompleto
-        } elseif ($included === true) {
-            // Included in submission → evaluate billing document response
-            if ($document->submission_status === 'accepted') {
-                $service->status_id = 4; // Aceptado
-            } elseif ($document->submission_status === 'rejected') {
-                $service->status_id = 5; // Rechazado
-            } else {
-                $service->status_id = 2; // Listo
-            }
-        } else {
-            // Not included in submission → SinEnviar
-            $service->status_id = 3; // SinEnviar
+            // Creación/edición → según datos mínimos
+            $newStatus = $this->hasMinimumData($service)
+                ? self::STATUS_LISTO
+                : self::STATUS_INCOMPLETO;
+
+            $this->persistIfChanged($service, $newStatus);
+            return;
         }
 
-        $service->save();
+        if ($included === true) {
+            // Incluido en el envío → mapea resultado del documento (multilenguaje)
+            $docStatus = mb_strtolower((string) $document->submission_status);
+
+            if (in_array($docStatus, ['accepted', 'aceptado'], true)) {
+                $this->persistIfChanged($service, self::STATUS_ACEPTADO);
+                return;
+            }
+
+            if (in_array($docStatus, ['rejected', 'rechazado'], true)) {
+                $this->persistIfChanged($service, self::STATUS_RECHAZADO);
+                return;
+            }
+
+            // Si el documento quedó en otro estado (p. ej. pending), lo dejamos como Listo
+            $this->persistIfChanged($service, self::STATUS_LISTO);
+            return;
+        }
+
+        // No incluido en el envío → SinEnviar
+        $this->persistIfChanged($service, self::STATUS_SIN_ENVIAR);
     }
 
     /**
-     * (Optional helper) Checks whether a given service ID appears inside a built RIPS
-     * document payload (used when you keep IDs alongside the JSON).
-     *
-     * @param RipsPatientService $service
-     * @param array $documentPayload RIPS payload for a billing document
+     * Guarda el estado solo si cambia.
      */
-    protected function isServiceIncludedInDocument(RipsPatientService $service, array $documentPayload): bool
+    private function persistIfChanged(RipsPatientService $service, int $newStatus): void
     {
-        $sentServiceIds = collect($documentPayload['rips']['usuarios'] ?? [])
-            ->flatMap(fn ($usuario) => collect($usuario['servicios'] ?? []))
-            ->pluck('id')
-            ->filter()
-            ->unique();
+        if ($service->status_id !== $newStatus) {
+            $old = $service->status_id;
+            $service->status_id = $newStatus;
+            $service->save();
 
-        return $sentServiceIds->contains($service->id);
+            if (app()->environment('local')) {
+                Log::info("Service [ID {$service->id}] status changed", [
+                    'from' => $old,
+                    'to'   => $newStatus,
+                ]);
+            }
+        }
     }
 
     /**
-     * Check whether the service has minimum required data to be considered 'Listo'.
-     * Rules:
-     * - Must have patient_id and service_datetime.
-     * - Must have a linked billing document.
-     * - If billing document is an invoice (type_id === 1), it must have XML set (xml_path).
+     * Comprueba si el servicio tiene los datos mínimos para quedar 'Listo'.
+     * Reglas:
+     * - Debe tener patient_id y service_datetime.
+     * - Debe tener billingDocument.
+     * - Si el documento es factura (type_id === 1), debe tener XML (xml_path).
      */
     private function hasMinimumData(RipsPatientService $service): bool
     {
         if (app()->environment('local')) {
             Log::info('Validating service minimum data', [
-                'patient_id' => $service->patient_id,
-                'service_datetime' => $service->service_datetime,
+                'service_id'      => $service->id,
+                'patient_id'      => $service->patient_id,
+                'service_datetime'=> $service->service_datetime,
             ]);
         }
 
-        // Basic fields: patient and service datetime
+        // Campos básicos
         if (!($service->patient_id && $service->service_datetime)) {
             return false;
         }
 
-        // Billing document validation
+        // Documento de cobro
         $document = $service->billingDocument;
         if (!$document) {
             Log::warning("Service [ID {$service->id}] has no linked billing document.");
@@ -108,22 +126,19 @@ class RipsPatientServiceStatusUpdater
 
         if (app()->environment('local')) {
             Log::info('Linked billing document found', [
-                'document_id' => $document->id,
+                'document_id'     => $document->id,
                 'document_number' => $document->document_number,
-                'type_id' => $document->type_id,
-                'xml_path' => $document->xml_path,
+                'type_id'         => $document->type_id,
+                'xml_path'        => $document->xml_path,
             ]);
         }
 
-        // If it's an invoice (type_id === 1), XML must be set
+        // Si es factura, requiere XML
         if ((int) $document->type_id === 1 && empty($document->xml_path)) {
             Log::warning("Invoice document without XML. Document ID: {$document->id}");
             return false;
         }
 
-        if (app()->environment('local')) {
-            Log::info("Service [ID {$service->id}] has all required data.");
-        }
         return true;
     }
 }

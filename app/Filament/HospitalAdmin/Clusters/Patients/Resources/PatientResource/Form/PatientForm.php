@@ -23,30 +23,46 @@ class PatientForm
     public static function schema(): array
     {
         $genderOptions = RipsGenderType::pluck('name', 'id')->toArray();
-        $territorialZoneOptions = RipsTerritorialZoneType::pluck('name', 'code')->toArray();
 
         return [
             Section::make()->schema([
-                Select::make('rips_identification_type_id')
-                    ->label('Tipo de documento (RIPS)')
-                    ->options(RipsIdentificationType::pluck('name', 'id'))
-                    ->required()
-                    ->native(false)
-                    ->searchable()
-                    ->preload()
-                    ->placeholder('Seleccione tipo de documento'),
-                TextInput::make('rips_identification_number')
-                    ->label(__('messages.patient.document_number') . ':')
-                    ->required()
-                    ->maxLength(15),
-                TextInput::make('first_name')
-                    ->required()
-                    ->label(__('messages.user.first_name') . ':')
-                    ->maxLength(255),
-                TextInput::make('last_name')
-                    ->required()
-                    ->label(__('messages.user.last_name') . ':')
-                    ->maxLength(255),
+                // Campos que están en users.*
+                Group::make()
+                    ->relationship('user')
+                        ->schema([
+                            Select::make('rips_identification_type_id')
+                                ->label('Tipo de documento (RIPS)')
+                                ->options(RipsIdentificationType::pluck('name', 'id'))
+                                ->required()
+                                ->native(false)
+                                ->searchable()
+                                ->preload()
+                                ->placeholder('Seleccione tipo de documento'),
+
+                            TextInput::make('rips_identification_number')
+                                ->label(__('messages.patient.document_number') . ':')
+                                ->required()
+                                ->maxLength(15),
+
+                            TextInput::make('first_name')
+                                ->required()
+                                ->label(__('messages.user.first_name') . ':')
+                                ->maxLength(255),
+
+                            TextInput::make('last_name')
+                                ->required()
+                                ->label(__('messages.user.last_name') . ':')
+                                ->maxLength(255),
+
+                            Radio::make('gender')
+                                ->label(__('messages.user.gender') . ':')
+                                ->required()
+                                ->options($genderOptions)
+                                ->columns(count($genderOptions)),
+                        ])
+                    ->columns(2),
+
+                // Campos que están en patients.*
                 Select::make('type_id')
                     ->label(__('messages.patient.patient_type') . ':')
                     ->options(RipsUserType::pluck('name', 'id'))
@@ -54,6 +70,7 @@ class PatientForm
                     ->native(false)
                     ->searchable()
                     ->preload(),
+
                 Select::make('country_of_origin_id')
                     ->label(__('messages.patient.origin_country') . ':')
                     ->options(RipsCountry::pluck('name', 'id'))
@@ -63,16 +80,15 @@ class PatientForm
                     ->default(fn () => RipsCountry::where('name', 'Colombia')->value('id'))
                     ->preload()
                     ->placeholder('Seleccione país de origen'),
-                Radio::make('gender')
-                    ->label(__('messages.user.gender') . ':')
-                    ->required()
-                    ->options($genderOptions)
-                    ->columns(count($genderOptions)),
-                DatePicker::make('dob') // Cambiar de 'user.dob' a simplemente 'dob'
+
+                // FECHA DE NACIMIENTO en patients.birth_date
+                DatePicker::make('birth_date')
                     ->label(__('messages.user.dob') . ':')
                     ->native(true)
                     ->maxDate(now())
+                    ->closeOnDateSelection(),
             ])->columns(2),
+
             Fieldset::make('Detalles de residencia')->schema([
                 Group::make()->schema([
                     Select::make('rips_country_id')
@@ -83,6 +99,7 @@ class PatientForm
                         ->searchable()
                         ->live()
                         ->afterStateUpdated(fn (callable $set) => $set('rips_department_id', null)),
+
                     Select::make('rips_department_id')
                         ->label(__('messages.patient.residence_department') . ':')
                         ->options(function (callable $get) {
@@ -93,10 +110,10 @@ class PatientForm
                         })
                         ->required()
                         ->searchable()
-                        //->default(fn () => RipsDepartment::where('name', 'Antioquia')->value('id'))
                         ->live()
                         ->afterStateUpdated(fn (callable $set) => $set('rips_municipality_id', null)),
                 ])->columns(2),
+
                 Group::make()->schema([
                     Select::make('rips_municipality_id')
                         ->label(__('messages.patient.residence_city') . ':')
@@ -106,19 +123,18 @@ class PatientForm
                                 ->orderBy('name')
                                 ->pluck('name', 'id');
                         })
-                        //->default(fn () => RipsMunicipality::where('name', 'Medellín')->value('id'))
                         ->required()
                         ->searchable(),
+
+                    // Zona territorial: clave 'code' y SIN default para no pisar
+                    
                     Select::make('zone_code')
                         ->label(__('messages.patient.residence_zone') . ':')
-                        ->options(RipsTerritorialZoneType::pluck('name', 'id')) // <--- CAMBIO CLAVE
-                        ->required()
-                        ->default(1)
-                        ->placeholder('Seleccione zona territorial')
-                        ->native(false)
+                        ->options(RipsTerritorialZoneType::pluck('name', 'id')) 
+                        ->required() ->default(1) 
+                        ->placeholder('Seleccione zona territorial') 
+                        ->native(false) 
                         ->searchable(),
-
-
                 ])->columns(2),
             ]),
         ];

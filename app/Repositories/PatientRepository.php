@@ -121,7 +121,9 @@ class PatientRepository extends BaseRepository
             'affiliate_number'    => $input['affiliate_number'] ?? null,
             'template_id'         => $input['template_id'] ?? null,
             'type_id'              => $input['type_id'] ?? null,
-            'birth_date'           => $input['dob'] ?? null,
+            'birth_date'           => !empty($input['birth_date'])
+            ? \Carbon\Carbon::parse($input['birth_date'])->format('Y-m-d')
+            : null,
             'rips_country_id'      => $input['rips_country_id'] ?? null,
             'rips_department_id'   => $input['rips_department_id'] ?? null,
             'rips_municipality_id' => $input['rips_municipality_id'] ?? null,
@@ -226,7 +228,9 @@ class PatientRepository extends BaseRepository
                 // Ya existentes:
                 'rips_identification_number' => $input['rips_identification_number'] ?? null,
                 'type_id' => $input['type_id'] ?? null,
-                'birth_date' => $input['dob'] ?? null,
+                'birth_date'           => !empty($input['birth_date'])
+                ? \Carbon\Carbon::parse($input['birth_date'])->format('Y-m-d')
+                : null,
                 //'sex_code' => Gender::from((int) $input['gender'])->sexCode(),
                 //'gender' => $input['gender'] ?? null,
                 //'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
@@ -382,7 +386,9 @@ class PatientRepository extends BaseRepository
             'affiliate_number'    => $input['affiliate_number'] ?? $patient->affiliate_number,
             'template_id'         => $input['template_id'] ?? $patient->template_id,
             'type_id'              => $input['type_id'] ?? $patient->type_id,
-            'birth_date'           => $input['dob'] ?? $patient->birth_date,
+            'birth_date'           => array_key_exists('birth_date', $input) && !empty($input['birth_date'])
+            ? \Carbon\Carbon::parse($input['birth_date'])->format('Y-m-d')
+            : $patient->birth_date,
             'rips_country_id'      => $input['rips_country_id'] ?? $patient->rips_country_id,
             'rips_department_id'   => $input['rips_department_id'] ?? $patient->rips_department_id,
             'rips_municipality_id' => $input['rips_municipality_id'] ?? $patient->rips_municipality_id,
