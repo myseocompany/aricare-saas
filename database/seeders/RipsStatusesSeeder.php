@@ -3,27 +3,44 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use DB;
+use Illuminate\Support\Facades\DB;
 
 class RipsStatusesSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
-    public function run()
+    public function run(): void
     {
-        DB::table('rips_statuses')->insert([
-            ['name' => 'Creado', 'description' => 'El RIPS ha sido creado y está en fase de diligenciamiento.'],
-            ['name' => 'En Construcción', 'description' => 'El RIPS está siendo completado y validado internamente.'],
-            ['name' => 'Validado', 'description' => 'El RIPS ha pasado las validaciones iniciales.'],
-            ['name' => 'En Espera de Envío', 'description' => 'El RIPS está listo para ser enviado al sistema del Ministerio de Salud.'],
-            ['name' => 'Enviado', 'description' => 'El RIPS ha sido enviado al Ministerio de Salud o la DIAN para validación única.'],
-            ['name' => 'Validación Exitosa', 'description' => 'El RIPS ha sido validado correctamente.'],
-            ['name' => 'Validación Fallida', 'description' => 'El RIPS ha fallado la validación y necesita correcciones.'],
-            ['name' => 'Rechazado', 'description' => 'El RIPS ha sido rechazado y no es válido.'],
-            ['name' => 'Aceptado', 'description' => 'El RIPS ha sido aceptado y está listo para su uso en el proceso de cobro.'],
-        ]);
+        DB::transaction(function () {
+            // Siembra/actualiza los 5 estados canónicos con IDs fijos
+            DB::table('rips_statuses')->upsert([
+                [
+                    'id' => 1,
+                    'name' => 'Incompleto',
+                    'description' => 'El RIPS ha sido creado y está en fase de diligenciamiento.',
+                ],
+                [
+                    'id' => 2,
+                    'name' => 'Listo',
+                    'description' => 'Tiene diagnóstico o procedimiento. Y si tiene FEV tiene XML',
+                ],
+                [
+                    'id' => 3,
+                    'name' => 'SinEnviar',
+                    'description' => 'El RIPS está listo pero no fue incluido en el envío.',
+                ],
+                [
+                    'id' => 4,
+                    'name' => 'Aceptado',
+                    'description' => 'El RIPS fue aceptado por SISPRO.',
+                ],
+                [
+                    'id' => 5,
+                    'name' => 'Rechazado',
+                    'description' => 'El RIPS fue rechazado por SISPRO.',
+                ],
+            ], ['id'], ['name', 'description']);
+
+            // (Opcional) limpia estados no usados para que la tabla quede igual a la de la nube
+            DB::table('rips_statuses')->whereNotIn('id', [1, 2, 3, 4, 5])->delete();
+        });
     }
 }
