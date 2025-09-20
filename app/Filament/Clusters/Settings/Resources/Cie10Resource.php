@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\Settings\Resources;
 use App\Filament\Clusters\Settings;
 use App\Filament\Clusters\Settings\Resources\Cie10Resource\Pages;
 use App\Filament\Clusters\Settings\Resources\Cie10Resource\RelationManagers;
-use App\Models\Cie10;
+use App\Models\Rips\Cie10;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;

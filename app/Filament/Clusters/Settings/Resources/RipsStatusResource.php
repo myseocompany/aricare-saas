@@ -3,69 +3,63 @@
 namespace App\Filament\Clusters\Settings\Resources;
 
 use App\Filament\Clusters\Settings;
-use App\Filament\Clusters\Settings\Resources\CupsResource\Pages;
-use App\Filament\Clusters\Settings\Resources\CupsResource\RelationManagers;
-use App\Models\Rips\RipsCups;
+use App\Filament\Clusters\Settings\Resources\RipsStatusResource\Pages;
+use App\Models\Rips\RipsStatus;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Pages\SubNavigationPosition;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Pages\SubNavigationPosition;
 
-class CupsResource extends Resource
+class RipsStatusResource extends Resource
 {
-    protected static ?string $model = RipsCups::class;
+    protected static ?string $model = RipsStatus::class;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 7;
 
-    
     protected static ?string $cluster = Settings::class;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('code')
+                Forms\Components\TextInput::make('name')
+                    ->label(__('messages.common.name'))
                     ->required()
-                    ->maxLength(255),
-                Forms\Components\Textarea::make('name')
-                    ->required()
-                    ->columnSpanFull(),
+                    ->maxLength(255)
+                    ->unique('rips_statuses', 'name', ignoreRecord: true),
                 Forms\Components\Textarea::make('description')
+                    ->label(__('messages.common.description'))
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('group')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('subgroup_code')
-                    ->maxLength(255),
-            ]);
+            ])
+            ->columns(1);
     }
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('code')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('group')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('subgroup_code')
-                    ->searchable(),
+                Tables\Columns\TextColumn::make('name')
+                    ->label(__('messages.common.name'))
+                    ->searchable()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label(__('messages.common.description'))
+                    ->limit(70)
+                    ->wrap(),
                 Tables\Columns\TextColumn::make('created_at')
+                    ->label(__('messages.common.created_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('updated_at')
+                    ->label(__('messages.common.updated_at'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
@@ -88,10 +82,10 @@ class CupsResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListCups::route('/'),
-            'create' => Pages\CreateCups::route('/create'),
-            'view' => Pages\ViewCups::route('/{record}'),
-            'edit' => Pages\EditCups::route('/{record}/edit'),
+            'index' => Pages\ListRipsStatuses::route('/'),
+            'create' => Pages\CreateRipsStatus::route('/create'),
+            'view' => Pages\ViewRipsStatus::route('/{record}'),
+            'edit' => Pages\EditRipsStatus::route('/{record}/edit'),
         ];
     }
 }
