@@ -5,7 +5,7 @@ namespace App\Filament\Clusters\Settings\Resources;
 use App\Filament\Clusters\Settings;
 use App\Filament\Clusters\Settings\Resources\CupsResource\Pages;
 use App\Filament\Clusters\Settings\Resources\CupsResource\RelationManagers;
-use App\Models\RipsCups;
+use App\Models\Rips\RipsCups;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -17,7 +17,7 @@ use Filament\Pages\SubNavigationPosition;
 
 class CupsResource extends Resource
 {
-    protected static ?string $model = Cups::class;
+    protected static ?string $model = RipsCups::class;
 
     protected static SubNavigationPosition $subNavigationPosition = SubNavigationPosition::Top;
 
