@@ -12,6 +12,8 @@ use Illuminate\Database\Eloquent\Model;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource;
+// ⬇️ ADDED: importar la acción que corrige la tabla rips_statuses
+use App\Actions\Rips\FixRipsStatuses; 
 
 class EditPatient extends EditRecord
 {
@@ -23,6 +25,26 @@ class EditPatient extends EditRecord
             Actions\Action::make('back')
                 ->label(__('messages.common.back'))
                 ->url(static::getResource()::getUrl('index')),
+
+            // ⬇️ ADDED: botón temporal para corregir rips_statuses
+            Actions\Action::make('fix-rips-statuses')
+                ->label('Actualizar estados RIPS')
+                ->icon('heroicon-o-wrench')
+                ->color('warning')
+                // Solo visible en local o para Admin
+                ->visible(fn () => app()->environment('local') || auth()->user()->hasRole('Admin'))
+                ->requiresConfirmation()
+                ->modalHeading('Actualizar estados RIPS')
+                ->modalDescription('Esto borrará e insertará los 5 estados estándar en la tabla rips_statuses (Incompleto, Listo, SinEnviar, Aceptado, Rechazado).')
+                ->action(function () {
+                    FixRipsStatuses::run();
+
+                    Notification::make()
+                        ->title('Estados RIPS actualizados')
+                        ->success()
+                        ->send();
+                }),
+            // ⬆️ END ADDED
         ];
     }
 
@@ -40,7 +62,7 @@ class EditPatient extends EditRecord
         $record = $this->record;
         $data = Patient::with(['user', 'address'])->where('id', $record->id)->get()->toArray();
         $data = $data[0] + $data[0]['user'] + ($data[0]['address'] ?? []) + ($data[0]['custom_field'] ?? []);
-        $data  = Arr::except($data,  ['media', 'profile', 'user', 'address', 'custom_field', 'owner_type', 'owner_id', 'template_id']);
+        $data = Arr::except($data, ['media', 'profile', 'user', 'address', 'custom_field', 'owner_type', 'owner_id', 'template_id']);
 
         return $data;
     }
@@ -53,8 +75,6 @@ class EditPatient extends EditRecord
         } else {
             $data['region_code'] = null;
         }
-        //$data['region_code'] = !empty($data['phone']) ? getRegionCode($data['region_code'] ?? '') : null;
-        //$data['phone'] = getPhoneNumber($data['phone']);
 
         $patient = app(PatientRepository::class)->update($record, $data);
 
@@ -65,6 +85,7 @@ class EditPatient extends EditRecord
     {
         return __('messages.flash.Patient_updated');
     }
+
     protected function getRedirectUrl(): string
     {
         return static::getResource()::getUrl('index');
