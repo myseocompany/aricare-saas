@@ -432,3 +432,13 @@ $html .= "<p style='margin-top:24px;color:#777'>[Ruta temporal, elimina cuando t
 
 return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
 });
+
+
+Route::get('/debug-rips-config', function () {
+    return response()->json([
+        'env_RIPS_API_URL' => env('RIPS_API_URL'),
+        'config_services_rips_api_url' => config('services.rips_api.url'),
+        'app_env' => config('app.env'),
+        'config_cached' => app()->configurationIsCached(),
+    ]);
+});
