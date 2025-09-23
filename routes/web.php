@@ -49,6 +49,11 @@ use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\RipsGeneracionController;
 use App\Http\Controllers\WompiController;
 
+//quitar esto////////////
+use Illuminate\Http\Request;
+use App\Services\RipsTokenService;
+use App\Models\Tenant;
+
 
 use Illuminate\Support\Facades\Storage;
 
@@ -362,3 +367,41 @@ Route::get('download/temp/rips/{file}', function ($file) {
         return back()->with('error', 'El archivo no existe.');
     }
 })->name('download.temp.rips');
+
+//quitar esto////////////
+Route::get('/debug-auth-probe', function (Request $request, RipsTokenService $svc) {
+    // Solo Admin
+    abort_unless(Auth::check() && Auth::user()->hasRole('Admin'), 403);
+
+    // Tenant por query ?tenant=UUID o toma el del usuario logueado (si aplica)
+    $tenantId = $request->query('tenant') ?: (Auth::user()->tenant_id ?? null);
+    abort_unless($tenantId, 400, 'Falta tenant');
+
+    // Info del tenant para mostrar contexto (sin secretos)
+    $t = Tenant::find($tenantId);
+    abort_unless($t, 404, 'Tenant no encontrado');
+
+    $result = $svc->probe($tenantId);
+
+    // Render simple en HTML
+    $safe = fn($v) => e(is_scalar($v) ? (string)$v : json_encode($v, JSON_UNESCAPED_UNICODE));
+
+    $html  = "<h1>Debug SISPRO Auth Probe</h1>";
+    $html .= "<p><strong>Tenant:</strong> {$safe($tenantId)} | <strong>Hospital:</strong> {$safe($t->hospital_name)}</p>";
+    $html .= "<p><strong>Endpoint:</strong> {$safe($result['url'] ?? '')}</p>";
+    $html .= "<p><strong>HTTP Status:</strong> {$safe($result['status'] ?? 'N/A')}</p>";
+    $html .= "<p><strong>Payload keys:</strong> ". $safe($result['payload_keys'] ?? []) ."</p>";
+    $html .= "<p><strong>Login:</strong> {$safe($result['login'] ?? 'N/A')} | <strong>Registrado:</strong> {$safe($result['registrado'] ?? 'N/A')}</p>";
+    $html .= "<p><strong>Token presente:</strong> ". ($result['token_present'] ? 'SI' : 'NO') ."</p>";
+    $html .= "<p><strong>Token (masked):</strong> {$safe($result['token_masked'] ?? '')}</p>";
+    if (!empty($result['errors'])) {
+        $html .= "<p><strong>Errors:</strong> {$safe($result['errors'])}</p>";
+    }
+    if (!empty($result['error'])) {
+        $html .= "<p style='color:#b00'><strong>Exception:</strong> {$safe($result['error'])}</p>";
+    }
+
+    $html .= "<p style='margin-top:24px;color:#777'>[Ruta temporal, eliminar cuando termines]</p>";
+
+    return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+});

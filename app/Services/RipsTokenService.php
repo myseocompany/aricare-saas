@@ -121,4 +121,78 @@ class RipsTokenService
             return null;
         }
     }
+
+
+    // ⬇⬇⬇ Añadir dentro de la clase RipsTokenService ⬇⬇⬇
+    public function probe(string $tenantId): array
+    {
+        $tenant = \App\Models\Tenant::find($tenantId);
+
+        if (!$tenant) {
+            return [
+                'ok' => false,
+                'error' => 'Tenant no encontrado',
+            ];
+        }
+
+        // OJO: Ajusta estos campos si en tu getToken ya cambiaste los nombres usados
+        $payload = [
+            'persona' => [
+                'identificacion' => [
+                    'tipo'   => $tenant->document_type ?? null,          // o $tenant->rips_identification_type_id mapeado a código
+                    'numero' => $tenant->rips_idsispro ?? null,          // o $tenant->rips_identification_number
+                ],
+            ],
+            'nit'   => $tenant->document_number ?? null,                 // NIT de la entidad
+            'clave' => $tenant->rips_passispro ?? null,                  // contraseña SISPRO
+        ];
+
+        $payloadKeys = [
+            'persona.identificacion.tipo'   => !empty($payload['persona']['identificacion']['tipo']),
+            'persona.identificacion.numero' => !empty($payload['persona']['identificacion']['numero']),
+            'nit'                           => !empty($payload['nit']),
+            'clave_present'                 => !empty($payload['clave']),
+        ];
+
+        $baseUrl = rtrim((string) config('services.rips_api.url'), '/');
+        $url = $baseUrl . '/auth/LoginSISPRO';
+
+        try {
+            $response = \Illuminate\Support\Facades\Http::withoutVerifying()
+                ->timeout(30)
+                ->acceptJson()
+                ->post($url, $payload);
+
+            $status = $response->status();
+            $data   = $response->json();
+
+            // Enmascarar token si viene
+            $token = $data['token'] ?? null;
+            if (!empty($token) && is_string($token)) {
+                $tokenMasked = '[masked]…' . substr($token, -8);
+            } else {
+                $tokenMasked = null;
+            }
+
+            return [
+                'ok'           => $response->successful() && !empty($token),
+                'status'       => $status,
+                'url'          => $url,
+                'payload_keys' => $payloadKeys,
+                'login'        => $data['login'] ?? null,
+                'registrado'   => $data['registrado'] ?? null,
+                'errors'       => $data['errors'] ?? null,
+                'token_present'=> (bool) $token,
+                'token_masked' => $tokenMasked,
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'ok' => false,
+                'error' => $e->getMessage(),
+                'url' => $url,
+                'payload_keys' => $payloadKeys,
+            ];
+        }
+    }
+
 }

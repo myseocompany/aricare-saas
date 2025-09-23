@@ -158,7 +158,6 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
 {
     use HasFactory, BelongsToTenant, Impersonate;
     use HasApiTokens, Notifiable, InteractsWithMedia, HasRoles;
-
     public function canAccessPanel(Panel $panel): bool
     {
         return true;
@@ -544,6 +543,7 @@ class User extends Authenticatable implements HasMedia, MustVerifyEmail, HasName
     {
         return $this->hasOne(GoogleCalendarIntegration::class, 'user_id');
     }
+    
 
     public function getProfileAttribute(): string
     {
