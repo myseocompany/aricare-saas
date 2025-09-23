@@ -383,25 +383,52 @@ Route::get('/debug-auth-probe', function (Request $request, RipsTokenService $sv
 
     $result = $svc->probe($tenantId);
 
-    // Render simple en HTML
-    $safe = fn($v) => e(is_scalar($v) ? (string)$v : json_encode($v, JSON_UNESCAPED_UNICODE));
+$safe = fn($v) => e(is_scalar($v) ? (string)$v : json_encode($v, JSON_UNESCAPED_UNICODE));
 
-    $html  = "<h1>Debug SISPRO Auth Probe</h1>";
-    $html .= "<p><strong>Tenant:</strong> {$safe($tenantId)} | <strong>Hospital:</strong> {$safe($t->hospital_name)}</p>";
-    $html .= "<p><strong>Endpoint:</strong> {$safe($result['url'] ?? '')}</p>";
-    $html .= "<p><strong>HTTP Status:</strong> {$safe($result['status'] ?? 'N/A')}</p>";
-    $html .= "<p><strong>Payload keys:</strong> ". $safe($result['payload_keys'] ?? []) ."</p>";
-    $html .= "<p><strong>Login:</strong> {$safe($result['login'] ?? 'N/A')} | <strong>Registrado:</strong> {$safe($result['registrado'] ?? 'N/A')}</p>";
-    $html .= "<p><strong>Token presente:</strong> ". ($result['token_present'] ? 'SI' : 'NO') ."</p>";
-    $html .= "<p><strong>Token (masked):</strong> {$safe($result['token_masked'] ?? '')}</p>";
-    if (!empty($result['errors'])) {
-        $html .= "<p><strong>Errors:</strong> {$safe($result['errors'])}</p>";
-    }
-    if (!empty($result['error'])) {
-        $html .= "<p style='color:#b00'><strong>Exception:</strong> {$safe($result['error'])}</p>";
-    }
+$html  = "<h1>Debug SISPRO Auth Probe</h1>";
+$html .= "<p><strong>Tenant:</strong> {$safe($tenantId)} | <strong>Hospital:</strong> {$safe($t->hospital_name)}</p>";
+$html .= "<p><strong>Endpoint:</strong> {$safe($result['url'] ?? '')}</p>";
+$html .= "<p><strong>HTTP Status:</strong> {$safe($result['status'] ?? 'N/A')}</p>";
 
-    $html .= "<p style='margin-top:24px;color:#777'>[Ruta temporal, eliminar cuando termines]</p>";
+$pk = $result['payload_keys'] ?? [];
+$html .= "<p><strong>Payload keys:</strong> ". $safe($pk) ."</p>";
 
-    return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
+$pp = $result['payload_preview'] ?? [];
+$html .= "<p><strong>Payload (preview):</strong> ".
+         "tipo=<code>{$safe($pp['tipo'] ?? 'null')}</code>, ".
+         "numero=<code>{$safe($pp['numero'] ?? 'null')}</code>, ".
+         "nit=<code>{$safe($pp['nit'] ?? 'null')}</code>, ".
+         "clave=<code>{$safe($pp['clave_masked'] ?? '[none]')}</code>".
+         "</p>";
+
+if (!empty($result['payload_json'])) {
+    $html .= "<details><summary>Payload JSON safe</summary><pre style='white-space:pre-wrap'>".
+             $safe($result['payload_json'])."</pre></details>";
+}
+
+$html .= "<p><strong>Login:</strong> {$safe($result['login'] ?? 'N/A')} | ".
+         "<strong>Registrado:</strong> {$safe($result['registrado'] ?? 'N/A')}</p>";
+
+$html .= "<p><strong>Token presente:</strong> " . (!empty($result['token_present']) ? 'SI' : 'NO') . "</p>";
+
+if (!empty($result['token_masked'])) {
+    $html .= "<p><strong>Token (masked):</strong> {$safe($result['token_masked'])}</p>";
+}
+
+if (!empty($result['errors'])) {
+    $html .= "<p><strong>Errors:</strong> {$safe($result['errors'])}</p>";
+}
+
+if (!empty($result['raw_body'])) {
+    $html .= "<details><summary>Raw body</summary><pre style='white-space:pre-wrap'>".
+             $safe($result['raw_body'])."</pre></details>";
+}
+
+if (!empty($result['error'])) {
+    $html .= "<p style='color:#b00'><strong>Exception:</strong> {$safe($result['error'])}</p>";
+}
+
+$html .= "<p style='margin-top:24px;color:#777'>[Ruta temporal, elimina cuando termines]</p>";
+
+return response($html)->header('Content-Type', 'text/html; charset=UTF-8');
 });

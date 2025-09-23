@@ -124,38 +124,77 @@ class RipsTokenService
 
 
     // ⬇⬇⬇ Añadir dentro de la clase RipsTokenService ⬇⬇⬇
+    // ⬇⬇ Dentro de App\Services\RipsTokenService ⬇⬇
     public function probe(string $tenantId): array
     {
         $tenant = \App\Models\Tenant::find($tenantId);
-
         if (!$tenant) {
             return [
-                'ok' => false,
-                'error' => 'Tenant no encontrado',
+                'ok'               => false,
+                'status'           => null,
+                'url'              => null,
+                'payload_keys'     => [],
+                'payload_preview'  => [],
+                'payload_json'     => null,
+                'login'            => null,
+                'registrado'       => null,
+                'errors'           => null,
+                'token_present'    => false,
+                'token_masked'     => null,
+                'raw_body'         => null,
+                'error'            => 'Tenant no encontrado',
             ];
         }
 
-        // OJO: Ajusta estos campos si en tu getToken ya cambiaste los nombres usados
+        // === Resolver typeCode exactamente como en getToken() ===
+        $typeCode = null;
+        if (!empty($tenant->rips_identification_type_id)) {
+            $typeCode = \Illuminate\Support\Facades\DB::table('rips_identification_types')
+                ->where('id', $tenant->rips_identification_type_id)
+                ->value('code');
+        }
+
+        // === Resolver los mismos campos que usas en getToken() ===
+        $numero = $tenant->rips_idsispro;                // persona.identificacion.numero
+        $nit    = $tenant->rips_identification_number;   // nit
+        $clave  = $tenant->rips_passispro;               // clave
+
+        // Para mostrar sin exponer secretos
+        $claveMasked = empty($clave) ? null : ('[masked]…' . substr($clave, -4));
+
+        // Preview legible de lo que se envía
+        $payloadPreview = [
+            'tipo'         => $typeCode,
+            'numero'       => $numero,
+            'nit'          => $nit,
+            'clave_masked' => $claveMasked,
+        ];
+
+        // Payload real que se postea (sin loguear la clave en claro)
         $payload = [
             'persona' => [
                 'identificacion' => [
-                    'tipo'   => $tenant->document_type ?? null,          // o $tenant->rips_identification_type_id mapeado a código
-                    'numero' => $tenant->rips_idsispro ?? null,          // o $tenant->rips_identification_number
+                    'tipo'   => $typeCode,
+                    'numero' => $numero,
                 ],
             ],
-            'nit'   => $tenant->document_number ?? null,                 // NIT de la entidad
-            'clave' => $tenant->rips_passispro ?? null,                  // contraseña SISPRO
+            'nit'   => $nit,
+            'clave' => $clave,
         ];
 
+        // También te retorno un JSON “safe” para ver la forma exacta sin exponer la clave
+        $payloadSafe = $payload;
+        $payloadSafe['clave'] = $claveMasked;
+
         $payloadKeys = [
-            'persona.identificacion.tipo'   => !empty($payload['persona']['identificacion']['tipo']),
-            'persona.identificacion.numero' => !empty($payload['persona']['identificacion']['numero']),
-            'nit'                           => !empty($payload['nit']),
-            'clave_present'                 => !empty($payload['clave']),
+            'persona.identificacion.tipo'   => !empty($typeCode),
+            'persona.identificacion.numero' => !empty($numero),
+            'nit'                           => !empty($nit),
+            'clave_present'                 => !empty($clave),
         ];
 
         $baseUrl = rtrim((string) config('services.rips_api.url'), '/');
-        $url = $baseUrl . '/auth/LoginSISPRO';
+        $url     = $baseUrl . '/auth/LoginSISPRO';
 
         try {
             $response = \Illuminate\Support\Facades\Http::withoutVerifying()
@@ -163,34 +202,50 @@ class RipsTokenService
                 ->acceptJson()
                 ->post($url, $payload);
 
-            $status = $response->status();
-            $data   = $response->json();
+            $status  = $response->status();
+            $rawBody = $response->body();
 
-            // Enmascarar token si viene
-            $token = $data['token'] ?? null;
-            if (!empty($token) && is_string($token)) {
-                $tokenMasked = '[masked]…' . substr($token, -8);
-            } else {
-                $tokenMasked = null;
+            // Si no es JSON válido, $data será []
+            $data = [];
+            try {
+                $data = $response->json();
+            } catch (\Throwable $e) {
+                $data = [];
             }
 
+            $token = is_array($data) ? ($data['token'] ?? null) : null;
+            $tokenMasked = ($token && is_string($token)) ? ('[masked]…' . substr($token, -8)) : null;
+
             return [
-                'ok'           => $response->successful() && !empty($token),
-                'status'       => $status,
-                'url'          => $url,
-                'payload_keys' => $payloadKeys,
-                'login'        => $data['login'] ?? null,
-                'registrado'   => $data['registrado'] ?? null,
-                'errors'       => $data['errors'] ?? null,
-                'token_present'=> (bool) $token,
-                'token_masked' => $tokenMasked,
+                'ok'              => $response->successful() && !empty($token),
+                'status'          => $status,
+                'url'             => $url,
+                'payload_keys'    => $payloadKeys,
+                'payload_preview' => $payloadPreview,
+                'payload_json'    => json_encode($payloadSafe, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+                'login'           => $data['login'] ?? null,
+                'registrado'      => $data['registrado'] ?? null,
+                'errors'          => $data['errors'] ?? null,
+                'token_present'   => (bool) $token,
+                'token_masked'    => $tokenMasked,
+                'raw_body'        => $rawBody,
+                'error'           => null,
             ];
         } catch (\Throwable $e) {
             return [
-                'ok' => false,
-                'error' => $e->getMessage(),
-                'url' => $url,
-                'payload_keys' => $payloadKeys,
+                'ok'              => false,
+                'status'          => null,
+                'url'             => $url,
+                'payload_keys'    => $payloadKeys,
+                'payload_preview' => $payloadPreview,
+                'payload_json'    => json_encode($payloadSafe, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT),
+                'login'           => null,
+                'registrado'      => null,
+                'errors'          => null,
+                'token_present'   => false,
+                'token_masked'    => null,
+                'raw_body'        => null,
+                'error'           => $e->getMessage(),
             ];
         }
     }
