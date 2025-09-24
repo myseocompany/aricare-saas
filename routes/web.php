@@ -442,3 +442,37 @@ Route::get('/debug-rips-config', function () {
         'config_cached' => app()->configurationIsCached(),
     ]);
 });
+
+Route::get('/debug-storage', function () {
+    abort_unless(Auth::check() && Auth::user()->hasRole('Admin'), 403);
+
+    $hasLink   = is_link(public_path('storage'));
+    $linkTarget= $hasLink ? readlink(public_path('storage')) : null;
+
+    // Crear el symlink si falta y pides ?link=1
+    if (!$hasLink && request('link') == '1') {
+        try {
+            Artisan::call('storage:link');
+        } catch (\Throwable $e) {
+            return "No pude crear el link: ".$e->getMessage();
+        }
+    }
+
+    $out  = "<h2>Debug storage</h2>";
+    $out .= "<p><b>Symlink existe:</b> ".($hasLink ? "SI → {$linkTarget}" : "NO")."</p>";
+
+    $files = Storage::disk('public')->files('respuestas');
+    $out .= "<p><b>Archivos en storage/app/public/respuestas:</b> ".count($files)."</p><ul>";
+    foreach ($files as $f) {
+        $url = Storage::disk('public')->url($f); // URL pública segun disk
+        $out .= "<li>{$f} → <a href='{$url}' target='_blank'>abrir</a></li>";
+    }
+    $out .= "</ul>";
+
+    if (!$hasLink) {
+        $out .= "<p><a href='".url('/debug-storage?link=1')."' style='color:#d60'>Crear symlink (storage:link)</a></p>";
+    }
+
+    $out .= "<p style='color:#777'>[Ruta temporal, elimina cuando termines]</p>";
+    return $out;
+});
