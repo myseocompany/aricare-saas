@@ -9,7 +9,6 @@
 /****************************************************************/
 
 namespace App\Services;
-
 use Carbon\Carbon;
 use App\Models\Rips\RipsPatientService;
 use App\Models\Rips\RipsBillingDocument;
@@ -405,7 +404,7 @@ class RipsGeneratorService
             'tipoDocumentoIdentificacion' => $patient->patientUser->ripsIdentificationType->code ?? '',
             'numDocumentoIdentificacion' => $patient->patientUser->rips_identification_number ?? '',
             'tipoUsuario' => str_pad((string) ($patient->ripsUserType->id ?? ''), 2, '0', STR_PAD_LEFT),
-            'fechaNacimiento' => $patient->birth_date,
+            'fechaNacimiento' => $this->ymd($patient->birth_date),
             'codSexo' => $patient->patientUser->ripsGenderType->code ?? '',
             'codPaisResidencia' => (string) ($patient->residenceCountry->code ?? ''),
             'codMunicipioResidencia' => str_pad((string) ($patient->ripsMunicipality->code ?? ''), 5, '0', STR_PAD_LEFT),
@@ -667,4 +666,14 @@ class RipsGeneratorService
         // Reuse the same flow and validations respecting the selected mode
         return $this->generateOnlySelected($patientServices, $modo);
     }
+
+    
+
+    private function ymd(null|string|\DateTimeInterface $date): ?string
+    {
+        if (empty($date)) return null;
+        // Si ya es Carbon/DateTime o string, esto lo deja en AAAA-MM-DD
+        return Carbon::parse($date)->format('Y-m-d');
+    }
+
 }
