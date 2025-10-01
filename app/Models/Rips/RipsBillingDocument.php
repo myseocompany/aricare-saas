@@ -27,6 +27,7 @@ class RipsBillingDocument extends Model
         'discount_amount',
         'net_amount',
         'xml_path',
+        'cuv',
     ];
 
     protected $casts = [

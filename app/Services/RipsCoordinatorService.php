@@ -27,7 +27,7 @@ class RipsCoordinatorService
 
     /** Built on demand once token is available */
     protected RipsSubmissionService $submissionService;
-
+    private const RESPONSES_RETENTION_DAYS = 30;
     /**
      * Constructor.
      *
@@ -146,14 +146,24 @@ class RipsCoordinatorService
             Storage::disk('public')->put("respuestas/{$filename}", json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
             // Determine status (accepted, rejected or pending)
-            $status = 'pending';
-            if (isset($response['response']['ResultState'])) {
-                $status = $response['response']['ResultState'] === true ? 'accepted' : 'rejected';
-            }
+            $parsed = $this->parseStatusAndCuv($response);
+            $status = $parsed['status'] ?? 'pending';
+            $cuv    = $parsed['cuv'] ?? null;
 
             // Update DB status
             if ($document) {
-                $document->update(['submission_status' => $status]);
+                $update = ['submission_status' => $status];
+                // Guarda CUV solo si viene y aún no existe
+                if ($cuv && empty($document->cuv)) {
+                    $update['cuv'] = $cuv;
+                }
+                $document->update($update);
+                $serviceUpdater = app(RipsPatientServiceStatusUpdater::class);
+                foreach ($document->patientServices as $service) {
+                    // En el flujo por rango, TODO lo del documento se envió ⇒ included = true
+                    $serviceUpdater->updateStatus($service, true);
+                }
+               // $document->update(['submission_status' => $status]);
             }
 
             // Store result for the summary
@@ -180,6 +190,7 @@ class RipsCoordinatorService
             ->success()
             ->persistent()
             ->send();
+        $this->pruneOldResponses();
     }
 
     /**
@@ -262,17 +273,21 @@ class RipsCoordinatorService
             $filename = "respuesta_rips_{$number}_" . now()->format('Ymd_His') . '.json';
             Storage::disk('public')->put("respuestas/{$filename}", json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-            $status = 'pending';
-            if (isset($response['response']['ResultState'])) {
-                $status = $response['response']['ResultState'] === true ? 'accepted' : 'rejected';
-            }
+            $parsed = $this->parseStatusAndCuv($response);
+            $status = $parsed['status'] ?? 'pending';
+            $cuv    = $parsed['cuv'] ?? null;
+
             if (app()->environment('local')) {
                 Log::info("Submission status for {$number}: {$status}");
             }
 
             if ($document) {
                 // Actualiza estado del documento
-                $document->update(['submission_status' => $status]);
+                $update = ['submission_status' => $status];
+                if ($cuv && empty($document->cuv)) {
+                    $update['cuv'] = $cuv;
+                }
+                $document->update($update);
 
                 // Actualiza estado de CADA servicio relacionado
                 $serviceUpdater = app(RipsPatientServiceStatusUpdater::class);
@@ -311,11 +326,11 @@ class RipsCoordinatorService
             ->persistent()
             ->send();
 
+        $this->pruneOldResponses();
+
         if (app()->environment('local')) {
             Log::info("Manual submission finished. Success: {$success}, Errors: {$errors}");
         }
-
-        // 👉 NO limpiar sesión aquí. La limpieza se hace una sola vez al final de submitFromSelection()
     }
 
     /**
@@ -406,5 +421,90 @@ class RipsCoordinatorService
             Log::info('Finished submission for selected RIPS documents.');
         }
     }
+
+    /**
+     * Interpreta el estado real y extrae el CUV si viene en RVG02 / RVG18.
+     *
+     * Reglas:
+     * - Por defecto usa ResultState: true=accepted, false=rejected, null=pending
+     * - Si aparece RVG02 ("ya fue procesado") o RVG18 ("CUV ya aprobado"):
+     *   forzamos accepted (aunque ResultState sea false).
+     * - CUV:
+     *   - RVG18.Observaciones suele traer el CUV "limpio"
+     *   - RVG02.Observaciones trae el CUV tras "Codigo CUV Registrado: ..."
+     */
+    private function parseStatusAndCuv(array $response): array
+    {
+        $status = 'pending';
+        $cuv    = null;
+
+        $resp = $response['response'] ?? null;
+        if (!is_array($resp)) {
+            return ['status' => $status, 'cuv' => $cuv];
+        }
+
+        // Base por ResultState
+        if (array_key_exists('ResultState', $resp)) {
+            $status = ($resp['ResultState'] === true) ? 'accepted' : 'rejected';
+        }
+
+        $valids = $resp['ResultadosValidacion'] ?? [];
+        foreach ($valids as $item) {
+            $codigo = strtoupper((string)($item['Codigo'] ?? ''));
+            $obs    = (string)($item['Observaciones'] ?? '');
+
+            // Si ya fue presentado / CUV ya aprobado => tratar como accepted
+            if ($codigo === 'RVG02' || $codigo === 'RVG18') {
+                $status = 'accepted';
+            }
+
+            // Extraer CUV
+            if ($codigo === 'RVG18' && $obs) {
+                $clean = trim($obs);
+                if (preg_match('/^[0-9a-f]{64}$/i', $clean)) {
+                    $cuv = $clean;
+                }
+            }
+
+            if (!$cuv && $codigo === 'RVG02' && $obs) {
+                if (preg_match('/Codigo CUV Registrado:\s*([0-9a-f]{64})/i', $obs, $m)) {
+                    $cuv = $m[1] ?? null;
+                }
+            }
+        }
+
+        return ['status' => $status, 'cuv' => $cuv];
+    }
+
+    private function pruneOldResponses(): void
+    {
+        try {
+            $disk = \Illuminate\Support\Facades\Storage::disk('public');
+            $dir  = 'respuestas';
+
+            if (! $disk->exists($dir)) {
+                return;
+            }
+
+            $cutoff = now()->subDays(self::RESPONSES_RETENTION_DAYS)->getTimestamp();
+            foreach ($disk->files($dir) as $file) {
+                // Evita tocar otros archivos fuera del patrón si quieres
+                if (! str_ends_with($file, '.json')) {
+                    continue;
+                }
+
+                $lastMod = $disk->lastModified($file); // timestamp
+                if ($lastMod !== false && $lastMod < $cutoff) {
+                    $disk->delete($file);
+                }
+            }
+        } catch (\Throwable $e) {
+            // Silencioso a propósito para no interrumpir envíos
+            Log::warning('No se pudo podar respuestas RIPS antiguas', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
 }
 // se arreglan esados
