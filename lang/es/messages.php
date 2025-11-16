@@ -3207,8 +3207,8 @@ return [
             'xml_path' => 'Archivo XML',
         ],
         'payer' => [
-            'title' => 'Convenio RIPS',
-            'title_plural' => 'Convenios RIPS',
+            'title' => 'Entidad Responsable',
+            'title_plural' => 'Entidades Responsables',
             'tenant_id' => 'Código de la Entidad',
             'type_id' => 'Tipo de Entidad',
             'name' => 'Nombre del Pagador',

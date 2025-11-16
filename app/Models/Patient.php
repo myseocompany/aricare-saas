@@ -77,6 +77,8 @@ class Patient extends Model implements HasMedia
         'affiliate_number',
         'document_type',
         'type_id',
+        'rips_payer_id',
+        'rips_tenant_payer_agreement_id',
         'sex_code',
         'rips_country_id',
         'rips_department_id',
@@ -132,6 +134,8 @@ class Patient extends Model implements HasMedia
         'ethnicity_id' => 'integer',
         'education_level_id' => 'integer',
         'rda_occupation_id' => 'integer',
+        'rips_payer_id' => 'integer',
+        'rips_tenant_payer_agreement_id' => 'integer',
     ];
 
     protected static function boot()
@@ -399,6 +403,16 @@ return self::with('user')
     public function ripsMunicipality()
     {
         return $this->belongsTo(\App\Models\Rips\RipsMunicipality::class);
+    }
+
+    public function ripsPayer(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsPayer::class);
+    }
+
+    public function ripsTenantPayerAgreement(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\Rips\RipsTenantPayerAgreement::class);
     }
 
     public function ripsCountry()
