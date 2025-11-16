@@ -65,7 +65,7 @@ class DoctorPatientRelationTable extends Component implements HasTable, HasForms
                     ->html()
                     ->color('primary')
                     ->weight(FontWeight::SemiBold)
-                    ->description(fn($record) => $record->patient->patientUser->email ?? __('messages.common.n/a'))
+                    ->description(fn($record) => $record->patient->email_for_display ?? __('messages.common.n/a'))
                     ->searchable(['first_name', 'last_name']),
                 PhoneColumn::make('phone')
                     ->label(__('messages.user.phone'))

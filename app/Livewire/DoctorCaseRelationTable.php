@@ -70,7 +70,7 @@ class DoctorCaseRelationTable extends Component implements HasTable, HasForms
                     ->html()
                     ->color('primary')
                     ->weight(FontWeight::SemiBold)
-                    ->description(fn($record) => $record->patient->patientUser->email ?? __('messages.common.n/a'))
+                    ->description(fn($record) => $record->patient->email_for_display ?? __('messages.common.n/a'))
                     ->searchable(['users.first_name', 'users.last_name']),
                 TextColumn::make('date')
                     ->label(__('messages.case.date'))

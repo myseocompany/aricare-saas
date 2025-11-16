@@ -93,7 +93,7 @@ class FormTable
                         class="text-sm font-semibold text-custom-600 dark:text-custom-400 hover:underline hoverLink transition" style="--c-400:var(--primary-400);--c-600:var(--primary-600);">
                             ' . e($record->patient->patientUser->full_name) . '
                         </a>
-                        <span class="text-xs text-gray-400">' . e($record->patient->patientUser->email ?? __('messages.common.n/a')) . '</span>
+                        <span class="text-xs text-gray-400">' . e($record->patient->email_for_display ?? __('messages.common.n/a')) . '</span>
                     </div>
                 ')
                 ->searchable(['users.first_name', 'users.last_name']),
@@ -350,7 +350,6 @@ Tables\Columns\TextColumn::make('service_datetime')
 
     }
 }
-
 
 
 

@@ -404,7 +404,7 @@ class RipsGeneratorService
             'tipoDocumentoIdentificacion' => $patient->patientUser->ripsIdentificationType->code ?? '',
             'numDocumentoIdentificacion' => $patient->patientUser->rips_identification_number ?? '',
             'tipoUsuario' => str_pad((string) ($patient->ripsUserType->id ?? ''), 2, '0', STR_PAD_LEFT),
-            'fechaNacimiento' => $this->ymd($patient->birth_date),
+            'fechaNacimiento' => $this->ymd($patient->patientUser->dob),
             'codSexo' => $patient->patientUser->ripsGenderType->code ?? '',
             'codPaisResidencia' => (string) ($patient->residenceCountry->code ?? ''),
             'codMunicipioResidencia' => str_pad((string) ($patient->ripsMunicipality->code ?? ''), 5, '0', STR_PAD_LEFT),

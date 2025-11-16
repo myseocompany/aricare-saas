@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Address;
 use App\Models\Patient;
 use App\Models\Department;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use App\Models\Notification;
 use App\Models\Receptionist;
@@ -50,9 +51,109 @@ class PatientRepository extends BaseRepository
         return Patient::class;
     }
 
+    /**
+     * Merge nested relation payloads (e.g. Filament relationship inputs) into the root array.
+     */
+    protected function normalizeInput(array $input): array
+    {
+        if (isset($input['user']) && is_array($input['user'])) {
+            $input = array_merge($input, $input['user']);
+            unset($input['user']);
+        }
+
+        foreach ($input as $key => $value) {
+            if (is_string($key) && str_starts_with($key, 'user.')) {
+                $attribute = substr($key, 5);
+                $input[$attribute] = $value;
+                unset($input[$key]);
+            }
+        }
+
+        if (! array_key_exists('gender', $input)) {
+            $requestPayloads = [
+                request()->input('user'),
+                data_get(request()->all(), 'data.user'),
+                data_get(request()->all(), 'serverMemo.data.data.user'),
+                data_get(request()->all(), 'serverMemo.data.state.user'),
+            ];
+
+            foreach ($requestPayloads as $payload) {
+                if (is_array($payload) && ! empty($payload)) {
+                    foreach ($payload as $key => $value) {
+                        if (! array_key_exists($key, $input)) {
+                            $input[$key] = $value;
+                        }
+                    }
+                }
+            }
+
+            if (! array_key_exists('gender', $input)) {
+                $flattened = Arr::dot(request()->all());
+                foreach ($flattened as $key => $value) {
+                    if (! is_string($key) || $value === null) {
+                        continue;
+                    }
+                    $pos = strpos($key, 'user.');
+                    if ($pos === false) {
+                        continue;
+                    }
+                    $attribute = substr($key, $pos + 5);
+                    if ($attribute === '' || str_contains($attribute, '.')) {
+                        continue;
+                    }
+                    if (! array_key_exists($attribute, $input)) {
+                        $input[$attribute] = $value;
+                    }
+                }
+            }
+
+            if (! array_key_exists('gender', $input)) {
+                $components = request()->input('components', []);
+                foreach ($components as $component) {
+                    if (! isset($component['snapshot'])) {
+                        continue;
+                    }
+
+                    $snapshot = json_decode($component['snapshot'], true);
+                    if (json_last_error() !== JSON_ERROR_NONE || ! is_array($snapshot)) {
+                        continue;
+                    }
+
+                    $dataEntries = data_get($snapshot, 'data.data', []);
+                    foreach ($dataEntries as $entry) {
+                        if (! isset($entry['user']) || ! is_array($entry['user'])) {
+                            continue;
+                        }
+                        foreach ($entry['user'] as $userEntry) {
+                            if (! is_array($userEntry)) {
+                                continue;
+                            }
+                            foreach ($userEntry as $key => $value) {
+                                if (! array_key_exists($key, $input)) {
+                                    $input[$key] = $value;
+                                }
+                            }
+                            break 2;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $input;
+    }
+
+    protected function generateInternalEmail(?string $tenantId = null): string
+    {
+        $tenantSegment = $tenantId ? Str::slug($tenantId) : 'app';
+
+        return sprintf('patient_%s_%s@patients.local', $tenantSegment, Str::uuid());
+    }
+
     public function store(array $input, bool $mail = true)
 {
     try {
+        $input = $this->normalizeInput($input);
         // Department por defecto para pacientes
         $departmentId = Department::where('name', 'Patient')->value('id') ?? 3;
 
@@ -66,7 +167,7 @@ class PatientRepository extends BaseRepository
         }
 
         if (empty($input['email'])) {
-            $input['email'] = 'paciente_' . uniqid() . '@fakeemail.local';
+            $input['email'] = $this->generateInternalEmail($tenantId);
         }
 
         // Idioma por defecto
@@ -75,6 +176,12 @@ class PatientRepository extends BaseRepository
         }
 
         $tenantId = $input['tenant_id'] ?? getLoggedInUser()?->tenant_id;
+
+        $dob = null;
+        if (!empty($rawDob = $input['dob'] ?? $input['birth_date'] ?? null)) {
+            $dob = Carbon::parse($rawDob)->format('Y-m-d');
+        }
+        //dd($input);
 
         // ==========================
         // 1️⃣ Datos para USERS
@@ -91,6 +198,7 @@ class PatientRepository extends BaseRepository
             'language'                    => $input['language'] ?? 'es',
             'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
             'rips_identification_number'  => $input['rips_identification_number'] ?? null,
+            'dob'                         => $dob,
         ];
 
         $user = User::create($userData);
@@ -121,14 +229,12 @@ class PatientRepository extends BaseRepository
             'affiliate_number'    => $input['affiliate_number'] ?? null,
             'template_id'         => $input['template_id'] ?? null,
             'type_id'              => $input['type_id'] ?? null,
-            'birth_date'           => !empty($input['birth_date'])
-            ? \Carbon\Carbon::parse($input['birth_date'])->format('Y-m-d')
-            : null,
             'rips_country_id'      => $input['rips_country_id'] ?? null,
             'rips_department_id'   => $input['rips_department_id'] ?? null,
             'rips_municipality_id' => $input['rips_municipality_id'] ?? null,
             'zone_code'            => $input['zone_code'] ?? null,
             'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
+            'contact_email'       => $input['contact_email'] ?? null,
         ];
 
         $patient = Patient::create($patientData);
@@ -152,7 +258,7 @@ class PatientRepository extends BaseRepository
         ]);
         $user->assignRole($departmentId);
 
-        return $user;
+        return $patient;
 
     } catch (Exception $e) {
         \Log::error('Excepción al crear paciente', ['exception' => $e]);
@@ -164,6 +270,10 @@ class PatientRepository extends BaseRepository
     public function store2(array $input, bool $mail = true)
     {
         try {
+            $input = $this->normalizeInput($input);
+            $rawDob = $input['dob'] ?? $input['birth_date'] ?? null;
+            $input['dob'] = !empty($rawDob) ? Carbon::parse($rawDob)->format('Y-m-d') : null;
+
             // $input['phone'] = preparePhoneNumber($input, 'phone');
             //$input['department_id'] = Department::whereName('Patient')->first()->id;
             $input['department_id'] = Department::where('name', 'Patient')->value('id') ?? 3;
@@ -182,8 +292,7 @@ class PatientRepository extends BaseRepository
                 $input['password'] = Hash::make($input['password']);
             }
             if (!isset($input['email']) || empty($input['email'])) {
-                // Generar un email falso único (puedes usar uuid o número aleatorio)
-                $input['email'] = 'paciente_' . uniqid() . '@fakeemail.local';
+                $input['email'] = $this->generateInternalEmail($input['tenant_id'] ?? null);
             }
 
 
@@ -228,9 +337,6 @@ class PatientRepository extends BaseRepository
                 // Ya existentes:
                 'rips_identification_number' => $input['rips_identification_number'] ?? null,
                 'type_id' => $input['type_id'] ?? null,
-                'birth_date'           => !empty($input['birth_date'])
-                ? \Carbon\Carbon::parse($input['birth_date'])->format('Y-m-d')
-                : null,
                 //'sex_code' => Gender::from((int) $input['gender'])->sexCode(),
                 //'gender' => $input['gender'] ?? null,
                 //'rips_identification_type_id' => $input['rips_identification_type_id'] ?? null,
@@ -240,6 +346,7 @@ class PatientRepository extends BaseRepository
                 'rips_municipality_id' => $input['rips_municipality_id'] ?? null,
                 'zone_code' => $input['zone_code'] ?? null,
                 'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
+                'contact_email' => $input['contact_email'] ?? null,
                 
             ];
             
@@ -303,6 +410,7 @@ class PatientRepository extends BaseRepository
     public function update2($patient, $input)
     {
         try {
+            $input = $this->normalizeInput($input);
             unset($input['password']);
             $jsonFields = [];
 
@@ -316,7 +424,11 @@ class PatientRepository extends BaseRepository
             /** @var Patient $patient */
             $input['custom_field'] = !empty($jsonFields) ? $jsonFields : null;
             // $input['phone'] = preparePhoneNumber($input, 'phone');
-            $input['dob'] = (!empty($input['dob'])) ? $input['dob'] : null;
+            if (!empty($rawDob = $input['dob'] ?? $input['birth_date'] ?? null)) {
+                $input['dob'] = Carbon::parse($rawDob)->format('Y-m-d');
+            } else {
+                $input['dob'] = null;
+            }
             $patient->user->update($input);
             $patient->update($input);
 
@@ -346,6 +458,7 @@ class PatientRepository extends BaseRepository
     public function update($patient, $input)
 {
     try {
+        $input = $this->normalizeInput($input);
         unset($input['password']); // No actualizar password aquí
 
         // ==========================
@@ -361,6 +474,12 @@ class PatientRepository extends BaseRepository
         /** @var User $user */
         $user = User::findOrFail($patient->user_id);
 
+        $dob = $user->dob;
+        if (array_key_exists('dob', $input) || array_key_exists('birth_date', $input)) {
+            $rawDob = $input['dob'] ?? $input['birth_date'] ?? null;
+            $dob = !empty($rawDob) ? Carbon::parse($rawDob)->format('Y-m-d') : null;
+        }
+
         // ==========================
         // 2️⃣ Datos para USERS
         // ==========================
@@ -374,6 +493,7 @@ class PatientRepository extends BaseRepository
             'language'                    => $input['language'] ?? $user->language,
             'rips_identification_type_id' => $input['rips_identification_type_id'] ?? $user->rips_identification_type_id,
             'rips_identification_number'  => $input['rips_identification_number'] ?? $user->rips_identification_number,
+            'dob'                         => $dob,
         ];
         $user->update($userData);
 
@@ -386,14 +506,12 @@ class PatientRepository extends BaseRepository
             'affiliate_number'    => $input['affiliate_number'] ?? $patient->affiliate_number,
             'template_id'         => $input['template_id'] ?? $patient->template_id,
             'type_id'              => $input['type_id'] ?? $patient->type_id,
-            'birth_date'           => array_key_exists('birth_date', $input) && !empty($input['birth_date'])
-            ? \Carbon\Carbon::parse($input['birth_date'])->format('Y-m-d')
-            : $patient->birth_date,
             'rips_country_id'      => $input['rips_country_id'] ?? $patient->rips_country_id,
             'rips_department_id'   => $input['rips_department_id'] ?? $patient->rips_department_id,
             'rips_municipality_id' => $input['rips_municipality_id'] ?? $patient->rips_municipality_id,
             'zone_code'            => $input['zone_code'] ?? $patient->zone_code,
             'country_of_origin_id' => $input['country_of_origin_id'] ?? $patient->country_of_origin_id,
+            'contact_email'        => array_key_exists('contact_email', $input) ? $input['contact_email'] : $patient->contact_email,
         ];
         $patient->update($patientData);
 

@@ -265,12 +265,12 @@ class AppointmentTransactionRepository extends BaseRepository
         $data = [
             'payment_options' => 'card,banktransfer',
             'amount' => $amount,
-            'email' => $appointment->patient->patientUser->email,
+            'email' => $appointment->patient->email_for_display,
             'tx_ref' => $reference,
             'currency' => strtoupper(getCurrentCurrency()),
             'redirect_url' => route('appointment.flutterwave.success'),
             'customer' => [
-                'email' => $appointment->patient->patientUser->email,
+                'email' => $appointment->patient->email_for_display,
             ],
             'customizations' => [
                 'title' => 'Purchase Medicine Payment',
@@ -370,12 +370,12 @@ class AppointmentTransactionRepository extends BaseRepository
         $data = [
             'payment_options' => 'card,banktransfer',
             'amount' => $amount,
-            'email' => $appointment->patient->patientUser->email,
+            'email' => $appointment->patient->email_for_display,
             'tx_ref' => $reference,
             'currency' => getCurrentCurrency(),
             'redirect_url' => route('web.appointment.flutterwave.success') . '?' . http_build_query(['appointmentId' => $appointmentId]),
             'customer' => [
-                'email' => $appointment->patient->patientUser->email,
+                'email' => $appointment->patient->email_for_display,
             ],
             'customizations' => [
                 'title' => 'Purchase Medicine Payment',

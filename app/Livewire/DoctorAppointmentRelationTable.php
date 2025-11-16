@@ -76,7 +76,7 @@ class DoctorAppointmentRelationTable extends Component implements HasTable, HasF
                     ->html()
                     ->color('primary')
                     ->weight(FontWeight::SemiBold)
-                    ->description(fn($record) => $record->patient->patientUser->email ?? __('messages.common.n/a'))
+                    ->description(fn($record) => $record->patient->email_for_display ?? __('messages.common.n/a'))
                     ->searchable(['first_name', 'last_name']),
                 SpatieMediaLibraryImageColumn::make('doctor.doctorUser.profile')
                     ->label(__('messages.role.doctor'))

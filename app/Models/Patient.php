@@ -73,7 +73,6 @@ class Patient extends Model implements HasMedia
         'affiliate_number',
         'document_type',
         'type_id',
-        'birth_date',
         'sex_code',
         'rips_country_id',
         'rips_department_id',
@@ -81,7 +80,8 @@ class Patient extends Model implements HasMedia
         'zone_code',
         'country_of_origin_id',
         'rips_identification_type_id',
-        'document_number'
+        'document_number',
+        'contact_email',
     ];
     
     const STATUS_ALL = 2;
@@ -111,7 +111,6 @@ class Patient extends Model implements HasMedia
         'id' => 'integer',
         'user_id' => 'integer',
         'custom_field' => 'array',
-        'birth_date' => 'date:Y-m-d', 
     ];
 
     /**
@@ -122,7 +121,7 @@ class Patient extends Model implements HasMedia
     public static $rules = [
         'first_name' => 'required',
         'last_name' => 'required',
-        'email' => 'required|email:filter|unique:users,email',
+        'contact_email' => 'nullable|email:filter',
         'password' => 'nullable|same:password_confirmation|min:6',
         'gender' => 'required',
         'dob' => 'nullable|date',
@@ -200,6 +199,11 @@ return self::with('user')
         return $this->hasMany(PatientCase::class, 'patient_id');
     }
 
+    public function getEmailForDisplayAttribute(): ?string
+    {
+        return $this->contact_email ?? $this->patientUser->email ?? null;
+    }
+
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class, 'patient_id');
@@ -259,7 +263,7 @@ return self::with('user')
         return [
             'id' => $this->id ?? __('messages.common.n/a'),
             'patient_name' => $this->patientUser->full_name ?? __('messages.common.n/a'),
-            'email_id' => $this->patientUser->email ?? __('messages.common.n/a'),
+            'email_id' => $this->contact_email ?? $this->patientUser->email ?? __('messages.common.n/a'),
             'phone_no' => $this->patientUser->phone ?? __('messages.common.n/a'),
             'blood_group' => $this->patientUser->blood_group ?? __('messages.common.n/a'),
         ];

@@ -62,8 +62,12 @@ class FormService
                         ->createOptionForm(PatientForm::schema())
                         ->createOptionUsing(function (array $data) {
                             $data['tenant_id'] = auth()->user()->tenant_id;
-                            $user = app(\App\Repositories\PatientRepository::class)->store($data, false);
-                            return $user->owner_id;
+                            if (isset($data['user']) && is_array($data['user'])) {
+                                $data = array_merge($data, $data['user']);
+                                unset($data['user']);
+                            }
+                            $patient = app(\App\Repositories\PatientRepository::class)->store($data, false);
+                            return $patient->id;
 
                         })
                         ->required(),

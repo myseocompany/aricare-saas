@@ -243,10 +243,10 @@
                                     <td>{{ $patient->patientUser->full_name }}</td>
                                 </tr>
                             @endif
-                            @if (!empty($patient->patientUser->email) && $patient->SmartCardTemplate->show_email == true)
+                            @if (!empty($patient->email_for_display) && $patient->SmartCardTemplate->show_email == true)
                                 <tr id="patientEmail" class="lh-1">
                                     <td>{{ __('auth.email') }}:</td>
-                                    <td class="word-break">{{ $patient->patientUser->email }}</td>
+                                    <td class="word-break">{{ $patient->email_for_display }}</td>
                                 </tr>
                             @endif
                             @if (!empty($patient->patientUser->phone) && $patient->SmartCardTemplate->show_phone == true)

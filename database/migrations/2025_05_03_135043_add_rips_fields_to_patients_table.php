@@ -59,7 +59,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('patients', function (Blueprint $table) {
-            $table->dropColumn([
+            $columns = [
                 'document_type',
                 'document_number',
                 'type_id',
@@ -69,9 +69,14 @@ return new class extends Migration
                 'municipality_code',
                 'zone_code',
                 'country_of_origin',
-            ]);
+            ];
+
+            foreach ($columns as $column) {
+                if (Schema::hasColumn('patients', $column)) {
+                    $table->dropColumn($column);
+                }
+            }
         });
     }
     
 };
-

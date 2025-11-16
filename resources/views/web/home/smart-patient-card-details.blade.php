@@ -50,9 +50,9 @@
                                     <p>
                                         <span class="card-text fs-6 text-success">
                                             <i class="fa-solid fa-envelope me-1"></i>
-                                            <a href="mailto:{{ $data->patientUser->email }}"
+                                            <a href="mailto:{{ $data->email_for_display }}"
                                                 class="text-success text-decoration-none fs-5">
-                                                {{ $data->patientUser->email }}
+                                                {{ $data->email_for_display }}
                                             </a>
                                         </span>
                                     </p>

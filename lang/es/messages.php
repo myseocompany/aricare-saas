@@ -217,8 +217,8 @@ return [
 
     //user keys
     'user' => [
-        'first_name' => 'Nombre',
-        'last_name' => 'Apellido',
+        'first_name' => 'Nombres',
+        'last_name' => 'Apellidos',
         'name' => 'Nombre',
         'email' => 'Correo electrónico',
         'phone' => 'Teléfono',

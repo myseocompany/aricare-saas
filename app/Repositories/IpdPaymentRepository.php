@@ -129,7 +129,7 @@ class IpdPaymentRepository extends BaseRepository
         try {
             $session = Session::create([
                 'payment_method_types' => ['card'],
-                'customer_email' => $ipdPatientDepartment->patient->patientUser->email,
+                'customer_email' => $ipdPatientDepartment->patient->email_for_display,
                 'line_items' => [
                     [
                         'price_data' => [

@@ -64,7 +64,7 @@ class AppointmentTransactionController extends AppBaseController
 
             $session = Session::create([
                 'payment_method_types' => ['card'],
-                'customer_email' => $appointment->patient->patientUser->email,
+                'customer_email' => $appointment->patient->email_for_display,
                 'line_items' => [
                     [
                         'price_data' => [
@@ -305,7 +305,7 @@ class AppointmentTransactionController extends AppBaseController
 
         $session = Session::create([
             'payment_method_types' => ['card'],
-            'customer_email' => $appointment->patient->patientUser->email,
+            'customer_email' => $appointment->patient->email_for_display,
             'line_items' => [
                 [
                     'price_data' => [

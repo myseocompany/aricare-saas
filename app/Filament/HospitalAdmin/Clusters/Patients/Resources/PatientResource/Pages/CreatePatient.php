@@ -32,6 +32,16 @@ class CreatePatient extends CreateRecord
 
     protected function handleRecordCreation(array $input): Model
     {
+        $state = $this->form->getState();
+        if (! isset($input['user']) && isset($state['user'])) {
+            $input['user'] = $state['user'];
+        }
+
+        if (isset($input['user']) && is_array($input['user'])) {
+            $input = array_merge($input, $input['user']);
+            unset($input['user']);
+        }
+
         // Asegura campos necesarios para crear el User
         $input['email'] = $input['email'] ?? 'paciente_' . uniqid() . '@aricare.co';
         $input['password'] = $input['password'] ?? 'PacienteTemp123!';
@@ -47,6 +57,7 @@ class CreatePatient extends CreateRecord
         // fallback al tenant si no lo tiene (por si lo pierdes en tests)
         $input['tenant_id'] = $input['tenant_id'] ?? getLoggedInUser()?->tenant_id;
     
+
         // Intenta crear
         $record = app(PatientRepository::class)->store($input);
     
@@ -54,11 +65,15 @@ class CreatePatient extends CreateRecord
             throw new \RuntimeException('Error creando el paciente');
         }
     
-        app(PatientRepository::class)->createNotification($input);
+        $record->loadMissing('user');
+
+        app(PatientRepository::class)->createNotification([
+            'first_name' => data_get($record->user, 'first_name', data_get($input, 'first_name', '')),
+            'last_name'  => data_get($record->user, 'last_name', data_get($input, 'last_name', '')),
+        ]);
+        
         return $record;
     }
-    
-    
 
     protected function getCreatedNotificationTitle(): ?string
     {

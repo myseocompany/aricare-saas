@@ -23,6 +23,10 @@ class PatientForm
     public static function schema(): array
     {
         $genderOptions = RipsGenderType::pluck('name', 'id')->toArray();
+        $defaultIdentificationType = RipsIdentificationType::value('id');
+        $defaultGender = RipsGenderType::value('id');
+        $defaultUserType = RipsUserType::value('id');
+        $defaultCountry = RipsCountry::where('name', 'Colombia')->value('id') ?? RipsCountry::value('id');
 
         return [
             Section::make()->schema([
@@ -30,37 +34,51 @@ class PatientForm
                 Group::make()
                     ->relationship('user')
                         ->schema([
-                            Select::make('rips_identification_type_id')
-                                ->label('Tipo de documento (RIPS)')
-                                ->options(RipsIdentificationType::pluck('name', 'id'))
-                                ->required()
-                                ->native(false)
-                                ->searchable()
-                                ->preload()
-                                ->placeholder('Seleccione tipo de documento'),
-
-                            TextInput::make('rips_identification_number')
-                                ->label(__('messages.patient.document_number') . ':')
-                                ->required()
-                                ->maxLength(15),
-
                             TextInput::make('first_name')
                                 ->required()
                                 ->label(__('messages.user.first_name') . ':')
-                                ->maxLength(255),
+                                ->maxLength(255)
+                                ->default('Paciente Demo'),
 
                             TextInput::make('last_name')
                                 ->required()
                                 ->label(__('messages.user.last_name') . ':')
-                                ->maxLength(255),
+                                ->maxLength(255)
+                                ->default('Prueba'),
 
                             Radio::make('gender')
                                 ->label(__('messages.user.gender') . ':')
                                 ->required()
                                 ->options($genderOptions)
-                                ->columns(count($genderOptions)),
+                                ->columns(count($genderOptions))
+                                ->default($defaultGender),
+                                
+                            Select::make('rips_identification_type_id')
+                                ->label('Tipo de documento')
+                                ->options(RipsIdentificationType::pluck('name', 'id'))
+                                ->required()
+                                ->native(false)
+                                ->searchable()
+                                ->preload()
+                                ->placeholder('Seleccione tipo de documento')
+                                ->default($defaultIdentificationType),
+
+                            TextInput::make('rips_identification_number')
+                                ->label(__('messages.patient.document_number') . ':')
+                                ->required()
+                                ->maxLength(15)
+                                ->default(fn () => '900' . random_int(100000, 999999)),
+
+
+
+                            DatePicker::make('dob')
+                                ->label(__('messages.user.dob') . ':')
+                                ->native(true)
+                                ->maxDate(now())
+                                ->closeOnDateSelection()
+                                ->default(now()->subYears(30)),
                         ])
-                    ->columns(2),
+                    ->columns(3),
 
                 // Campos que están en patients.*
                 Select::make('type_id')
@@ -69,6 +87,7 @@ class PatientForm
                     ->required()
                     ->native(false)
                     ->searchable()
+                    ->default($defaultUserType)
                     ->preload(),
 
                 Select::make('country_of_origin_id')
@@ -77,24 +96,24 @@ class PatientForm
                     ->required()
                     ->native(false)
                     ->searchable()
-                    ->default(fn () => RipsCountry::where('name', 'Colombia')->value('id'))
+                    ->default($defaultCountry)
                     ->preload()
                     ->placeholder('Seleccione país de origen'),
 
-                // FECHA DE NACIMIENTO en patients.birth_date
-                DatePicker::make('birth_date')
-                    ->label(__('messages.user.dob') . ':')
-                    ->native(true)
-                    ->maxDate(now())
-                    ->closeOnDateSelection(),
-            ])->columns(2),
+                TextInput::make('contact_email')
+                    ->label(__('messages.user.email') . ':')
+                    ->email()
+                    ->maxLength(255)
+                    ->placeholder('correo@paciente.com'),
+
+            ])->columns(1),
 
             Fieldset::make('Detalles de residencia')->schema([
                 Group::make()->schema([
                     Select::make('rips_country_id')
                         ->label(__('messages.patient.residence_country') . ':')
                         ->options(RipsCountry::pluck('name', 'id'))
-                        ->default(fn () => RipsCountry::where('name', 'Colombia')->value('id'))
+                        ->default($defaultCountry)
                         ->required()
                         ->searchable()
                         ->live()
@@ -107,6 +126,11 @@ class PatientForm
                             return RipsDepartment::where('rips_country_id', $get('rips_country_id'))
                                 ->orderBy('name')
                                 ->pluck('name', 'id');
+                        })
+                        ->default(function () use ($defaultCountry) {
+                            return RipsDepartment::where('rips_country_id', $defaultCountry)
+                                ->orderBy('name')
+                                ->value('id');
                         })
                         ->required()
                         ->searchable()
@@ -122,6 +146,19 @@ class PatientForm
                             return RipsMunicipality::where('rips_department_id', $get('rips_department_id'))
                                 ->orderBy('name')
                                 ->pluck('name', 'id');
+                        })
+                        ->default(function () use ($defaultCountry) {
+                            $departmentId = RipsDepartment::where('rips_country_id', $defaultCountry)
+                                ->orderBy('name')
+                                ->value('id');
+
+                            if (! $departmentId) {
+                                return null;
+                            }
+
+                            return RipsMunicipality::where('rips_department_id', $departmentId)
+                                ->orderBy('name')
+                                ->value('id');
                         })
                         ->required()
                         ->searchable(),

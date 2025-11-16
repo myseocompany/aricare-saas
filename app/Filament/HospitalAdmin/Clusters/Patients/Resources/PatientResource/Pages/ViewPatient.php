@@ -62,13 +62,20 @@ class ViewPatient extends ViewRecord
                             ->extraAttributes(['class' => 'font-black'])
                             ->color('primary')
                             ->columnSpan(1),
-                        TextEntry::make('user.email')
+                        TextEntry::make('email_for_display')
                             ->label('')
                             ->icon('fas-envelope')
                             ->formatStateUsing(function ($state, $record) {
-                                if (auth()->user()->hasRole('Patient')) {
-                                    return $state;
+                                $value = $state ?? __('messages.common.n/a');
+
+                                if (empty($state)) {
+                                    return $value;
                                 }
+
+                                if (auth()->user()->hasRole('Patient')) {
+                                    return $value;
+                                }
+
                                 return "<a href='mailto:{$state}'>{$state}</a>";
                             })
                             ->html()

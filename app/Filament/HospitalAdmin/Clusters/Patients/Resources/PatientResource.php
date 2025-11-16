@@ -228,8 +228,8 @@ class PatientResource extends Resource
                     }
                     return $record->user->full_name;
                 })
-                ->description(fn($record) => $record->user->email)
-                ->searchable(['first_name', 'last_name', 'email']),
+                ->description(fn($record) => $record->email_for_display ?? __('messages.common.n/a'))
+                ->searchable(['user.first_name', 'user.last_name', 'contact_email']),
                 
                 TextColumn::make('originCountry.name')
                     ->label('País de Origen')

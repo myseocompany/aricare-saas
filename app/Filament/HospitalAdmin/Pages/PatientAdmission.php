@@ -76,7 +76,7 @@ class PatientAdmission extends Page implements HasTable, HasForms
                     ->html()
                     ->formatStateUsing(fn($record) => '<a href="' . PatientResource::getUrl('view', ['record' => $record->patient->id]) . '"class="hoverLink">' . $record->patient->user->full_name . '</a>')
                     ->color('primary')
-                    ->description(fn($record) => $record->patient->patientUser->email ?? __('messages.common.n/a'))
+                    ->description(fn($record) => $record->patient->email_for_display ?? __('messages.common.n/a'))
                     ->searchable(['users.first_name', 'users.last_name']),
                 SpatieMediaLibraryImageColumn::make('doctor.doctorUser.profile')
                     ->label(__('messages.patient_admission.doctor'))
