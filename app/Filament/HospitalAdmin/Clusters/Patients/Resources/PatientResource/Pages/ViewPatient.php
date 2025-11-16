@@ -4,6 +4,7 @@ namespace App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Enums\MaritalStatus;
 use Filament\Actions;
 use App\Models\Patient;
 use Filament\Infolists\Infolist;
@@ -141,11 +142,45 @@ class ViewPatient extends ViewRecord
                             TextEntry::make('ripsCountry.name')
                                 ->label('País de residencia:')
                                 ->getStateUsing(fn($record) => optional($record->ripsCountry)?->name ?? __('messages.common.n/a')),
-                                                        
+                            TextEntry::make('birth_place')
+                                ->label(__('messages.patient.birth_place') . ':')
+                                ->getStateUsing(fn($record) => $record->birth_place ?? __('messages.common.n/a')),
+                            TextEntry::make('residence_address')
+                                ->label(__('messages.patient.residence_address') . ':')
+                                ->getStateUsing(fn($record) => $record->residence_address ?? __('messages.common.n/a')),
+                            TextEntry::make('occupation')
+                                ->label(__('messages.patient.occupation') . ':')
+                                ->getStateUsing(fn($record) => $record->occupation ?? __('messages.common.n/a')),
+                            TextEntry::make('ethnicity')
+                                ->label(__('messages.patient.ethnicity') . ':')
+                                ->getStateUsing(fn($record) => $record->ethnicity ?? __('messages.common.n/a')),
+                            TextEntry::make('education_level')
+                                ->label(__('messages.patient.education_level') . ':')
+                                ->getStateUsing(fn($record) => $record->education_level ?? __('messages.common.n/a')),
+                            TextEntry::make('phone_secondary')
+                                ->label(__('messages.patient.phone_secondary') . ':')
+                                ->getStateUsing(fn($record) => $record->phone_secondary ?? __('messages.common.n/a')),
+                            TextEntry::make('marital_status_id')
+                                ->label(__('messages.patient.marital_status.label') . ':')
+                                ->getStateUsing(fn($record) => optional(MaritalStatus::tryFrom($record->marital_status_id))?->label() ?? __('messages.common.n/a')),
+                            TextEntry::make('responsible_name')
+                                ->label(__('messages.patient.responsible_name') . ':')
+                                ->getStateUsing(fn($record) => $record->responsible_name ?? __('messages.common.n/a')),
+                            TextEntry::make('responsible_phone')
+                                ->label(__('messages.patient.responsible_phone') . ':')
+                                ->getStateUsing(fn($record) => $record->responsible_phone ?? __('messages.common.n/a')),
+                            TextEntry::make('responsible_relationship')
+                                ->label(__('messages.patient.responsible_relationship') . ':')
+                                ->getStateUsing(fn($record) => $record->responsible_relationship ?? __('messages.common.n/a')),
+                            TextEntry::make('emergency_contact_name')
+                                ->label(__('messages.patient.emergency_contact_name') . ':')
+                                ->getStateUsing(fn($record) => $record->emergency_contact_name ?? __('messages.common.n/a')),
+                            TextEntry::make('emergency_contact_phone')
+                                ->label(__('messages.patient.emergency_contact_phone') . ':')
+                                ->getStateUsing(fn($record) => $record->emergency_contact_phone ?? __('messages.common.n/a')),
                             TextEntry::make('user.dob')
                                 ->label(__('messages.user.dob') . ':')
                                 ->getStateUsing(fn($record) => $record->user->dob ? Carbon::parse($record->user->dob)->translatedFormat('jS M, Y') : __('messages.common.n/a')),
-                            
                         ])->columns(2),
                         Tabs\Tab::make(__('messages.cases'))->schema([
                             Livewire::make(PatientCasesRelationTable::class)

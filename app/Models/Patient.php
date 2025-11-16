@@ -82,6 +82,18 @@ class Patient extends Model implements HasMedia
         'rips_identification_type_id',
         'document_number',
         'contact_email',
+        'marital_status_id',
+        'birth_place',
+        'residence_address',
+        'occupation',
+        'ethnicity',
+        'education_level',
+        'phone_secondary',
+        'responsible_name',
+        'responsible_phone',
+        'responsible_relationship',
+        'emergency_contact_name',
+        'emergency_contact_phone',
     ];
     
     const STATUS_ALL = 2;
@@ -111,6 +123,7 @@ class Patient extends Model implements HasMedia
         'id' => 'integer',
         'user_id' => 'integer',
         'custom_field' => 'array',
+        'marital_status_id' => 'integer',
     ];
 
     /**
@@ -127,6 +140,18 @@ class Patient extends Model implements HasMedia
         'dob' => 'nullable|date',
         'phone' => 'nullable|numeric',
         'image' => 'mimes:jpeg,png,jpg,gif,webp',
+        'marital_status_id' => 'nullable|integer',
+        'birth_place' => 'nullable|string|max:255',
+        'residence_address' => 'nullable|string|max:255',
+        'occupation' => 'nullable|string|max:255',
+        'ethnicity' => 'nullable|string|max:255',
+        'education_level' => 'nullable|string|max:255',
+        'phone_secondary' => 'nullable|string|max:50',
+        'responsible_name' => 'nullable|string|max:255',
+        'responsible_phone' => 'nullable|string|max:50',
+        'responsible_relationship' => 'nullable|string|max:255',
+        'emergency_contact_name' => 'nullable|string|max:255',
+        'emergency_contact_phone' => 'nullable|string|max:50',
     ];
 
     public static function getActivePatientNamesOld()

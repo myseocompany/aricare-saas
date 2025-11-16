@@ -189,6 +189,7 @@ class PatientRepository extends BaseRepository
         $userData = [
             'first_name'                  => $input['first_name'] ?? '',
             'last_name'                   => $input['last_name'] ?? '',
+            'phone'                       => $input['phone'] ?? null,
             'email'                       => $input['email'],
             'password'                    => $input['password'],
             'department_id'               => $departmentId,
@@ -235,6 +236,18 @@ class PatientRepository extends BaseRepository
             'zone_code'            => $input['zone_code'] ?? null,
             'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
             'contact_email'       => $input['contact_email'] ?? null,
+            'marital_status_id'   => $input['marital_status_id'] ?? null,
+            'birth_place'         => $input['birth_place'] ?? null,
+            'residence_address'   => $input['residence_address'] ?? null,
+            'occupation'          => $input['occupation'] ?? null,
+            'ethnicity'           => $input['ethnicity'] ?? null,
+            'education_level'     => $input['education_level'] ?? null,
+            'phone_secondary'     => $input['phone_secondary'] ?? null,
+            'responsible_name'    => $input['responsible_name'] ?? null,
+            'responsible_phone'   => $input['responsible_phone'] ?? null,
+            'responsible_relationship' => $input['responsible_relationship'] ?? null,
+            'emergency_contact_name'   => $input['emergency_contact_name'] ?? null,
+            'emergency_contact_phone'  => $input['emergency_contact_phone'] ?? null,
         ];
 
         $patient = Patient::create($patientData);
@@ -347,6 +360,18 @@ class PatientRepository extends BaseRepository
                 'zone_code' => $input['zone_code'] ?? null,
                 'country_of_origin_id' => $input['country_of_origin_id'] ?? null,
                 'contact_email' => $input['contact_email'] ?? null,
+                'marital_status_id' => $input['marital_status_id'] ?? null,
+                'birth_place' => $input['birth_place'] ?? null,
+                'residence_address' => $input['residence_address'] ?? null,
+                'occupation' => $input['occupation'] ?? null,
+                'ethnicity' => $input['ethnicity'] ?? null,
+                'education_level' => $input['education_level'] ?? null,
+                'phone_secondary' => $input['phone_secondary'] ?? null,
+                'responsible_name' => $input['responsible_name'] ?? null,
+                'responsible_phone' => $input['responsible_phone'] ?? null,
+                'responsible_relationship' => $input['responsible_relationship'] ?? null,
+                'emergency_contact_name' => $input['emergency_contact_name'] ?? null,
+                'emergency_contact_phone' => $input['emergency_contact_phone'] ?? null,
                 
             ];
             
@@ -486,6 +511,7 @@ class PatientRepository extends BaseRepository
         $userData = [
             'first_name'                  => $input['first_name'] ?? $user->first_name,
             'last_name'                   => $input['last_name'] ?? $user->last_name,
+            'phone'                       => array_key_exists('phone', $input) ? $input['phone'] : $user->phone,
             'email'                       => $input['email'] ?? $user->email,
             'gender'                      => isset($input['gender']) ? (int) $input['gender'] : $user->gender,
             'tenant_id'                   => $input['tenant_id'] ?? $user->tenant_id,
@@ -512,6 +538,18 @@ class PatientRepository extends BaseRepository
             'zone_code'            => $input['zone_code'] ?? $patient->zone_code,
             'country_of_origin_id' => $input['country_of_origin_id'] ?? $patient->country_of_origin_id,
             'contact_email'        => array_key_exists('contact_email', $input) ? $input['contact_email'] : $patient->contact_email,
+            'marital_status_id'    => array_key_exists('marital_status_id', $input) ? $input['marital_status_id'] : $patient->marital_status_id,
+            'birth_place'          => array_key_exists('birth_place', $input) ? $input['birth_place'] : $patient->birth_place,
+            'residence_address'    => array_key_exists('residence_address', $input) ? $input['residence_address'] : $patient->residence_address,
+            'occupation'           => array_key_exists('occupation', $input) ? $input['occupation'] : $patient->occupation,
+            'ethnicity'            => array_key_exists('ethnicity', $input) ? $input['ethnicity'] : $patient->ethnicity,
+            'education_level'      => array_key_exists('education_level', $input) ? $input['education_level'] : $patient->education_level,
+            'phone_secondary'      => array_key_exists('phone_secondary', $input) ? $input['phone_secondary'] : $patient->phone_secondary,
+            'responsible_name'     => array_key_exists('responsible_name', $input) ? $input['responsible_name'] : $patient->responsible_name,
+            'responsible_phone'    => array_key_exists('responsible_phone', $input) ? $input['responsible_phone'] : $patient->responsible_phone,
+            'responsible_relationship' => array_key_exists('responsible_relationship', $input) ? $input['responsible_relationship'] : $patient->responsible_relationship,
+            'emergency_contact_name'    => array_key_exists('emergency_contact_name', $input) ? $input['emergency_contact_name'] : $patient->emergency_contact_name,
+            'emergency_contact_phone'   => array_key_exists('emergency_contact_phone', $input) ? $input['emergency_contact_phone'] : $patient->emergency_contact_phone,
         ];
         $patient->update($patientData);
 
