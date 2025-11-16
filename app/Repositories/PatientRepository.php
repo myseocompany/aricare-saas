@@ -247,6 +247,9 @@ class PatientRepository extends BaseRepository
                 ? ($input['education_level_id'] === '' || $input['education_level_id'] === null ? null : (int) $input['education_level_id'])
                 : null,
             'phone_secondary'     => $input['phone_secondary'] ?? null,
+            'rips_payer_id'       => $input['rips_payer_id'] ?? null,
+            'rips_tenant_payer_agreement_id' => $input['rips_tenant_payer_agreement_id'] ?? null,
+            'phone'               => $input['phone'] ?? null,
             'responsible_name'    => $input['responsible_name'] ?? null,
             'responsible_phone'   => $input['responsible_phone'] ?? null,
             'responsible_relationship' => $input['responsible_relationship'] ?? null,

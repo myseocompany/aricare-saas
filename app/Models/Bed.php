@@ -160,7 +160,7 @@ class Bed extends Model
         return [
             'bed_name' => $this->name,
             'patient' => $this->bedAssigns[0]->patient->patientUser->full_name ?? __('messages.common.n/a'),
-            'phone' => $this->bedAssigns[0]->patient->patientUser->phone ?? __('messages.common.n/a'),
+            'phone' => $this->bedAssigns[0]->patient->phone ?? $this->bedAssigns[0]->patient->patientUser->phone ?? __('messages.common.n/a'),
             'admission_date' => date('jS M, Y h:i A', strtotime($this->bedAssigns[0]->assign_date)) ?? __('messages.common.n/a'),
             'gender' => $this->bedAssigns[0]->patient->patientUser->gender ? 'Female' : 'Male' ?? __('messages.common.n/a'),
         ];

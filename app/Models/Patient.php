@@ -88,6 +88,7 @@ class Patient extends Model implements HasMedia
         'rips_identification_type_id',
         'document_number',
         'contact_email',
+        'phone',
         'marital_status_id',
         'birth_place',
         'residence_address',
@@ -136,6 +137,7 @@ class Patient extends Model implements HasMedia
         'rda_occupation_id' => 'integer',
         'rips_payer_id' => 'integer',
         'rips_tenant_payer_agreement_id' => 'integer',
+        'phone' => 'string',
     ];
 
     protected static function boot()
@@ -320,7 +322,7 @@ return self::with('user')
         return [
             'id' => $this->id ?? __('messages.common.n/a'),
             'patient_name' => $this->patientUser->full_name ?? __('messages.common.n/a'),
-            'phone_no' => $this->patientUser->phone ?? __('messages.common.n/a'),
+            'phone_no' => $this->phone ?? $this->patientUser->phone ?? __('messages.common.n/a'),
             'patient_image' => $this->patientUser->getApiImageUrlAttribute() ?? __('messages.common.n/a'),
         ];
     }
@@ -330,7 +332,7 @@ return self::with('user')
             'id' => $this->id ?? __('messages.common.n/a'),
             'patient_name' => $this->patientUser->full_name ?? __('messages.common.n/a'),
             'email_id' => $this->contact_email ?? $this->patientUser->email ?? __('messages.common.n/a'),
-            'phone_no' => $this->patientUser->phone ?? __('messages.common.n/a'),
+            'phone_no' => $this->phone ?? $this->patientUser->phone ?? __('messages.common.n/a'),
             'blood_group' => $this->patientUser->blood_group ?? __('messages.common.n/a'),
         ];
     }

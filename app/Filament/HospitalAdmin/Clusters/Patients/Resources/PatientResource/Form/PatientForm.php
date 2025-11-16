@@ -11,6 +11,7 @@ use App\Models\Rips\RipsGenderType;
 use App\Models\Rips\RipsIdentificationType;
 use App\Models\Rips\RipsMunicipality;
 use App\Models\Rips\RipsPayer;
+use App\Models\Rips\RipsTenantPayerAgreement;
 use App\Models\Rips\RipsTerritorialZoneType;
 use App\Models\Rips\RipsUserType;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,7 @@ use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Illuminate\Database\Eloquent\Builder;
 
 class PatientForm
 {
@@ -79,30 +81,30 @@ class PatientForm
                             ->closeOnDateSelection()
                             ->default(now()->subYears(30)),
 
-                        TextInput::make('phone')
-                            ->label(__('messages.user.phone') . ':')
-                            ->tel()
-                            ->maxLength(20),
-
                     ])
                     ->columns(3),
 
                 Grid::make(3)->schema([
-                    TextInput::make('contact_email')
-                        ->label(__('messages.user.email') . ':')
-                        ->email()
-                        ->maxLength(255)
-                        ->placeholder('correo@paciente.com'),
+                    TextInput::make('phone')
+                        ->label(__('messages.user.phone') . ':')
+                        ->tel()
+                        ->maxLength(20),
 
                     TextInput::make('phone_secondary')
                         ->label(__('messages.patient.phone_secondary') . ':')
                         ->tel()
                         ->maxLength(50),
 
-                    TextInput::make('birth_place')
-                        ->label(__('messages.patient.birth_place') . ':')
-                        ->maxLength(255),
+                    TextInput::make('contact_email')
+                        ->label(__('messages.user.email') . ':')
+                        ->email()
+                        ->maxLength(255)
+                        ->placeholder('correo@paciente.com'),
                 ]),
+
+                TextInput::make('birth_place')
+                    ->label(__('messages.patient.birth_place') . ':')
+                    ->maxLength(255),
                 Grid::make(2)->schema([
                     Select::make('type_id')
                         ->label(__('messages.patient.patient_type') . ':')
@@ -157,7 +159,13 @@ class PatientForm
             Section::make('Información de aseguramiento')->schema([
                 Select::make('rips_payer_id')
                     ->label('Entidad pagadora:')
-                    ->options(fn () => RipsPayer::where('tenant_id', Auth::user()->tenant_id)->pluck('name', 'id')->toArray())
+                    ->relationship(
+                        name: 'ripsPayer',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->where('tenant_id', Auth::user()->tenant_id)
+                    )
+                    ->live()
+                    ->afterStateUpdated(fn (callable $set) => $set('rips_tenant_payer_agreement_id', null))
                     ->searchable()
                     ->preload()
                     ->native(false)
@@ -165,7 +173,13 @@ class PatientForm
 
                 Select::make('rips_tenant_payer_agreement_id')
                     ->label('Acuerdo / Contrato:')
-                    ->options([])
+                    ->relationship(
+                        name: 'ripsTenantPayerAgreement',
+                        titleAttribute: 'name',
+                        modifyQueryUsing: fn (Builder $query) => $query->where('tenant_id', Auth::user()->tenant_id)
+                    )
+                    ->searchable()
+                    ->preload()
                     ->native(false)
                     ->placeholder('Seleccione'),
             ])->columns(2),

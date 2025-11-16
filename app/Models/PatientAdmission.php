@@ -191,7 +191,7 @@ class PatientAdmission extends Model
         return [
             'bed_name' => $this->bed->name ?? __('messages.common.n/a'),
             'patient' => $this->patient->patientUser->full_name ?? __('messages.common.n/a'),
-            'phone' => $this->patient->patientUser->phone ?? __('messages.common.n/a'),
+            'phone' => $this->patient->phone ?? $this->patient->patientUser->phone ?? __('messages.common.n/a'),
             'admission_date' => date('jS M, Y h:i A', strtotime($this->assign_date)) ?? __('messages.common.n/a'),
             'gender' => $this->patient->patientUser->gender ? 'Female' : 'Male' ?? __('messages.common.n/a'),
         ];
