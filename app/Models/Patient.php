@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
-use Str;
-use Illuminate\Support\Carbon;
 use App\Traits\PopulateTenantID;
+use Illuminate\Support\Str;
+use App\Enums\Ethnicity;
+use App\Enums\EducationLevel;
+use App\Models\Rda\RdaOccupation;
+use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Validation\Rule;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Stancl\Tenancy\Database\Concerns\BelongsToTenant;
 
@@ -86,8 +90,9 @@ class Patient extends Model implements HasMedia
         'birth_place',
         'residence_address',
         'occupation',
-        'ethnicity',
-        'education_level',
+        'rda_occupation_id',
+        'ethnicity_id',
+        'education_level_id',
         'phone_secondary',
         'responsible_name',
         'responsible_phone',
@@ -124,35 +129,51 @@ class Patient extends Model implements HasMedia
         'user_id' => 'integer',
         'custom_field' => 'array',
         'marital_status_id' => 'integer',
+        'ethnicity_id' => 'integer',
+        'education_level_id' => 'integer',
+        'rda_occupation_id' => 'integer',
     ];
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::$rules = static::validationRules();
+    }
 
     /**
      * Validation rules
      *
      * @var array
      */
-    public static $rules = [
-        'first_name' => 'required',
-        'last_name' => 'required',
-        'contact_email' => 'nullable|email:filter',
-        'password' => 'nullable|same:password_confirmation|min:6',
-        'gender' => 'required',
-        'dob' => 'nullable|date',
-        'phone' => 'nullable|numeric',
-        'image' => 'mimes:jpeg,png,jpg,gif,webp',
-        'marital_status_id' => 'nullable|integer',
-        'birth_place' => 'nullable|string|max:255',
-        'residence_address' => 'nullable|string|max:255',
-        'occupation' => 'nullable|string|max:255',
-        'ethnicity' => 'nullable|string|max:255',
-        'education_level' => 'nullable|string|max:255',
-        'phone_secondary' => 'nullable|string|max:50',
-        'responsible_name' => 'nullable|string|max:255',
-        'responsible_phone' => 'nullable|string|max:50',
-        'responsible_relationship' => 'nullable|string|max:255',
-        'emergency_contact_name' => 'nullable|string|max:255',
-        'emergency_contact_phone' => 'nullable|string|max:50',
-    ];
+    public static array $rules = [];
+
+    public static function validationRules(): array
+    {
+        return [
+            'first_name' => 'required',
+            'last_name' => 'required',
+            'contact_email' => 'nullable|email:filter',
+            'password' => 'nullable|same:password_confirmation|min:6',
+            'gender' => 'required',
+            'dob' => 'nullable|date',
+            'phone' => 'nullable|numeric',
+            'image' => 'mimes:jpeg,png,jpg,gif,webp',
+            'marital_status_id' => 'nullable|integer',
+            'birth_place' => 'nullable|string|max:255',
+            'residence_address' => 'nullable|string|max:255',
+            'occupation' => 'nullable|string|max:255',
+            'rda_occupation_id' => ['nullable', 'integer', 'exists:rda_occupations,id'],
+            'ethnicity_id' => ['nullable', 'integer', Rule::in(Ethnicity::values())],
+            'education_level_id' => ['nullable', 'integer', Rule::in(EducationLevel::values())],
+            'phone_secondary' => 'nullable|string|max:50',
+            'responsible_name' => 'nullable|string|max:255',
+            'responsible_phone' => 'nullable|string|max:50',
+            'responsible_relationship' => 'nullable|string|max:255',
+            'emergency_contact_name' => 'nullable|string|max:255',
+            'emergency_contact_phone' => 'nullable|string|max:50',
+        ];
+    }
 
     public static function getActivePatientNamesOld()
     {
@@ -187,6 +208,7 @@ return self::with('user')
 }
 
 
+
     public function patientUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
@@ -200,6 +222,11 @@ return self::with('user')
     public function getDocumentTypeAttribute()
     {
         return $this->user ? $this->user->rips_identification_type_id : null;
+    }
+
+    public function rdaOccupation(): BelongsTo
+    {
+        return $this->belongsTo(RdaOccupation::class, 'rda_occupation_id');
     }
 
     /*public function getDocumentTypeNameAttribute()
@@ -217,6 +244,16 @@ return self::with('user')
     public function address(): MorphOne
     {
         return $this->morphOne(Address::class, 'owner');
+    }
+
+    public function getEthnicityLabelAttribute(): ?string
+    {
+        return Ethnicity::tryFrom((int) $this->ethnicity_id)?->label();
+    }
+
+    public function getEducationLevelLabelAttribute(): ?string
+    {
+        return EducationLevel::tryFrom((int) $this->education_level_id)?->label();
     }
 
     public function cases(): HasMany

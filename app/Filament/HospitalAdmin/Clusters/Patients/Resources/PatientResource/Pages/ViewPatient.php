@@ -151,17 +151,17 @@ class ViewPatient extends ViewRecord
                             TextEntry::make('occupation')
                                 ->label(__('messages.patient.occupation') . ':')
                                 ->getStateUsing(fn($record) => $record->occupation ?? __('messages.common.n/a')),
-                            TextEntry::make('ethnicity')
+                            TextEntry::make('ethnicity_label')
                                 ->label(__('messages.patient.ethnicity') . ':')
-                                ->getStateUsing(fn($record) => $record->ethnicity ?? __('messages.common.n/a')),
-                            TextEntry::make('education_level')
+                                ->getStateUsing(fn($record) => $record->ethnicity_label ?? __('messages.common.n/a')),
+                            TextEntry::make('education_level_label')
                                 ->label(__('messages.patient.education_level') . ':')
-                                ->getStateUsing(fn($record) => $record->education_level ?? __('messages.common.n/a')),
+                                ->getStateUsing(fn($record) => $record->education_level_label ?? __('messages.common.n/a')),
                             TextEntry::make('phone_secondary')
                                 ->label(__('messages.patient.phone_secondary') . ':')
                                 ->getStateUsing(fn($record) => $record->phone_secondary ?? __('messages.common.n/a')),
                             TextEntry::make('marital_status_id')
-                                ->label(__('messages.patient.marital_status.label') . ':')
+                                ->label(__('messages.patient.marital_status_label') . ':')
                                 ->getStateUsing(fn($record) => optional(MaritalStatus::tryFrom($record->marital_status_id))?->label() ?? __('messages.common.n/a')),
                             TextEntry::make('responsible_name')
                                 ->label(__('messages.patient.responsible_name') . ':')

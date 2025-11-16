@@ -2,6 +2,8 @@
 
 namespace App\Filament\HospitalAdmin\Clusters\Patients\Resources\PatientResource\Form;
 
+use App\Enums\EducationLevel;
+use App\Enums\Ethnicity;
 use App\Enums\MaritalStatus;
 use App\Models\Rips\RipsCountry;
 use App\Models\Rips\RipsDepartment;
@@ -11,6 +13,7 @@ use App\Models\Rips\RipsMunicipality;
 use App\Models\Rips\RipsTerritorialZoneType;
 use App\Models\Rips\RipsUserType;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Group;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
@@ -29,7 +32,6 @@ class PatientForm
 
         return [
             Section::make()->schema([
-                // Campos que están en users.*
                 Group::make()
                     ->relationship('user')
                     ->schema([
@@ -45,22 +47,6 @@ class PatientForm
                             ->maxLength(255)
                             ->default('Prueba'),
 
-                        TextInput::make('phone')
-                            ->label(__('messages.user.phone') . ':')
-                            ->tel()
-                            ->maxLength(20),
-
-                        TextInput::make('phone_secondary')
-                            ->label(__('messages.patient.phone_secondary') . ':')
-                            ->tel()
-                            ->maxLength(50),
-
-                        TextInput::make('contact_email')
-                            ->label(__('messages.user.email') . ':')
-                            ->email()
-                            ->maxLength(255)
-                            ->placeholder('correo@paciente.com'),
-                                                        
                         Radio::make('gender')
                             ->label(__('messages.user.gender') . ':')
                             ->required()
@@ -91,61 +77,80 @@ class PatientForm
                             ->closeOnDateSelection()
                             ->default(now()->subYears(30)),
 
-                                        TextInput::make('birth_place')
-                    ->label(__('messages.patient.birth_place') . ':')
-                    ->maxLength(255),
-                                        Select::make('type_id')
-                    ->label(__('messages.patient.patient_type') . ':')
-                    ->options(RipsUserType::pluck('name', 'id'))
-                    ->required()
-                    ->native(false)
-                    ->searchable()
-                    ->default($defaultUserType)
-                    ->preload(),
+                        TextInput::make('phone')
+                            ->label(__('messages.user.phone') . ':')
+                            ->tel()
+                            ->maxLength(20),
 
-                Select::make('country_of_origin_id')
-                    ->label(__('messages.patient.origin_country') . ':')
-                    ->options(RipsCountry::pluck('name', 'id'))
-                    ->required()
-                    ->native(false)
-                    ->searchable()
-                    ->default($defaultCountry)
-                    ->preload()
-                    ->placeholder('Seleccione país de origen'),
+                    TextInput::make('phone_secondary')
+                        ->label(__('messages.patient.phone_secondary') . ':')
+                        ->tel()
+                        ->maxLength(50),
+                                            TextInput::make('contact_email')
+                        ->label(__('messages.user.email') . ':')
+                        ->email()
+                        ->maxLength(255)
+                        ->placeholder('correo@paciente.com'),
+
+                                            Select::make('type_id')
+                        ->label(__('messages.patient.patient_type') . ':')
+                        ->options(RipsUserType::pluck('name', 'id'))
+                        ->required()
+                        ->native(false)
+                        ->searchable()
+                        ->default($defaultUserType)
+                        ->preload(),
+
+                                            TextInput::make('birth_place')
+                        ->label(__('messages.patient.birth_place') . ':')
+                        ->maxLength(255),
+
+
+
+                    Select::make('country_of_origin_id')
+                        ->label(__('messages.patient.origin_country') . ':')
+                        ->options(RipsCountry::pluck('name', 'id'))
+                        ->required()
+                        ->native(false)
+                        ->searchable()
+                        ->default($defaultCountry)
+                        ->preload()
+                        ->placeholder('Seleccione país de origen'),
                     ])
                     ->columns(3),
 
-                // Campos que están en patients.*
+                    
 
             ])->columns(1),
 
             Section::make(__('messages.patient.additional_information'))->schema([
                 Select::make('marital_status_id')
-                    ->label(__('messages.patient.marital_status.label') . ':')
+                    ->label(__('messages.patient.marital_status_label') . ':')
                     ->options(MaritalStatus::options())
                     ->native(false)
                     ->placeholder(__('messages.common.select')),
 
 
-
-                TextInput::make('residence_address')
-                    ->label(__('messages.patient.residence_address') . ':')
-                    ->maxLength(255),
-
-                TextInput::make('occupation')
+                Select::make('rda_occupation_id')
                     ->label(__('messages.patient.occupation') . ':')
-                    ->maxLength(255),
+                    ->relationship('rdaOccupation', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->native(false)
+                    ->placeholder(__('messages.common.select')),
 
-                TextInput::make('ethnicity')
+                Select::make('ethnicity_id')
                     ->label(__('messages.patient.ethnicity') . ':')
-                    ->maxLength(255),
+                    ->options(Ethnicity::options())
+                    ->native(false)
+                    ->placeholder(__('messages.common.select')),
 
-                TextInput::make('education_level')
+                Select::make('education_level_id')
                     ->label(__('messages.patient.education_level') . ':')
-                    ->maxLength(255),
-
-
-            ])->columns(3),
+                    ->options(EducationLevel::options())
+                    ->native(false)
+                    ->placeholder(__('messages.common.select')),
+            ])->columns(4),
 
             Section::make('Detalles de residencia')->schema([
                 Group::make()->schema([
@@ -178,9 +183,7 @@ class PatientForm
                         ->searchable()
                         ->live()
                         ->afterStateUpdated(fn (callable $set) => $set('rips_municipality_id', null)),
-                ])->columns(2),
 
-                Group::make()->schema([
                     Select::make('rips_municipality_id')
                         ->label(__('messages.patient.residence_city') . ':')
                         ->options(function (callable $get) {
@@ -208,6 +211,10 @@ class PatientForm
                         ->required()
                         ->searchable(),
 
+                                        TextInput::make('residence_address')
+                    ->label(__('messages.patient.residence_address') . ':')
+                    ->maxLength(255),
+
                     Select::make('zone_code')
                         ->label(__('messages.patient.residence_zone') . ':')
                         ->options(RipsTerritorialZoneType::pluck('name', 'id'))
@@ -216,8 +223,8 @@ class PatientForm
                         ->placeholder('Seleccione zona territorial')
                         ->native(false)
                         ->searchable(),
-                ])->columns(2),
-            ]),
+                ])->columns(5),
+            ])->columns(1),
 
             Section::make(__('messages.patient.guardian_details'))->schema([
                 TextInput::make('responsible_name')

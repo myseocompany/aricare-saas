@@ -368,6 +368,7 @@ return [
         'no_data_found' => 'No se encontraron datos',
         'is_already_exists' => 'Ya existe.',
         'close' => 'Cerca',
+        'select' => 'Seleccione'
     ],
 
     'months' => [
@@ -643,8 +644,27 @@ return [
         'occupation' => 'Ocupación',
         'ethnicity' => 'Etnia',
         'education_level' => 'Escolaridad',
+        'education_levels' => [
+            'none' => 'Ninguno',
+            'preschool' => 'Preescolar',
+            'primary' => 'Básica primaria',
+            'secondary' => 'Básica secundaria',
+            'high_school' => 'Media académica o técnica',
+            'technical' => 'Técnico laboral / Técnico profesional',
+            'technological' => 'Tecnológico',
+            'university' => 'Universitario',
+            'postgraduate' => 'Postgrado',
+        ],
         'phone_secondary' => 'Teléfono secundario',
         'additional_information' => 'Información adicional',
+        'ethnicities' => [
+            'indigenous' => 'Indígena',
+            'gitano' => 'Gitano (Rrom)',
+            'raizal' => 'Raizal (Archipiélago de San Andrés, Providencia y Santa Catalina)',
+            'palenquero' => 'Palenquero de San Basilio',
+            'afrocolombian' => 'Negro / Afrocolombiano',
+            'none' => 'Ninguno (No pertenece a grupo étnico)',
+        ],
         'guardian_details' => 'Datos del acudiente',
         'emergency_contact_details' => 'Contacto de emergencia',
         'responsible_name' => 'Nombre del responsable',
@@ -652,6 +672,7 @@ return [
         'responsible_relationship' => 'Parentesco del responsable',
         'emergency_contact_name' => 'Nombre contacto de emergencia',
         'emergency_contact_phone' => 'Teléfono contacto de emergencia',
+        'marital_status_label' => 'Estado civil',
         'marital_status' => [
             'label' => 'Estado civil',
             'single' => 'Soltero(a)',

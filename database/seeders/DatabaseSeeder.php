@@ -98,5 +98,6 @@ class DatabaseSeeder extends Seeder
         $this->call(RipsDepartmentMunicipalitySeeder::class);
         $this->call(RipsIdentificationTypeSeeder::class);
         $this->call(RipsUserTypeSeeder::class);
+        $this->call(\Database\Seeders\RdaOccupationSeeder::class);
     }
 }

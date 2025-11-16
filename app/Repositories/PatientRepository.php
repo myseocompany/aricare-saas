@@ -240,8 +240,12 @@ class PatientRepository extends BaseRepository
             'birth_place'         => $input['birth_place'] ?? null,
             'residence_address'   => $input['residence_address'] ?? null,
             'occupation'          => $input['occupation'] ?? null,
-            'ethnicity'           => $input['ethnicity'] ?? null,
-            'education_level'     => $input['education_level'] ?? null,
+            'ethnicity_id'        => array_key_exists('ethnicity_id', $input)
+                ? ($input['ethnicity_id'] === '' || $input['ethnicity_id'] === null ? null : (int) $input['ethnicity_id'])
+                : null,
+            'education_level_id'  => array_key_exists('education_level_id', $input)
+                ? ($input['education_level_id'] === '' || $input['education_level_id'] === null ? null : (int) $input['education_level_id'])
+                : null,
             'phone_secondary'     => $input['phone_secondary'] ?? null,
             'responsible_name'    => $input['responsible_name'] ?? null,
             'responsible_phone'   => $input['responsible_phone'] ?? null,
@@ -364,8 +368,8 @@ class PatientRepository extends BaseRepository
                 'birth_place' => $input['birth_place'] ?? null,
                 'residence_address' => $input['residence_address'] ?? null,
                 'occupation' => $input['occupation'] ?? null,
-                'ethnicity' => $input['ethnicity'] ?? null,
-                'education_level' => $input['education_level'] ?? null,
+                'ethnicity_id' => $input['ethnicity_id'] ?? null,
+                'education_level_id' => $input['education_level_id'] ?? null,
                 'phone_secondary' => $input['phone_secondary'] ?? null,
                 'responsible_name' => $input['responsible_name'] ?? null,
                 'responsible_phone' => $input['responsible_phone'] ?? null,
@@ -542,8 +546,12 @@ class PatientRepository extends BaseRepository
             'birth_place'          => array_key_exists('birth_place', $input) ? $input['birth_place'] : $patient->birth_place,
             'residence_address'    => array_key_exists('residence_address', $input) ? $input['residence_address'] : $patient->residence_address,
             'occupation'           => array_key_exists('occupation', $input) ? $input['occupation'] : $patient->occupation,
-            'ethnicity'            => array_key_exists('ethnicity', $input) ? $input['ethnicity'] : $patient->ethnicity,
-            'education_level'      => array_key_exists('education_level', $input) ? $input['education_level'] : $patient->education_level,
+            'ethnicity_id'         => array_key_exists('ethnicity_id', $input)
+                ? ($input['ethnicity_id'] === '' || $input['ethnicity_id'] === null ? null : (int) $input['ethnicity_id'])
+                : $patient->ethnicity_id,
+            'education_level_id'   => array_key_exists('education_level_id', $input)
+                ? ($input['education_level_id'] === '' || $input['education_level_id'] === null ? null : (int) $input['education_level_id'])
+                : $patient->education_level_id,
             'phone_secondary'      => array_key_exists('phone_secondary', $input) ? $input['phone_secondary'] : $patient->phone_secondary,
             'responsible_name'     => array_key_exists('responsible_name', $input) ? $input['responsible_name'] : $patient->responsible_name,
             'responsible_phone'    => array_key_exists('responsible_phone', $input) ? $input['responsible_phone'] : $patient->responsible_phone,
