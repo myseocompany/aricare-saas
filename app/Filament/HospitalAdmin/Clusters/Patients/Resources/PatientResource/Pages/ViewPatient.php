@@ -11,7 +11,8 @@ use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\Tabs;
 use Filament\Resources\Pages\ViewRecord;
 use App\Livewire\PatientBillRelationTable;
-use App\Livewire\PatientCasesRelationTable;
+use App\Livewire\PatientEncountersRelationTable;
+use App\Livewire\PatientBackgroundsRelationTable;
 use Filament\Infolists\Components\Livewire;
 use Filament\Infolists\Components\TextEntry;
 use App\Livewire\PatientInvoiceRelationTable;
@@ -99,7 +100,12 @@ class ViewPatient extends ViewRecord
                         ->html()->columnSpan(2),
                     TextEntry::make('id')
                         ->label('')
-                        ->formatStateUsing(fn($record) => "<span class='text-2xl font-bold text-primary-600'>" . (isset($record->cases) && $record->cases ? $record->cases->count() : '0') . "</span> <br> " . __('messages.patient.total_cases'))
+                        ->formatStateUsing(fn($record) => "<span class='text-2xl font-bold text-primary-600'>" . (isset($record->rdaEncounters) && $record->rdaEncounters ? $record->rdaEncounters->count() : '0') . "</span> <br> " . __('messages.patient.total_encounters'))
+                        ->html()->extraAttributes(['class' => 'border p-6 rounded-xl'])
+                        ->columnSpan(2),
+                    TextEntry::make('id')
+                        ->label('')
+                        ->formatStateUsing(fn($record) => "<span class='text-2xl font-bold text-primary-600'>" . (isset($record->rdaBackgrounds) && $record->rdaBackgrounds ? $record->rdaBackgrounds->count() : '0') . "</span> <br> " . __('messages.patient.total_backgrounds'))
                         ->html()->extraAttributes(['class' => 'border p-6 rounded-xl'])
                         ->columnSpan(2),
                     TextEntry::make('id')
@@ -182,8 +188,13 @@ class ViewPatient extends ViewRecord
                                 ->label(__('messages.user.dob') . ':')
                                 ->getStateUsing(fn($record) => $record->user->dob ? Carbon::parse($record->user->dob)->translatedFormat('jS M, Y') : __('messages.common.n/a')),
                         ])->columns(2),
-                        Tabs\Tab::make(__('messages.cases'))->schema([
-                            Livewire::make(PatientCasesRelationTable::class)
+                        Tabs\Tab::make(__('messages.encounters'))->schema([
+                            Livewire::make(PatientEncountersRelationTable::class)
+                                ->key('patient-encounters-table')
+                        ]),
+                        Tabs\Tab::make(__('messages.clinical_backgrounds'))->schema([
+                            Livewire::make(PatientBackgroundsRelationTable::class)
+                                ->key('patient-backgrounds-table')
                         ]),
                         /*
                         Tabs\Tab::make(__('messages.patient_admissions'))->schema([

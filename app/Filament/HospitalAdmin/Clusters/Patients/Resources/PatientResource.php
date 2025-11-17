@@ -46,7 +46,6 @@ use Filament\Pages\SubNavigationPosition;
 use Filament\Tables\Columns\ToggleColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\MultiSelect;
-use App\Livewire\PatientCasesRelationTable;
 use Filament\Infolists\Components\Livewire;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Forms\Components\BaseFileUpload;

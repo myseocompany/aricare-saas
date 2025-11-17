@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Rda\Encounter as RdaEncounter;
 use App\Traits\PopulateTenantID;
 use Eloquent as Model;
 use Illuminate\Database\Eloquent\Builder;
@@ -166,6 +167,11 @@ class Doctor extends Model implements HasMedia
     public function cases(): HasMany
     {
         return $this->hasMany(PatientCase::class, 'doctor_id');
+    }
+
+    public function rdaEncounters(): HasMany
+    {
+        return $this->hasMany(RdaEncounter::class, 'doctor_id');
     }
 
     public function patients()

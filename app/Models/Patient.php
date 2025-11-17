@@ -6,6 +6,8 @@ use App\Traits\PopulateTenantID;
 use Illuminate\Support\Str;
 use App\Enums\Ethnicity;
 use App\Enums\EducationLevel;
+use App\Models\Rda\Encounter as RdaEncounter;
+use App\Models\Rda\PatientBackground;
 use App\Models\Rda\RdaOccupation;
 use Illuminate\Support\Carbon;
 use Spatie\MediaLibrary\HasMedia;
@@ -233,6 +235,16 @@ return self::with('user')
     public function rdaOccupation(): BelongsTo
     {
         return $this->belongsTo(RdaOccupation::class, 'rda_occupation_id');
+    }
+
+    public function rdaEncounters(): HasMany
+    {
+        return $this->hasMany(RdaEncounter::class, 'patient_id');
+    }
+
+    public function rdaBackgrounds(): HasMany
+    {
+        return $this->hasMany(PatientBackground::class, 'patient_id');
     }
 
     /*public function getDocumentTypeNameAttribute()
